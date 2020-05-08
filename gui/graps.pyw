@@ -526,9 +526,7 @@ class MyMainScreen(widgets.QMainWindow):
                     for remove_item in remove_items:
                         if remove_item:
                             self.ui.scene.removeItem(remove_item)                
-                    self.block_objects[item_id] = None
-                    
-                        
+                    self.block_objects[item_id] = None                        
             else:
                 item = sel_items[0]
                 item_id = self.get_item_id(item)
