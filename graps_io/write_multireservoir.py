@@ -22,7 +22,8 @@ types = ['nwatershed', 'nnatural_flow', 'nres', 'nuser', 'nfnode',
 type_map = {"W": 1, "R": 3, "U": 4, "J": 5, "S": 12, "I": 13}
 
 
-def write_input(self, filename, gs_dict, info_dict):
+def write_input(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     items = list(self.ui.scene.items())
     # this portion goes through and counts the number of each type
     # of modeled object. The full types are listed above in `types`
@@ -103,7 +104,7 @@ def write_input(self, filename, gs_dict, info_dict):
 
     with open(filename, 'w') as f:
         f.write(f"{gs_dict['ntime_steps']}\t{gs_dict['nensembles']}\n")
-        line2_nums = [num_of_items[str(i)] for i in range(1, 14)]
+        line2_nums = [str(num_of_items[str(i)]) for i in range(1, 14)]
         line2 = "  ".join(line2_nums) + "\n"
         f.write(line2)
         for key in sorted(list(item_types.keys()), key=int):
@@ -176,7 +177,8 @@ def write_input(self, filename, gs_dict, info_dict):
                     f.write(string(key, name))
 
 
-def write_ws_details(self, filename, gs_dict, info_dict):
+def write_ws_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['1']:
             item_num = item
@@ -221,7 +223,8 @@ def write_ws_details(self, filename, gs_dict, info_dict):
             f.write(inflow_file)
 
 
-def write_link_details(self, filename, link_type, gs_dict, info_dict):
+def write_link_details(self, filename, link_type):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     link_types = {
         "nflow": "6",
         "dir_flow": "6",
@@ -254,7 +257,8 @@ def write_link_details(self, filename, link_type, gs_dict, info_dict):
             f.write(f'{min_disch}   {max_disch}\n')
 
 
-def write_res_details(self, filename, gs_dict, info_dict):
+def write_res_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['3']:
             item_num = item
@@ -352,7 +356,8 @@ def write_res_details(self, filename, gs_dict, info_dict):
             f.write('\n')
 
 
-def write_user_details(self, filename, gs_dict, info_dict):
+def write_user_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['4']:
             item_num = item
@@ -425,7 +430,6 @@ def write_user_details(self, filename, gs_dict, info_dict):
             )
 
             demand = info_dict[item_id]['demand']
-            print(demand)
             for value in demand:
                 f.write(f'{value}   ')
             f.write('\n')
@@ -485,7 +489,8 @@ def write_user_details(self, filename, gs_dict, info_dict):
                         pass
 
 
-def write_jun_details(self, filename, gs_dict, info_dict):
+def write_jun_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['5']:
             item_num = item
@@ -534,7 +539,8 @@ def write_jun_details(self, filename, gs_dict, info_dict):
                 f.write(f'{type_map[parent[0]]}  {parent[1:]}\n')
 
 
-def write_dir_flow_details(self, filename, gs_dict, info_dict):
+def write_dir_flow_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['6']:
             item_num = item
@@ -678,7 +684,8 @@ def write_demand_details(self, filename, gs_dict, info_dict):
             f.write(f'{min_disch}   {max_disch}\n')
 
 
-def write_sink_details(self, filename, gs_dict, info_dict):
+def write_sink_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['12']:
             item_num = item
@@ -715,7 +722,8 @@ def write_sink_details(self, filename, gs_dict, info_dict):
             f.write(f'{max_storage}\n')
 
 
-def write_ibasin_details(self, filename, gs_dict, info_dict):
+def write_ibasin_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
         for item in item_types['13']:
             item_num = item
@@ -754,7 +762,8 @@ def write_ibasin_details(self, filename, gs_dict, info_dict):
             f.write('\n')
 
 
-def write_dec_var_details(self, filename, gs_dict, info_dict):
+def write_dec_var_details(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     #! I STILL NEED TO UPDATE THIS FUNCTION
     with open(filename, 'w') as f:
         num = int(num_of_items['4'])

@@ -377,6 +377,8 @@ class MyMainScreen(widgets.QMainWindow):
 
     # exports files needed to run the fortran code
     def export(self):
+        if not os.path.isdir("graps_export"):
+            os.mkdir("graps_export")
         save_folder = str(widgets.QFileDialog.getExistingDirectory(
             directory="graps_export"))
         if save_folder == '':
@@ -392,40 +394,27 @@ class MyMainScreen(widgets.QMainWindow):
             write_jun_details(self, os.path.join(
                 save_folder, 'node_details.dat'))
             write_link_details(self, os.path.join(
-                save_folder, 'nflow_details.dat', "nflow"))
+                save_folder, 'nflow_details.dat'), "nflow")
             write_link_details(self, os.path.join(
-                save_folder, 'dir_flow_details.dat', "dir_flow"))
+                save_folder, 'dir_flow_details.dat'), "dir_flow")
             write_link_details(self, os.path.join(
-                save_folder, 'ret_flow_details.dat', "ret_flow"))
+                save_folder, 'ret_flow_details.dat'), "ret_flow")
             write_link_details(self, os.path.join(
-                save_folder, 'diversions_details.dat', "diversion"))
+                save_folder, 'diversions_details.dat'), "diversion")
             write_link_details(self, os.path.join(
-                save_folder, 'spill_flow_details.dat', "spill"))
+                save_folder, 'spill_flow_details.dat'), "spill")
             write_link_details(self, os.path.join(
-                save_folder, 'ibasin_flow_details.dat', "ibasin"))
+                save_folder, 'ibasin_flow_details.dat'), "ibasin")
             write_link_details(self, os.path.join(
-                save_folder, 'demand_flow_details.dat', "demand"))
+                save_folder, 'demand_flow_details.dat'), "demand")
             write_sink_details(self, os.path.join(
                 save_folder, 'sink_details.dat'))
             write_ibasin_details(self, os.path.join(
                 save_folder, 'interbasin_details.dat'))
             write_dec_var_details(self, os.path.join(
                 save_folder, 'decisionvar_details.dat'))
-            # write_dir_flow_details(
-            #     self, save_folder + 'dir_flow_details.dat')
-            # write_ret_flow_details(
-            #     self, save_folder + 'ret_flow_details.dat')
-            # write_divers_details(
-            #     self, save_folder + 'diversions_details.dat')
-            # write_spillflow_details(
-            #     self, save_folder + 'spill_flow_details.dat')
-            # write_ibasin_flow_details(
-            #     self, save_folder + 'ibasin_flow_details.dat')
-            # write_demand_details(
-            # self, save_folder + 'demand_flow_details.dat')
 
     # controls placement of items
-
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == 1:
             if self.block != 0:
@@ -831,6 +820,8 @@ class MyMainScreen(widgets.QMainWindow):
 
     # opens dialog to allow file saving
     def save_screen(self):
+        if not os.path.isdir("graps_graphics"):
+            os.mkdir("graps_graphics")
         save_file_name = widgets.QFileDialog.getSaveFileName(
             directory="graps_graphics", filter="*.graps")[0]
         if save_file_name == '':
@@ -840,6 +831,8 @@ class MyMainScreen(widgets.QMainWindow):
 
     # opens files for editing
     def file_open(self):
+        if not os.path.isdir("graps_graphics"):
+            os.mkdir("graps_graphics")
         open_file_name = widgets.QFileDialog.getOpenFileName(
             directory="graps_graphics", filter="*.graps")[0]
         if open_file_name == '':

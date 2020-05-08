@@ -1,0 +1,39 @@
+12	1
+4  4  4  6  1  4  6  1  0  0  6  1  0
+1	Oros Basin
+1	Banabuiu
+1	Pacajus Basin
+1	Pacoti Basin
+2	Oros Natural Flow
+2	Pacajus Natural Flow
+2	Pacoti Natural Flow
+2	Banbuiu Natural Flow
+3	Oros Reservoir
+3	Banabuiu Reservoir
+3	Pacajus Reservoir
+3	Pacoti Reservoir
+4	Oros Hydropower
+4	Banabuiu Agriculture
+4	Lower Jaguaribe Agriculture
+4	Canal do Trabalhador
+4	Pacajus Pump
+4	City of Fortaleza
+5	Oros Spillage Join
+6	Pacajus Outflow
+6	Pacoti Outflow
+6	Oros Outflow
+6	Banabuiu Outflow
+7	Return Flow LJA
+7	Return Flow Canal
+7	Return Flow PP
+7	Return Flow Fortaleza
+7	Oros-H Return
+7	Banabuiu-A Return
+8	Junction Diversion
+11	Canal Release
+11	Pacajus Pump Release
+11	Fortaleza Release
+11	Oros Hydro Release
+11	Banabuiu Agri Release
+11	LJA Release
+12	Atlantic Ocean
