@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GRAPSInterface</class>
+ <widget class="QMainWindow" name="GRAPSInterface">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>840</width>
+    <height>836</height>
+   </rect>
+  </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle">
+   <string>GRAPS Interface</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="cursor" stdset="0">
+       <cursorShape>ArrowCursor</cursorShape>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+      </property>
+      <property name="renderHints">
+       <set>QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+      </property>
+      <property name="transformationAnchor">
+       <enum>QGraphicsView::AnchorUnderMouse</enum>
+      </property>
+      <property name="resizeAnchor">
+       <enum>QGraphicsView::AnchorUnderMouse</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>840</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_File"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_and_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menuGen_Setup">
+    <property name="title">
+     <string>Gen. Setup</string>
+    </property>
+    <addaction name="actionGeneral_Setup"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuGen_Setup"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen_2"/>
+   <addaction name="actionSave_2"/>
+   <addaction name="separator"/>
+   <addaction name="actionGS"/>
+   <addaction name="separator"/>
+   <addaction name="actionN"/>
+   <addaction name="actionReservoir"/>
+   <addaction name="actionUser"/>
+   <addaction name="actionJunction"/>
+   <addaction name="actionSink"/>
+   <addaction name="actionWatershed"/>
+   <addaction name="actionInterBT"/>
+   <addaction name="separator"/>
+   <addaction name="actionLink"/>
+   <addaction name="separator"/>
+   <addaction name="actionE"/>
+   <addaction name="actionMV"/>
+   <addaction name="separator"/>
+   <addaction name="actionMS"/>
+   <addaction name="actionG"/>
+   <addaction name="actionR"/>
+  </widget>
+  <action name="actionNew_File">
+   <property name="text">
+    <string>New File</string>
+   </property>
+   <property name="statusTip">
+    <string>New File</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="statusTip">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="statusTip">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+   <property name="statusTip">
+    <string>Save As</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>Print</string>
+   </property>
+   <property name="statusTip">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionPrint_Preview">
+   <property name="text">
+    <string>Print Preview</string>
+   </property>
+   <property name="statusTip">
+    <string>Print Preview</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="statusTip">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionSave_and_Quit">
+   <property name="text">
+    <string>Save and Quit</string>
+   </property>
+   <property name="statusTip">
+    <string>Save and Quit</string>
+   </property>
+  </action>
+  <action name="actionWatershed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/W.png</normaloff>../icons/W.png</iconset>
+   </property>
+   <property name="text">
+    <string>Watershed</string>
+   </property>
+   <property name="toolTip">
+    <string>Watershed (Ctrl+W)</string>
+   </property>
+   <property name="statusTip">
+    <string>Watershed</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionJunction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/J.png</normaloff>../icons/J.png</iconset>
+   </property>
+   <property name="text">
+    <string>Junction</string>
+   </property>
+   <property name="toolTip">
+    <string>Junction (Ctrl+J)</string>
+   </property>
+   <property name="statusTip">
+    <string>Junction</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="actionReservoir">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/R.png</normaloff>../icons/R.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reservoir</string>
+   </property>
+   <property name="toolTip">
+    <string>Reservoir (Ctrl+R)</string>
+   </property>
+   <property name="statusTip">
+    <string>Reservoir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionUser">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/U.png</normaloff>../icons/U.png</iconset>
+   </property>
+   <property name="text">
+    <string>User</string>
+   </property>
+   <property name="toolTip">
+    <string>User (Ctrl+U)</string>
+   </property>
+   <property name="statusTip">
+    <string>User</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionN">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/transparent.png</normaloff>../icons/transparent.png</iconset>
+   </property>
+   <property name="text">
+    <string>None</string>
+   </property>
+   <property name="toolTip">
+    <string>N (Ctrl+Shift+N)</string>
+   </property>
+   <property name="statusTip">
+    <string>N</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionInterBT">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/I.png</normaloff>../icons/I.png</iconset>
+   </property>
+   <property name="text">
+    <string>Inter-Basin Transfer</string>
+   </property>
+   <property name="toolTip">
+    <string>Inter-Basin Transfer (Ctrl+I)</string>
+   </property>
+   <property name="statusTip">
+    <string>Inter-Basin Transfer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionSink">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/S.png</normaloff>../icons/S.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sink</string>
+   </property>
+   <property name="toolTip">
+    <string>Sink (Ctrl+Shift+S)</string>
+   </property>
+   <property name="statusTip">
+    <string>Sink</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionLink">
+   <property name="text">
+    <string>Link</string>
+   </property>
+   <property name="toolTip">
+    <string>Link (Ctrl+L)</string>
+   </property>
+   <property name="statusTip">
+    <string>Link</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionE">
+   <property name="text">
+    <string>Export</string>
+   </property>
+   <property name="toolTip">
+    <string>E (Ctrl+E)</string>
+   </property>
+   <property name="statusTip">
+    <string>E</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionMV">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>MV</string>
+   </property>
+   <property name="toolTip">
+    <string>MV</string>
+   </property>
+   <property name="statusTip">
+    <string>MV</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionMS">
+   <property name="text">
+    <string>MS</string>
+   </property>
+   <property name="toolTip">
+    <string>MS</string>
+   </property>
+   <property name="statusTip">
+    <string>MS</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionG">
+   <property name="text">
+    <string>G</string>
+   </property>
+   <property name="toolTip">
+    <string>G</string>
+   </property>
+   <property name="statusTip">
+    <string>G</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionR">
+   <property name="text">
+    <string>R</string>
+   </property>
+   <property name="toolTip">
+    <string>R</string>
+   </property>
+   <property name="statusTip">
+    <string>R</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionOpen_2">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open (Ctrl+O)</string>
+   </property>
+   <property name="statusTip">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>New (Ctrl+N)</string>
+   </property>
+   <property name="statusTip">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionSave_2">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save (Ctrl+S)</string>
+   </property>
+   <property name="statusTip">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionGS">
+   <property name="text">
+    <string>General Setup</string>
+   </property>
+   <property name="toolTip">
+    <string>General Setup</string>
+   </property>
+   <property name="statusTip">
+    <string>General Setup</string>
+   </property>
+  </action>
+  <action name="actionGeneral_Setup">
+   <property name="text">
+    <string>General Setup</string>
+   </property>
+   <property name="statusTip">
+    <string>General Setup</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>graphicsView</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

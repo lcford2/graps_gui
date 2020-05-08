@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>user_dialog</class>
+ <widget class="QDialog" name="user_dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>851</width>
+    <height>471</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>User</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLineEdit" name="user_name_display">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QTabWidget" name="user_dia_tab">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="descrip_tab">
+      <attribute name="title">
+       <string>User Description</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="descrip_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Description</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="user_id_label">
+            <property name="text">
+             <string>User ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="user_name_label">
+            <property name="text">
+             <string>User Name</string>
+            </property>
+            <property name="buddy">
+             <cstring>user_name_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="user_name_edit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="user_type_label">
+            <property name="text">
+             <string>User Type</string>
+            </property>
+            <property name="buddy">
+             <cstring>user_type_combo</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="user_type_combo">
+            <item>
+             <property name="text">
+              <string>Municipal</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Industry</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Agricultural</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hydropower</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Environmental</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="min_release_label">
+            <property name="text">
+             <string>Minimum Release</string>
+            </property>
+            <property name="buddy">
+             <cstring>min_release_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="min_release_edit"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="min_release_unit">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="max_release_label">
+            <property name="text">
+             <string>Maximum Release</string>
+            </property>
+            <property name="buddy">
+             <cstring>max_release_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="max_release_edit"/>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="max_release_unit">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="user_id_display">
+            <property name="text">
+             <string>1</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="contract_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Contract</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="3" column="0">
+           <widget class="QLabel" name="contract_restric_label">
+            <property name="text">
+             <string>Contract Restriction Volume</string>
+            </property>
+            <property name="buddy">
+             <cstring>contract_restict_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="contract_restrict_unit">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="tariff_edit"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="tariff_label">
+            <property name="text">
+             <string>Tariff</string>
+            </property>
+            <property name="buddy">
+             <cstring>tariff_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="penalty_unit">
+            <property name="text">
+             <string>$</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="tariff_unit">
+            <property name="text">
+             <string>$</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="reliability_unit">
+            <property name="text">
+             <string>ln%</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="reliability_label">
+            <property name="text">
+             <string>Reliability</string>
+            </property>
+            <property name="buddy">
+             <cstring>reliability_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="contract_restict_edit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="penalty_label">
+            <property name="text">
+             <string>Penalty</string>
+            </property>
+            <property name="buddy">
+             <cstring>penalty_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="penalty_edit"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="reliability_edit"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="penalty_comp_label">
+            <property name="text">
+             <string>Penalty Compensation</string>
+            </property>
+            <property name="buddy">
+             <cstring>penalty_comp_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="penalty_comp_edit"/>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="penalty_comp_unit">
+            <property name="text">
+             <string>$</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="demand_tab">
+      <attribute name="title">
+       <string>User Demand</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_9">
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="demand_data_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Demand Table</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QTableWidget" name="demand_table">
+            <row>
+             <property name="text">
+              <string>A</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>200</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="demand_file_box">
+         <property name="title">
+          <string>Demand Fraction File</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="demand_file_button">
+            <property name="text">
+             <string>Select File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="demand_file_edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="input_method_box">
+         <property name="title">
+          <string>Input Method</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="table_radio">
+            <property name="text">
+             <string>Table </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="file_radio">
+            <property name="text">
+             <string>Input File</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="restrict_comp_tab">
+      <attribute name="title">
+       <string>Restriction Compensation</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="restrict_box">
+         <property name="title">
+          <string>Restriction</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="3" column="0">
+           <widget class="QTableWidget" name="restrict_frac_table">
+            <row>
+             <property name="text">
+              <string>A</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableWidget" name="restrict_comp_table">
+            <row>
+             <property name="text">
+              <string>A</string>
+             </property>
+            </row>
+            <column>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="restrict_comp_label">
+            <property name="text">
+             <string>Restriction Compensation ($)</string>
+            </property>
+            <property name="buddy">
+             <cstring>restrict_comp_table</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="restrict_frac_label">
+            <property name="text">
+             <string>Restriction Fraction</string>
+            </property>
+            <property name="buddy">
+             <cstring>restrict_frac_table</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="hydro_tab">
+      <attribute name="title">
+       <string>Hydropower</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="num_turbines_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Number of Turbines</string>
+         </property>
+         <property name="buddy">
+          <cstring>num_turbines_edit</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="num_turbines_edit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="hydropower_elev_label">
+         <property name="text">
+          <string>Turbine Tail Elevation (m)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="6">
+        <widget class="QTableWidget" name="hydro_elev_table">
+         <column>
+          <property name="text">
+           <string>1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="6">
+        <widget class="QTableWidget" name="hydro_table">
+         <column>
+          <property name="text">
+           <string>Maximum Discharge (m3/sec)</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Installed Capacity (MWatts)</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Turbine Efficiency</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Energy Coefficient 1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Energy Coefficient 2</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Unit Rate Energy</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="elev_file_edit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="elev_file_button">
+         <property name="text">
+          <string>Select File</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="input_method_box_2">
+         <property name="title">
+          <string>Input Method</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="file_radio_2">
+            <property name="text">
+             <string>Input File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="table_radio_2">
+            <property name="text">
+             <string>Table</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>user_name_edit</tabstop>
+  <tabstop>user_type_combo</tabstop>
+  <tabstop>min_release_edit</tabstop>
+  <tabstop>max_release_edit</tabstop>
+  <tabstop>tariff_edit</tabstop>
+  <tabstop>penalty_edit</tabstop>
+  <tabstop>reliability_edit</tabstop>
+  <tabstop>contract_restict_edit</tabstop>
+  <tabstop>demand_table</tabstop>
+  <tabstop>restrict_comp_table</tabstop>
+  <tabstop>restrict_frac_table</tabstop>
+  <tabstop>hydro_table</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>user_name_display</tabstop>
+  <tabstop>user_dia_tab</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>user_dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>user_dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
