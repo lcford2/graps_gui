@@ -20,8 +20,9 @@ def GS(self, info_dict):
         self.dialog.ui.retro_button.setChecked(True)
     elif info_dict['forecast_option'] == 'Adaptive':
         self.dialog.ui.adaptive_button.setChecked(True)
-    self.dialog.ui.year_sim_input.setText(info_dict['nyear_sim'])
-    self.dialog.ui.sim_input_table.setColumnCount(int(info_dict['nyear_sim']))
+        self.dialog.ui.year_sim_input.setText(info_dict['nyear_sim'])
+        if info_dict["nyear_sim"]:
+            self.dialog.ui.sim_input_table.setColumnCount(int(info_dict['nyear_sim']))
 
     forecast_info = info_dict['forecast_info']
     for column, value in enumerate(forecast_info):

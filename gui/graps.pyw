@@ -1187,6 +1187,7 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.sim_info_frame.setVisible(False)
             self.dialog.ui.analysis_option.setVisible(False)
             self.dialog.ui.adaptive_box.setVisible(False)
+            
 
     # also controls what is visible in the general setup menu based on the user selection for the forecast option
     def forecast_option_change(self):
@@ -1194,10 +1195,11 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.adaptive_box.setVisible(False)
         if self.dialog.ui.adaptive_button.isChecked():
             self.dialog.ui.adaptive_box.setVisible(True)
+        if self.dialog.ui.type_sim_combo.currentText() != "Forecast":
+            self.dialog.ui.adaptive_box.setVisible(False)
 
     # opens general setup menu
     def open_dataDialog(self):
-
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_genSet_dialog()
         self.dialog.ui.setupUi(self.dialog)
@@ -1209,6 +1211,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.adaptive_button.toggled.connect(
             self.forecast_option_change)
         self.dialog.ui.retro_button.toggled.connect(
+            self.forecast_option_change)
+        self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
             self.forecast_option_change)
         self.dialog.ui.analysis_option.setVisible(False)
         self.dialog.ui.adaptive_box.setVisible(False)
@@ -1315,30 +1319,26 @@ class MyMainScreen(widgets.QMainWindow):
         sim_type = str(self.dialog.ui.type_sim_combo.currentText())
         nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
-        forecast_option = 0
         if self.dialog.ui.retro_button.isChecked():
             forecast_option = 'Retrospective'
         elif self.dialog.ui.adaptive_button.isChecked():
             forecast_option = 'Adaptive'
         else:
             forecast_option = 'Null'
-        nyear_sim = str(self.dialog.ui.year_sim_input.text())
-        int_variable = 0
         forecast_info = []
-        for int_variable in range(int(nyear_sim)):
-            try:
-                current_item = self.dialog.ui.sim_input_table.item(
-                    0, int_variable)
-                user_input = str(current_item.text())
-                forecast_info.append(user_input)
-            except:
-                continue
-        """
-        if sim_type == 'Climatology':
-            number = unicode(self.ui.dialog.year_sim_input.text())
-            number = number
-            tab
-        """
+        nyear_sim = ''
+        if sim_type == "Forecast" and forecast_option == "Adaptive":
+            nyear_sim = self.dialog.ui.year_sim_input.text()
+            if nyear_sim:
+                for int_variable in range(int(nyear_sim)):
+                    try:
+                        current_item = self.dialog.ui.sim_input_table.item(
+                            0, int_variable)
+                        user_input = str(current_item.text())
+                        forecast_info.append(user_input)
+                    except:
+                        continue
+
         self.gen_setup_dict['ntime_steps'] = ntime_steps
         self.gen_setup_dict['nrestric'] = nrestric
         self.gen_setup_dict['sim_type'] = sim_type
