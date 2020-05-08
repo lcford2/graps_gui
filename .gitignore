@@ -1,3 +1,7 @@
 .vscode/*
 .vscode
 __pycache__
+graps_graphics/*
+graps_graphics
+graps_export/*
+graps_export
