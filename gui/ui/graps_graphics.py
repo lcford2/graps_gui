@@ -81,7 +81,7 @@ class Ui_GRAPSInterface(object):
         self.actionWatershed = QtWidgets.QAction(GRAPSInterface)
         self.actionWatershed.setCheckable(True)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icons/W.png"),
+        icon.addPixmap(QtGui.QPixmap("./gui/icons/W.png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionWatershed.setIcon(icon)
         self.actionWatershed.setIconVisibleInMenu(True)
@@ -89,21 +89,21 @@ class Ui_GRAPSInterface(object):
         self.actionJunction = QtWidgets.QAction(GRAPSInterface)
         self.actionJunction.setCheckable(True)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("icons/J.png"),
+        icon1.addPixmap(QtGui.QPixmap("./gui/icons/J.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionJunction.setIcon(icon1)
         self.actionJunction.setObjectName("actionJunction")
         self.actionReservoir = QtWidgets.QAction(GRAPSInterface)
         self.actionReservoir.setCheckable(True)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("icons/R.png"),
+        icon2.addPixmap(QtGui.QPixmap("./gui/icons/R.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionReservoir.setIcon(icon2)
         self.actionReservoir.setObjectName("actionReservoir")
         self.actionUser = QtWidgets.QAction(GRAPSInterface)
         self.actionUser.setCheckable(True)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("icons/U.png"),
+        icon3.addPixmap(QtGui.QPixmap("./gui/icons/U.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionUser.setIcon(icon3)
         self.actionUser.setObjectName("actionUser")
@@ -111,21 +111,21 @@ class Ui_GRAPSInterface(object):
         self.actionN.setCheckable(True)
         self.actionN.setChecked(True)
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("icons/transparent.png"),
+        icon4.addPixmap(QtGui.QPixmap("./gui/icons/transparent.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionN.setIcon(icon4)
         self.actionN.setObjectName("actionN")
         self.actionInterBT = QtWidgets.QAction(GRAPSInterface)
         self.actionInterBT.setCheckable(True)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("icons/I.png"),
+        icon5.addPixmap(QtGui.QPixmap("./gui/icons/I.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionInterBT.setIcon(icon5)
         self.actionInterBT.setObjectName("actionInterBT")
         self.actionSink = QtWidgets.QAction(GRAPSInterface)
         self.actionSink.setCheckable(True)
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("icons/S.png"),
+        icon6.addPixmap(QtGui.QPixmap("./gui/icons/S.png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSink.setIcon(icon6)
         self.actionSink.setObjectName("actionSink")

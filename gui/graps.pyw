@@ -158,7 +158,7 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.stop_edit.setFocus()
         self.dialog.show()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, screen_res=None):
         # FOR LUKE - Should go through here and make all global variables
         # class variables where they need to be referenced with "self.variable"
         # this will clean up the name space and be more similar to OOP
@@ -198,7 +198,7 @@ class MyMainScreen(widgets.QMainWindow):
 
         # self.ui.view.setEventFilter(self.eventFilter())
         # Setting up printer to create a pdf of the system
-        global screen_res
+        # global screen_res
         scale_factor = 5
         rect = core.QRectF(0, 0, screen_res.width() *
                            scale_factor * 0.75, screen_res.height() * scale_factor)
@@ -247,7 +247,7 @@ class MyMainScreen(widgets.QMainWindow):
     def createPixmapItem(self, pixmap, position, **kwargs):
         # matrix = gui.QMatrix()
         global num  # can be replaced, probably could use a running total of # blocks for this
-        pix_item = gui.QPixmap(os.path.join("icons", pixmap))
+        pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
         item = widgets.QGraphicsPixmapItem(pix_item)
         # item = gui.QGraphicsObject(pix_item)
         item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
@@ -1877,8 +1877,7 @@ class MyMainScreen(widgets.QMainWindow):
 
         # print self.dialog_dict
 
-
-if __name__ == "__main__":
+def main():
     from stylesheets import style
     style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
@@ -1889,6 +1888,22 @@ if __name__ == "__main__":
     # app.setStyleSheet(stream.readAll())
     # with open("./stylesheets/aqua.qss)
     screen_res = app.desktop().screenGeometry()
-    mainscreen = MyMainScreen()
+    mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
     app.exec_()
+
+if __name__ == "__main__":
+    # from stylesheets import style
+    # style_selector = style.StyleSheets()
+    # app = widgets.QApplication(sys.argv)
+    # # app.setStyleSheet(style_selector.BreezeLight())
+    # # file = core.QFile("./stylesheets/ubuntu.qss")
+    # # file.open(core.QFile.ReadOnly | core.QFile.Text)
+    # # stream = core.QTextStream(file)
+    # # app.setStyleSheet(stream.readAll())
+    # # with open("./stylesheets/aqua.qss)
+    # screen_res = app.desktop().screenGeometry()
+    # mainscreen = MyMainScreen()
+    # mainscreen.showMaximized()
+    # app.exec_()
+    main()
