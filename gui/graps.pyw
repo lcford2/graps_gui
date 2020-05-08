@@ -1325,7 +1325,7 @@ class MyMainScreen(widgets.QMainWindow):
         nyear_sim = str(self.dialog.ui.year_sim_input.text())
         int_variable = 0
         forecast_info = []
-        for int_variable in range(nyear_sim):
+        for int_variable in range(int(nyear_sim)):
             try:
                 current_item = self.dialog.ui.sim_input_table.item(
                     0, int_variable)
