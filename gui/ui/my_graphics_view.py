@@ -24,13 +24,21 @@ class GraphicsView(QtWidgets.QGraphicsView):
                 factor = 1.41 ** (exp / 240.0)
                 self.scale(factor, factor)
 
-    # def mousePressEvent(self, event):
-    #     super(GraphicsView, self).mousePressEvent(event)
-    #     if event.modifiers() == QtCore.Qt.ControlModifier:
-    #         self.setDragMode(GraphicsView.ScrollHandDrag)
-    #     return super().mousePressEvent(event)
-
-    # def mouseReleaseEvent(self, event):
-    #     super(GraphicsView, self).mouseReleaseEvent(event)
-    #     self.setDragMode(GraphicsView.NoDrag)
-    #     return super().mouseReleaseEvent(event)
+    def keyPressEvent(self, event):
+        super(GraphicsView, self).keyPressEvent(event)
+        control_key = 0x01000021
+        alt_key = 0x01000023
+        if event.key() == control_key:
+            self.setDragMode(GraphicsView.ScrollHandDrag)
+        if event.key() == alt_key:
+            self.setDragMode(GraphicsView.RubberBandDrag)
+        return super().keyPressEvent(event)
+    
+    def keyReleaseEvent(self, event):
+        super(GraphicsView, self).keyReleaseEvent(event)
+        control_key = 0x01000021
+        alt_key = 0x01000023
+        key = event.key()
+        if key == control_key or key == alt_key:
+            self.setDragMode(GraphicsView.NoDrag)
+        return super().keyReleaseEvent(event)

@@ -193,7 +193,6 @@ class MyMainScreen(widgets.QMainWindow):
         # as the canvas which the user will create system on
         self.ui.view = self.ui.graphicsView
         self.ui.scene = widgets.QGraphicsScene(self)
-        # II()
         # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
 
         # self.ui.view.setEventFilter(self.eventFilter())
@@ -326,7 +325,6 @@ class MyMainScreen(widgets.QMainWindow):
         font = gui.QFont(self.font())
         font.setBold(True)
         item.setFont(font)
-        item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
         self.ui.scene.addItem(item)
         item.setData(7, item_id)
         return item
@@ -504,18 +502,44 @@ class MyMainScreen(widgets.QMainWindow):
         delete_key = 0x01000007
         return_key = 0x01000004
         enter_key = 0x01000005
+        control_key = 0x01000021
+        # if QKeyEvent.key() == control_key:
+        #     self.ui.view.setDragMode()
         if QKeyEvent.key() == delete_key:
             sel_items = self.ui.scene.selectedItems()
-            for item in sel_items:
+            if len(sel_items) == 0:
+                pass
+            if len(sel_items) > 1:
+                # II()
+                for item in sel_items:
+                    item_id = self.get_item_id(item)
+                    if item_id in self.dialog_dict:
+                        self.dialog_dict.pop(item_id)
+                    remove_items = self.block_objects[item_id]
+                    if item.data(1) == "L":
+                        link_item = {'link': remove_items[0],
+                                     'label': remove_items[1],
+                                     'start': item.data(3),
+                                     'stop': item.data(4)}
+                        self.link_objects.remove(link_item)
+                        
+                    for remove_item in remove_items:
+                        if remove_item:
+                            self.ui.scene.removeItem(remove_item)                
+                    self.block_objects[item_id] = None
+                    
+                        
+            else:
+                item = sel_items[0]
                 item_id = self.get_item_id(item)
                 if item_id in self.dialog_dict:
                     self.dialog_dict.pop(item_id)
-                remove_items = self.block_objects[item_id]
-                for remove_item in remove_items:
-                    self.ui.scene.removeItem(remove_item)
-                # self.ui.scene.removeItem(item)
-                # self.ui.scene.removeItem(self.block_objects[item_id][1])
-                del self.block_objects[item_id]
+                if self.block_objects.get(item_id, None):
+                    remove_items = self.block_objects[item_id]
+                    for remove_item in remove_items:
+                        if remove_item.scene():
+                            self.ui.scene.removeItem(remove_item)                
+                    del self.block_objects[item_id]
                 remove_ids = []
                 for i, link_item in enumerate(self.link_objects):
                     lstart, lstop = link_item["start"], link_item["stop"]
@@ -871,7 +895,7 @@ class MyMainScreen(widgets.QMainWindow):
         stoppos.setX(stoppos.x() + 20)
         line.setPoints(startpos, stoppos)
         link = widgets.QGraphicsLineItem(line)
-        link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
+        # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
         link.setPen(pen)
         self.ui.scene.addItem(link)
 
@@ -885,8 +909,8 @@ class MyMainScreen(widgets.QMainWindow):
 
         link_id = str(start) + '->' + str(stop)
         link_item = widgets.QGraphicsTextItem(link_id)
-        x_pos = old_div((startpos.x() + stoppos.x()), 2)
-        y_pos = old_div((startpos.y() + stoppos.y()), 2)
+        x_pos = (startpos.x() + stoppos.x())/ 2
+        y_pos = (startpos.y() + stoppos.y())/ 2
         link_item.setPos(x_pos, y_pos)
         link_item.setZValue(2)
         font = gui.QFont(self.font())
@@ -896,6 +920,11 @@ class MyMainScreen(widgets.QMainWindow):
                            widgets.QGraphicsItem.ItemIsMovable)
 
         self.ui.scene.addItem(link_item)
+        self.link_objects.append({'link': link,
+                                      'label': link_item,
+                                      'start': self.get_item_id(link_start),
+                                      'stop': self.get_item_id(link_stop)})
+        self.block_objects[f'L{num}'] = (link, link_item)
 
         name = 'L:' + num
         link.setData(1, 'L')
@@ -1039,7 +1068,7 @@ class MyMainScreen(widgets.QMainWindow):
             line.setPoints(startpos, stoppos)
             link = widgets.QGraphicsLineItem(line)
             linedraw_go = False
-            link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
+            # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
             link.setPen(pen)
             self.ui.scene.addItem(link)
 
