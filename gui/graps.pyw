@@ -501,14 +501,20 @@ class MyMainScreen(widgets.QMainWindow):
 
     # delete items and labels associated with those items
     def keyPressEvent(self, QKeyEvent):
-        if QKeyEvent.key() == 0x01000007:
+        delete_key = 0x01000007
+        return_key = 0x01000004
+        enter_key = 0x01000005
+        if QKeyEvent.key() == delete_key:
             sel_items = self.ui.scene.selectedItems()
             for item in sel_items:
                 item_id = self.get_item_id(item)
                 if item_id in self.dialog_dict:
                     self.dialog_dict.pop(item_id)
-                self.ui.scene.removeItem(item)
-                self.ui.scene.removeItem(self.block_objects[item_id][1])
+                remove_items = self.block_objects[item_id]
+                for remove_item in remove_items:
+                    self.ui.scene.removeItem(remove_item)
+                # self.ui.scene.removeItem(item)
+                # self.ui.scene.removeItem(self.block_objects[item_id][1])
                 del self.block_objects[item_id]
                 remove_ids = []
                 for i, link_item in enumerate(self.link_objects):
@@ -520,13 +526,13 @@ class MyMainScreen(widgets.QMainWindow):
                 for i in remove_ids[::-1]:
                     del self.link_objects[i]
 
-        if QKeyEvent.key() == 0x01000004 or QKeyEvent.key() == 0x01000005:
+        if QKeyEvent.key() == return_key or QKeyEvent.key() == enter_key:
             sel_items = list(self.ui.scene.selectedItems())
             if self.dlg == 'dlg_closed':
                 pass
             else:
-                self.dlg = str(self.dialog.ui)
-            if self.dlg[:10] == '<draw_link':
+                self.dlg = self.dialog.objectName()
+            if self.dlg == 'linkDraw_dialog':
                 item_id = ''
                 for item in sel_items:
                     item_id = self.get_item_id(item)
@@ -1039,8 +1045,8 @@ class MyMainScreen(widgets.QMainWindow):
 
             link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
             link_item = widgets.QGraphicsTextItem(link_id)
-            x_pos = old_div((startpos.x() + stoppos.x()), 2)
-            y_pos = old_div((startpos.y() + stoppos.y()), 2)
+            x_pos = (startpos.x() + stoppos.x()) / 2
+            y_pos = (startpos.y() + stoppos.y()) / 2
             link_item.setPos(x_pos, y_pos)
             link_item.setZValue(2)
             font = gui.QFont(self.font())
@@ -1062,6 +1068,7 @@ class MyMainScreen(widgets.QMainWindow):
             if not x:
                 link_list.append(value)
 
+            self.block_objects[f'L{value}'] = (link, link_item)
             name = 'L:' + link_id
 
             link.setData(1, 'L')
@@ -1086,7 +1093,6 @@ class MyMainScreen(widgets.QMainWindow):
                     if name == b_ID_local_stop:
                         par_num = int(item.data(5))
                         item.setData(int('5' + str(par_num + 1)), name)
-
                 except:
                     pass
 
