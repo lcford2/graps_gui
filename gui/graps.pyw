@@ -22,6 +22,8 @@ from ui.junction_dialog import Ui_junction_dialog
 from ui.interbasin_dialog import Ui_interbasin_dialog
 from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
+# import my pixmap item with overloaded signals
+from graphics_items import myPixmapItem
 # repopulates dialogs on file open
 import dictionaries as dlg_populate
 # saves the graphics created by the user
@@ -57,7 +59,6 @@ link_list = []
 go = True
 x = 0
 num = {'W': 1, 'R': 1, 'I': 1, 'J': 1, 'U': 1, 'S': 1, 'L': 1}
-
 
 class MyMainScreen(widgets.QMainWindow):
     # These next seven functions are called when a user selects
@@ -246,23 +247,6 @@ class MyMainScreen(widgets.QMainWindow):
     def createPixmapItem(self, pixmap, position, **kwargs):
         # matrix = gui.QMatrix()
         global num  # can be replaced, probably could use a running total of # blocks for this
-        pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
-        item = widgets.QGraphicsPixmapItem(pix_item)
-        # item = gui.QGraphicsObject(pix_item)
-        item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
-        # the -15 and -68 here are to place the block as close as possible
-        # to where the user clicked the canvas
-        position.setX(position.x() - 15)
-        position.setY(position.y() - 68)
-        item.setPos(position)
-        # item.setMatrix(matrix)
-        item.setZValue(1)
-        # making sure there is not another Item selected
-        self.ui.scene.clearSelection()
-        g_item = self.ui.scene.addItem(item)
-        # Unselecting the item
-        item.setSelected(False)
-
         label_value = 1  # initial label value
 
         # is no kwargs are passed find the highest value of
@@ -281,6 +265,26 @@ class MyMainScreen(widgets.QMainWindow):
                     label_value = value
                 if key == 'block_ID':
                     self.block_ID = value
+        block_id = f'{self.block_ID}{label_value}'
+        pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
+        # item = widgets.QGraphicsPixmapItem(pix_item)
+        item = myPixmapItem(parent=pix_item, itemid=block_id, owner=self)
+        # item = gui.QGraphicsObject(pix_item)
+        item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
+        # the -15 and -68 here are to place the block as close as possible
+        # to where the user clicked the canvas
+        position.setX(position.x() - 15)
+        position.setY(position.y() - 68)
+        item.setPos(position)
+        # item.setMatrix(matrix)
+        item.setZValue(1)
+        # making sure there is not another Item selected
+        self.ui.scene.clearSelection()
+        self.ui.scene.addItem(item)
+        # II()
+        # Unselecting the item
+        item.setSelected(False)
+
 
         # creating and placing a label for the block
         g_label = self.create_label(label_value, self.block_ID, position, item)
@@ -415,10 +419,15 @@ class MyMainScreen(widgets.QMainWindow):
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == 1:
+            # pos = gui.QCursor.pos()
+            # itemsat = self.ui.scene.itemAt(pos.x(), pos.y(), self.ui.view.transform())
+            # if itemsat.type() == 3:
             if self.block != 0:
                 point = self.mapFromGlobal(gui.QCursor.pos())
                 pos = self.ui.view.mapToScene(point)
                 self.createPixmapItem(self.block, pos)
+            # else:
+            #     II()
 
     # if a radio button is toggled in a dialog this controls the action connected to it
     def button_toggled(self):
@@ -496,20 +505,326 @@ class MyMainScreen(widgets.QMainWindow):
 
     def get_item_id(self, item):
         return f'{item.data(1)}{item.data(2)}'
+    
+    def open_watershed_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_watershed_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.watershed_id_display.setText(key)
+        self.dialog.ui.display_wateshed_name.setText(key)
+        self.dialog.ui.forecast_file_box.setVisible(False)
+        self.dialog.ui.select_forecast_file.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.select_inflow_file.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_watershed)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        writeable = key in self.dialog_dict
+        if writeable:
+            item_dict = self.dialog_dict[key]
+            dlg_populate.WS(self, item_dict)
+        self.dialog.exec_()
+    
+    def open_reservoir_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_reservoirDialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.ident_reservoir.setText(key)
+        self.dialog.ui.reservoir_id_display.setText(key)
+        self.dialog.ui.spillway_table.resizeColumnsToContents()
+        self.dialog.ui.outlet_table.resizeColumnsToContents()
+        self.dialog.ui.num_spill_edit.textEdited.connect(
+            self.table_set_row)
+        self.dialog.ui.num_outlet_edit.textEdited.connect(
+            self.table_set_row)
+        self.dialog.ui.input_radio.toggled.connect(
+            self.reservoir_button)
+        self.dialog.ui.input_radio_2.toggled.connect(
+            self.reservoir_button)
+        self.dialog.ui.table_radio_2.toggled.connect(
+            self.reservoir_button)
+        self.dialog.ui.table_radio_3.toggled.connect(
+            self.reservoir_button)
+        self.dialog.ui.curve_file_select.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.select_evap_file.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.select_evap_file.hide()
+        self.dialog.ui.evap_file_edit.hide()
+        self.dialog.ui.evap_table.hide()
+        self.dialog.ui.curve_file_select.hide()
+        self.dialog.ui.curve_file_edit.hide()
+        self.dialog.ui.rule_curve_table.hide()
+        self.dialog.ui.evap_file_box.hide()
+        self.dialog.ui.evap_box.hide()
+        self.dialog.ui.rule_curve_box.hide()
+        self.dialog.ui.vol__gamma_edit.setEnabled(False)
+        self.dialog.ui.level_vol_area_box.setVisible(False)
+        self.dialog.ui.table_radio.setEnabled(False)
+        try:
+            time_steps = self.gen_setup_dict['ntime_steps']
+            num_restric = self.gen_setup_dict['nrestric']
+            self.dialog.ui.target_rest_table.setRowCount(1)
+            self.dialog.ui.target_rest_table.setColumnCount(
+                int(num_restric))
+            self.dialog.ui.rule_curve_table.setColumnCount(
+                int(time_steps))
+
+            for i in range(int(time_steps)):
+                item = widgets.QTableWidgetItem()
+                item.setCheckState(core.Qt.Unchecked)
+                item.setText('No')
+                item.setFlags(
+                    core.Qt.ItemIsSelectable | core.Qt.ItemIsEnabled | core.Qt.ItemIsUserCheckable)
+                try:
+                    table_item = self.dialog.ui.rule_curve_table.item(
+                        1, i)
+                    value = str(
+                        table_item.text())
+                    if value == '':
+                        self.dialog.ui.rule_curve_table.setItem(
+                            1, i, item)
+                    else:
+                        table_item.setFlags(
+                            core.Qt.ItemIsSelectable)
+                    # item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
+                    # table_item = self.dialog.ui.rule_curve_table.item(2, i)
+
+                    # table_item = self.dialog.ui.rule_curve_table.item(3, i)
+                    # item.setFlags(core.Qt.ItemIsSelectable)
+                    # value = unicode(table_item.text())
+                    # if value == '':
+                    #     self.dialog.ui.rule_curve_table.setItem(3, i, item)
+                    # else:
+                    #     table_item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
+                except AttributeError as e:
+                    self.dialog.ui.rule_curve_table.setItem(
+                        1, i, item)
+                    # self.dialog.ui.rule_curve_table.setItem(3, i, item)
+            self.dialog.ui.evap_table.setColumnCount(
+                int(time_steps))
+            self.dialog.ui.select_file.clicked.connect(
+                self.get_file_name)
+            self.dialog.ui.buttonBox.accepted.connect(
+                self.get_info_reservoir)
+            self.dialog.setAttribute(
+                core.Qt.WA_DeleteOnClose)
+            key = str(key)
+            write_lock = str(key) not in self.dialog_dict
+            if not write_lock:
+                item_dict = self.dialog_dict[key]
+                dlg_populate.RES(self, item_dict)
+            self.dialog.exec_()
+        except KeyError as e:
+            self.dialog = widgets.QDialog(self)
+            self.dialog.ui = Ui_ErrorDialog()
+            self.dialog.ui.setupUi(self.dialog)
+            self.dialog.setAttribute(
+                core.Qt.WA_DeleteOnClose)
+            self.dialog.exec_()
+    
+    def open_user_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_user_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.user_name_display.setText(key)
+        self.dialog.ui.user_id_display.setText(key)
+        self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
+        self.dialog.ui.user_dia_tab.setStyleSheet(
+            "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
+        time_steps = self.gen_setup_dict['ntime_steps']
+        num_restric = self.gen_setup_dict['nrestric']
+        self.dialog.ui.demand_table.setColumnCount(
+            int(time_steps))
+        self.dialog.ui.hydro_table.resizeColumnsToContents()
+        self.dialog.ui.hydro_elev_table.setRowCount(1)
+        self.dialog.ui.hydro_elev_table.setColumnCount(
+            int(time_steps))
+        self.dialog.ui.restrict_frac_table.setColumnCount(
+            int(num_restric))
+        self.dialog.ui.restrict_comp_table.setColumnCount(
+            int(num_restric))
+        self.dialog.ui.table_radio.toggled.connect(
+            self.user_button)
+        self.dialog.ui.table_radio_2.toggled.connect(
+            self.user_button)
+        self.dialog.ui.file_radio.toggled.connect(
+            self.user_button)
+        self.dialog.ui.file_radio_2.toggled.connect(
+            self.user_button)
+        self.dialog.ui.demand_file_button.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.elev_file_button.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.demand_file_box.hide()
+        self.dialog.ui.demand_table.hide()
+        self.dialog.ui.elev_file_edit.hide()
+        self.dialog.ui.elev_file_button.hide()
+        self.dialog.ui.hydro_elev_table.hide()
+        self.dialog.ui.demand_data_box.hide()
+        self.dialog.ui.num_turbines_edit.textEdited.connect(
+            self.table_set_row)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_user)
+        self.dialog.ui.user_type_combo.currentIndexChanged.connect(
+            self.hydro_tab_show)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        key = str(key)
+        write_lock = str(key) not in self.dialog_dict
+        if not write_lock:
+            item_dict = self.dialog_dict[key]
+            dlg_populate.US(self, item_dict)
+
+        self.dialog.exec_()
+    
+    def open_sink_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_sink_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.sink_id_display.setText(key)
+        self.dialog.ui.lineEdit.setText(key)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_sink)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        key = str(key)
+        write_lock = str(key) not in self.dialog_dict
+        if not write_lock:
+            item_dict = self.dialog_dict[key]
+            dlg_populate.SINK(self, item_dict)
+        self.dialog.exec_()
+
+    def open_link_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_link_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        # self.dialog.ui.link_tabs_box.setCurrentIndex(0)
+        self.dialog.ui.link_name_display.setText(key)
+        self.dialog.ui.link_id_display.setText(item_num)
+        self.start_node = item.data(3)
+        self.stop_node = item.data(4)
+        self.dialog.ui.type_start_display.setText(
+            self.start_node[0])
+        self.dialog.ui.type_end_display.setText(
+            self.stop_node[0])
+        self.dialog.ui.start_node_display.setText(
+            self.start_node[1:])
+        self.dialog.ui.end_node_display.setText(
+            self.stop_node[1:])
+        self.dialog.ui.return_flow_box.hide()
+        self.dialog.ui.yes_rad_button.toggled.connect(
+            self.button_toggled)
+        self.dialog.ui.nlags_edit.textEdited.connect(
+            self.table_set_column)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_link)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        key = str(key)
+        write_lock = str(key) not in self.dialog_dict
+        if not write_lock:
+            item_dict = self.dialog_dict[key]
+            dlg_populate.LINK(self, item_dict)
+        self.dialog.exec_()
+
+    def open_junction_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_junction_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.flow_jun_name_display.setText(key)
+        self.dialog.ui.flow_jun_id_display.setText(key)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_junction)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        key = str(key)
+        write_lock = str(key) not in self.dialog_dict
+        if not write_lock:
+            item_dict = self.dialog_dict[key]
+            dlg_populate.JUN(self, item_dict)
+        self.dialog.exec_()
+
+    def open_interbasin_dialog(self, key):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_interbasin_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.ui.int_basin_name_display.setText(key)
+        self.dialog.ui.interbasin_id_display.setText(key)
+        self.dialog.ui.file_radio.toggled.connect(
+            self.interbasin_button)
+        self.dialog.ui.table_radio.toggled.connect(
+            self.interbasin_button)
+        self.dialog.ui.file_button.clicked.connect(
+            self.get_file_name)
+        self.dialog.ui.flow_file_edit.hide()
+        self.dialog.ui.file_button.hide()
+        self.dialog.ui.ave_flows_table.hide()
+        self.dialog.ui.ave_flow_box.hide()
+        try:
+            time_steps = self.gen_setup_dict['ntime_steps']
+            self.dialog.ui.ave_flows_table.setColumnCount(
+                int(time_steps))
+            self.dialog.ui.buttonBox.accepted.connect(
+                self.get_info_interbasin)
+            self.dialog.setAttribute(
+                core.Qt.WA_DeleteOnClose)
+            key = str(key)
+            write_lock = str(key) not in self.dialog_dict
+            if not write_lock:
+                item_dict = self.dialog_dict[key]
+                dlg_populate.IB(self, item_dict)
+            self.dialog.exec_()
+        except KeyError as e:
+            self.dialog = widgets.QDialog(self)
+            self.dialog.ui = Ui_ErrorDialog()
+            self.dialog.ui.setupUi(self.dialog)
+            self.dialog.setAttribute(
+                core.Qt.WA_DeleteOnClose)
+            self.dialog.exec_()
+
+    def open_dialogs(self):
+        sel_items = list(self.ui.scene.selectedItems())
+        if self.dlg == 'dlg_closed':
+            pass
+        else:
+            self.dlg = self.dialog.objectName()
+        if self.dlg == 'linkDraw_dialog':
+            item_id = ''
+            for item in sel_items:
+                item_id = self.get_item_id(item)
+                start = str(
+                    self.dialog.ui.start_edit.text())
+                stop = str(self.dialog.ui.stop_edit.text())
+                if start == '':
+                    self.dialog.ui.start_edit.setText(item_id)
+                elif stop == '':
+                    self.dialog.ui.stop_edit.setText(item_id)
+                self.dlg = 'dlg_open'
+        else:
+            dialog_map = {
+                    "W":self.open_watershed_dialog,
+                    "R":self.open_reservoir_dialog,
+                    "U":self.open_user_dialog,
+                    "J":self.open_junction_dialog,
+                    "S":self.open_sink_dialog,
+                    "L":self.open_link_dialog,
+                    "I":self.open_interbasin_dialog
+                }
+            for item in sel_items:
+                item_type = item.block_type
+                item_num = item.block_index
+                key = item.itemid
+                dialog_map[item_type](key)
+
 
     # delete items and labels associated with those items
     def keyPressEvent(self, QKeyEvent):
         delete_key = 0x01000007
         return_key = 0x01000004
         enter_key = 0x01000005
-        control_key = 0x01000021
-        # if QKeyEvent.key() == control_key:
-        #     self.ui.view.setDragMode()
         if QKeyEvent.key() == delete_key:
             sel_items = self.ui.scene.selectedItems()
             if len(sel_items) == 0:
                 pass
-            if len(sel_items) > 1:
+            elif len(sel_items) > 1:
                 # II()
                 for item in sel_items:
                     item_id = self.get_item_id(item)
@@ -549,302 +864,8 @@ class MyMainScreen(widgets.QMainWindow):
                     del self.link_objects[i]
 
         if QKeyEvent.key() == return_key or QKeyEvent.key() == enter_key:
-            sel_items = list(self.ui.scene.selectedItems())
-            if self.dlg == 'dlg_closed':
-                pass
-            else:
-                self.dlg = self.dialog.objectName()
-            if self.dlg == 'linkDraw_dialog':
-                item_id = ''
-                for item in sel_items:
-                    item_id = self.get_item_id(item)
-                    start = str(
-                        self.dialog.ui.start_edit.text())
-                    stop = str(self.dialog.ui.stop_edit.text())
-                    if start == '':
-                        self.dialog.ui.start_edit.setText(item_id)
-                    elif stop == '':
-                        self.dialog.ui.stop_edit.setText(item_id)
-                    self.dlg = 'dlg_open'
-            else:
-                for item in sel_items:
-                    item_type = str(item.data(1))
-                    item_num = str(item.data(2))
-                    key = item_type + item_num
-                    if item_type == 'W':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_watershed_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.watershed_id_display.setText(key)
-                        self.dialog.ui.display_wateshed_name.setText(key)
-                        self.dialog.ui.forecast_file_box.setVisible(False)
-                        self.dialog.ui.select_forecast_file.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.select_inflow_file.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.buttonBox.accepted.connect(
-                            self.get_info_watershed)
-                        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                        key = str(key)
-                        write_lock = str(key) not in self.dialog_dict
-                        if not write_lock:
-                            item_dict = self.dialog_dict[key]
-                            dlg_populate.WS(self, item_dict)
-                        self.dialog.exec_()
-
-                    if item_type == 'R':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_reservoirDialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.ident_reservoir.setText(key)
-                        self.dialog.ui.reservoir_id_display.setText(key)
-                        self.dialog.ui.spillway_table.resizeColumnsToContents()
-                        self.dialog.ui.outlet_table.resizeColumnsToContents()
-                        self.dialog.ui.num_spill_edit.textEdited.connect(
-                            self.table_set_row)
-                        self.dialog.ui.num_outlet_edit.textEdited.connect(
-                            self.table_set_row)
-                        self.dialog.ui.input_radio.toggled.connect(
-                            self.reservoir_button)
-                        self.dialog.ui.input_radio_2.toggled.connect(
-                            self.reservoir_button)
-                        self.dialog.ui.table_radio_2.toggled.connect(
-                            self.reservoir_button)
-                        self.dialog.ui.table_radio_3.toggled.connect(
-                            self.reservoir_button)
-                        self.dialog.ui.curve_file_select.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.select_evap_file.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.select_evap_file.hide()
-                        self.dialog.ui.evap_file_edit.hide()
-                        self.dialog.ui.evap_table.hide()
-                        self.dialog.ui.curve_file_select.hide()
-                        self.dialog.ui.curve_file_edit.hide()
-                        self.dialog.ui.rule_curve_table.hide()
-                        self.dialog.ui.evap_file_box.hide()
-                        self.dialog.ui.evap_box.hide()
-                        self.dialog.ui.rule_curve_box.hide()
-                        self.dialog.ui.vol__gamma_edit.setEnabled(False)
-                        self.dialog.ui.level_vol_area_box.setVisible(False)
-                        self.dialog.ui.table_radio.setEnabled(False)
-                        try:
-                            time_steps = self.gen_setup_dict['ntime_steps']
-                            num_restric = self.gen_setup_dict['nrestric']
-                            self.dialog.ui.target_rest_table.setRowCount(1)
-                            self.dialog.ui.target_rest_table.setColumnCount(
-                                int(num_restric))
-                            self.dialog.ui.rule_curve_table.setColumnCount(
-                                int(time_steps))
-
-                            for i in range(int(time_steps)):
-                                item = widgets.QTableWidgetItem()
-                                item.setCheckState(core.Qt.Unchecked)
-                                item.setText('No')
-                                item.setFlags(
-                                    core.Qt.ItemIsSelectable | core.Qt.ItemIsEnabled | core.Qt.ItemIsUserCheckable)
-                                try:
-                                    table_item = self.dialog.ui.rule_curve_table.item(
-                                        1, i)
-                                    value = str(
-                                        table_item.text())
-                                    if value == '':
-                                        self.dialog.ui.rule_curve_table.setItem(
-                                            1, i, item)
-                                    else:
-                                        table_item.setFlags(
-                                            core.Qt.ItemIsSelectable)
-                                    # item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-                                    # table_item = self.dialog.ui.rule_curve_table.item(2, i)
-
-                                    # table_item = self.dialog.ui.rule_curve_table.item(3, i)
-                                    # item.setFlags(core.Qt.ItemIsSelectable)
-                                    # value = unicode(table_item.text())
-                                    # if value == '':
-                                    #     self.dialog.ui.rule_curve_table.setItem(3, i, item)
-                                    # else:
-                                    #     table_item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-                                except AttributeError as e:
-                                    self.dialog.ui.rule_curve_table.setItem(
-                                        1, i, item)
-                                    # self.dialog.ui.rule_curve_table.setItem(3, i, item)
-                            self.dialog.ui.evap_table.setColumnCount(
-                                int(time_steps))
-                            self.dialog.ui.select_file.clicked.connect(
-                                self.get_file_name)
-                            self.dialog.ui.buttonBox.accepted.connect(
-                                self.get_info_reservoir)
-                            self.dialog.setAttribute(
-                                core.Qt.WA_DeleteOnClose)
-                            key = str(key)
-                            write_lock = str(key) not in self.dialog_dict
-                            if not write_lock:
-                                item_dict = self.dialog_dict[key]
-                                dlg_populate.RES(self, item_dict)
-                            self.dialog.exec_()
-                        except KeyError as e:
-                            self.dialog = widgets.QDialog(self)
-                            self.dialog.ui = Ui_ErrorDialog()
-                            self.dialog.ui.setupUi(self.dialog)
-                            self.dialog.setAttribute(
-                                core.Qt.WA_DeleteOnClose)
-                            self.dialog.exec_()
-
-                    if item_type == 'U':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_user_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.user_name_display.setText(key)
-                        self.dialog.ui.user_id_display.setText(key)
-                        self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
-                        self.dialog.ui.user_dia_tab.setStyleSheet(
-                            "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
-                        time_steps = self.gen_setup_dict['ntime_steps']
-                        num_restric = self.gen_setup_dict['nrestric']
-                        self.dialog.ui.demand_table.setColumnCount(
-                            int(time_steps))
-                        self.dialog.ui.hydro_table.resizeColumnsToContents()
-                        self.dialog.ui.hydro_elev_table.setRowCount(1)
-                        self.dialog.ui.hydro_elev_table.setColumnCount(
-                            int(time_steps))
-                        self.dialog.ui.restrict_frac_table.setColumnCount(
-                            int(num_restric))
-                        self.dialog.ui.restrict_comp_table.setColumnCount(
-                            int(num_restric))
-                        self.dialog.ui.table_radio.toggled.connect(
-                            self.user_button)
-                        self.dialog.ui.table_radio_2.toggled.connect(
-                            self.user_button)
-                        self.dialog.ui.file_radio.toggled.connect(
-                            self.user_button)
-                        self.dialog.ui.file_radio_2.toggled.connect(
-                            self.user_button)
-                        self.dialog.ui.demand_file_button.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.elev_file_button.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.demand_file_box.hide()
-                        self.dialog.ui.demand_table.hide()
-                        self.dialog.ui.elev_file_edit.hide()
-                        self.dialog.ui.elev_file_button.hide()
-                        self.dialog.ui.hydro_elev_table.hide()
-                        self.dialog.ui.demand_data_box.hide()
-                        self.dialog.ui.num_turbines_edit.textEdited.connect(
-                            self.table_set_row)
-                        self.dialog.ui.buttonBox.accepted.connect(
-                            self.get_info_user)
-                        self.dialog.ui.user_type_combo.currentIndexChanged.connect(
-                            self.hydro_tab_show)
-                        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                        key = str(key)
-                        write_lock = str(key) not in self.dialog_dict
-                        if not write_lock:
-                            item_dict = self.dialog_dict[key]
-                            dlg_populate.US(self, item_dict)
-
-                        self.dialog.exec_()
-
-                    if item_type == 'S':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_sink_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.sink_id_display.setText(key)
-                        self.dialog.ui.lineEdit.setText(key)
-                        self.dialog.ui.buttonBox.accepted.connect(
-                            self.get_info_sink)
-                        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                        key = str(key)
-                        write_lock = str(key) not in self.dialog_dict
-                        if not write_lock:
-                            item_dict = self.dialog_dict[key]
-                            dlg_populate.SINK(self, item_dict)
-                        self.dialog.exec_()
-
-                    if item_type == 'L':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_link_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        # self.dialog.ui.link_tabs_box.setCurrentIndex(0)
-                        self.dialog.ui.link_name_display.setText(key)
-                        self.dialog.ui.link_id_display.setText(item_num)
-                        self.start_node = item.data(3)
-                        self.stop_node = item.data(4)
-                        self.dialog.ui.type_start_display.setText(
-                            self.start_node[0])
-                        self.dialog.ui.type_end_display.setText(
-                            self.stop_node[0])
-                        self.dialog.ui.start_node_display.setText(
-                            self.start_node[1:])
-                        self.dialog.ui.end_node_display.setText(
-                            self.stop_node[1:])
-                        self.dialog.ui.return_flow_box.hide()
-                        self.dialog.ui.yes_rad_button.toggled.connect(
-                            self.button_toggled)
-                        self.dialog.ui.nlags_edit.textEdited.connect(
-                            self.table_set_column)
-                        self.dialog.ui.buttonBox.accepted.connect(
-                            self.get_info_link)
-                        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                        key = str(key)
-                        write_lock = str(key) not in self.dialog_dict
-                        if not write_lock:
-                            item_dict = self.dialog_dict[key]
-                            dlg_populate.LINK(self, item_dict)
-                        self.dialog.exec_()
-
-                    if item_type == 'J':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_junction_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.flow_jun_name_display.setText(key)
-                        self.dialog.ui.flow_jun_id_display.setText(key)
-                        self.dialog.ui.buttonBox.accepted.connect(
-                            self.get_info_junction)
-                        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                        key = str(key)
-                        write_lock = str(key) not in self.dialog_dict
-                        if not write_lock:
-                            item_dict = self.dialog_dict[key]
-                            dlg_populate.JUN(self, item_dict)
-                        self.dialog.exec_()
-
-                    if item_type == 'I':
-                        self.dialog = widgets.QDialog(self)
-                        self.dialog.ui = Ui_interbasin_dialog()
-                        self.dialog.ui.setupUi(self.dialog)
-                        self.dialog.ui.int_basin_name_display.setText(key)
-                        self.dialog.ui.interbasin_id_display.setText(key)
-                        self.dialog.ui.file_radio.toggled.connect(
-                            self.interbasin_button)
-                        self.dialog.ui.table_radio.toggled.connect(
-                            self.interbasin_button)
-                        self.dialog.ui.file_button.clicked.connect(
-                            self.get_file_name)
-                        self.dialog.ui.flow_file_edit.hide()
-                        self.dialog.ui.file_button.hide()
-                        self.dialog.ui.ave_flows_table.hide()
-                        self.dialog.ui.ave_flow_box.hide()
-                        try:
-                            time_steps = self.gen_setup_dict['ntime_steps']
-                            self.dialog.ui.ave_flows_table.setColumnCount(
-                                int(time_steps))
-                            self.dialog.ui.buttonBox.accepted.connect(
-                                self.get_info_interbasin)
-                            self.dialog.setAttribute(
-                                core.Qt.WA_DeleteOnClose)
-                            key = str(key)
-                            write_lock = str(key) not in self.dialog_dict
-                            if not write_lock:
-                                item_dict = self.dialog_dict[key]
-                                dlg_populate.IB(self, item_dict)
-                            self.dialog.exec_()
-                        except KeyError as e:
-                            self.dialog = widgets.QDialog(self)
-                            self.dialog.ui = Ui_ErrorDialog()
-                            self.dialog.ui.setupUi(self.dialog)
-                            self.dialog.setAttribute(
-                                core.Qt.WA_DeleteOnClose)
-                            self.dialog.exec_()
+            self.open_dialogs()
+            
 
     # opens dialog to allow file saving
     def save_screen(self):
@@ -1035,8 +1056,6 @@ class MyMainScreen(widgets.QMainWindow):
         global b_ID_local_stop
         global b_ID_local_start
         select_items = []
-        # b_ID_local_start = ''
-        # b_ID_local_stop = ''
 
         items = list(self.ui.scene.items())
         first_go = 0
@@ -1066,7 +1085,6 @@ class MyMainScreen(widgets.QMainWindow):
             line.setPoints(startpos, stoppos)
             link = widgets.QGraphicsLineItem(line)
             linedraw_go = False
-            # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
             link.setPen(pen)
             self.ui.scene.addItem(link)
 
