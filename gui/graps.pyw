@@ -185,6 +185,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.block_ID = ''
         self.block = 0
         self.dlg = 'dlg_closed'
+        self.bitmap_width = 35
+        self.bitmap_height = 32
 
         # self.filename=core.QString()
         self.filename = str
@@ -274,8 +276,10 @@ class MyMainScreen(widgets.QMainWindow):
         item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
         # the -15 and -68 here are to place the block as close as possible
         # to where the user clicked the canvas
-        position.setX(position.x() - 15)
-        position.setY(position.y() - 68)
+        
+        position.setX(position.x() - self.bitmap_width/2)
+        position.setY(position.y() - self.bitmap_height/2)
+
         item.setPos(position)
         # item.setMatrix(matrix)
         item.setZValue(1)
@@ -330,17 +334,17 @@ class MyMainScreen(widgets.QMainWindow):
         item.setData(7, item_id)
         return item
 
-    # allows users to click blocks while in the link generate dialog
-    # so when th
-    def block_click(self, field):
-        sel_items = list(self.ui.scene.selectedItems())
-        x = 0
-        for item in sel_items:
-            block_id = self.get_item_id(item)
-            self.dialog.ui.field.setText(block_id)
-            x = 1
-        if x == 0:
-            self.block_click(field)
+    # # allows users to click blocks while in the link generate dialog
+    # # so when th
+    # def block_click(self, field):
+    #     sel_items = list(self.ui.scene.selectedItems())
+    #     x = 0
+    #     for item in sel_items:
+    #         block_id = self.get_item_id(item)
+    #         self.dialog.ui.field.setText(block_id)
+    #         x = 1
+    #     if x == 0:
+    #         self.block_click(field)
 
     # allows user to clear scene and start over
     def new_scene(self):
@@ -358,7 +362,6 @@ class MyMainScreen(widgets.QMainWindow):
             item_id = kwargs['item_id']
             if name_tag != '':
                 item_id.setPlainText(name_tag)
-
         else:
             items = list(self.ui.scene.items())
             for item in items:
@@ -416,7 +419,7 @@ class MyMainScreen(widgets.QMainWindow):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == 1:
             if self.block != 0:
-                point = self.mapFromGlobal(gui.QCursor.pos())
+                point = self.ui.view.mapFromGlobal(gui.QCursor.pos())
                 pos = self.ui.view.mapToScene(point)
                 self.createPixmapItem(self.block, pos)
 
@@ -929,10 +932,10 @@ class MyMainScreen(widgets.QMainWindow):
         line = core.QLineF()
         startpos = link_start.pos()
         stoppos = link_stop.pos()
-        startpos.setY(startpos.y() + 20)
-        startpos.setX(startpos.x() + 20)
-        stoppos.setY(stoppos.y() + 20)
-        stoppos.setX(stoppos.x() + 20)
+        startpos.setY(startpos.y() + self.bitmap_height/2)
+        startpos.setX(startpos.x() + self.bitmap_width/2)
+        stoppos.setY(stoppos.y() + self.bitmap_height/2)
+        stoppos.setX(stoppos.x() + self.bitmap_width/2)
         line.setPoints(startpos, stoppos)
         link = widgets.QGraphicsLineItem(line)
         # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
@@ -1101,10 +1104,10 @@ class MyMainScreen(widgets.QMainWindow):
 
             pen = gui.QPen(core.Qt.black, 1, core.Qt.SolidLine)
             line = core.QLineF()
-            startpos.setY(startpos.y() + 20)
-            startpos.setX(startpos.x() + 20)
-            stoppos.setY(stoppos.y() + 20)
-            stoppos.setX(stoppos.x() + 20)
+            startpos.setY(startpos.y() + self.bitmap_height/2)
+            startpos.setX(startpos.x() + self.bitmap_width/2)
+            stoppos.setY(stoppos.y() + self.bitmap_height/2)
+            stoppos.setX(stoppos.x() + self.bitmap_width/2)
             line.setPoints(startpos, stoppos)
             link = widgets.QGraphicsLineItem(line)
             linedraw_go = False
@@ -1121,10 +1124,13 @@ class MyMainScreen(widgets.QMainWindow):
 
             link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
             link_item = myGraphicsTextItem(link_id, f'L{value}', self)
+            link_item_h = link_item.shape().boundingRect().size().height()
+            link_item_w = link_item.shape().boundingRect().size().width()
             link_item.start_node = b_ID_local_start
             link_item.stop_node = b_ID_local_stop
-            x_pos = (startpos.x() + stoppos.x()) / 2
-            y_pos = (startpos.y() + stoppos.y()) / 2
+            x_pos = (startpos.x() + stoppos.x()) / 2 - link_item_w/2
+            y_pos = (startpos.y() + stoppos.y()) / 2 - link_item_h/2
+            
             link_item.setPos(x_pos, y_pos)
             link_item.setZValue(2)
             font = gui.QFont(self.font())
