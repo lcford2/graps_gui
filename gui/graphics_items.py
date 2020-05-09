@@ -16,3 +16,18 @@ class myPixmapItem(QtWidgets.QGraphicsPixmapItem):
     def mouseDoubleClickEvent(self, event):
         self.owner.open_dialogs()
         return super().mouseDoubleClickEvent(event)
+
+class myGraphicsTextItem(QtWidgets.QGraphicsTextItem):
+    def __init__(self, text=None, itemid=None, owner=None):
+        super(myGraphicsTextItem, self).__init__(text)
+        self.text = text
+        self.owner = owner
+        self.itemid = itemid
+        self.block_type = itemid[0]
+        self.block_index = itemid[1:]
+        self.start_node = ""
+        self.stop_node = ""
+    
+    def mouseDoubleClickEvent(self, event):
+        self.owner.open_dialogs()
+        return super().mouseDoubleClickEvent(event)
