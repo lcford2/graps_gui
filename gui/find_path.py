@@ -170,7 +170,3 @@ def run_path(self, gs_dict, dialog_dict):
 			num = unicode(item.data(2).toString()).encode('utf_8')
 			print ident+num, nchild
 	"""
-
-
-
-

@@ -14,17 +14,17 @@ def save_view(self, filename, gs_dict, info_dict):
     items = list(self.ui.scene.items())
     output_items = []
     for item in items:
-        item_type = str(type(item))
-        if item_type[-12:] == "PixmapItem'>":
-            block_name = item.data(1)
-            block_num = item.data(2)
-            output_items.append(f"{block_name}{block_num}:{item.pos()}")
-        if item_type[-10:] == "LineItem'>":
-            block_name = item.data(1)
-            block_num = item.data(2)
-            start = item.data(3)
-            stop = item.data(4)
-            output_items.append(f"{block_name}{block_num}:{start}-{stop}")
+        if not getattr(item, 'block_type', None):
+            continue
+        item_type = item.item_type
+        if item_type == "pixmap":
+            itemid = item.itemid
+            output_items.append(f"{itemid}:{item.pos()}")
+        if item_type == "line":
+            itemid = item.itemid
+            start = item.start_node
+            stop = item.stop_node
+            output_items.append(f"{itemid}:{start}-{stop}")
     output = {"gs_dict": gs_dict,
               "items": output_items, "info_dict": info_dict}
     with open(filename, "wb") as f:
