@@ -180,7 +180,15 @@ class MyMainScreen(widgets.QMainWindow):
         # should be useful when removing objects by ID or creating links
         self.block_objects = {}
         self.link_objects = []
-
+        self.block_indices = {
+            "W":1,
+            "R":1,
+            "S":1,
+            "J":1,
+            "I":1,
+            "L":1,
+            "U":1
+        }
         # setup drawing parameters
         self.block_ID = ''
         self.block = 0
@@ -250,24 +258,28 @@ class MyMainScreen(widgets.QMainWindow):
     def createPixmapItem(self, pixmap, position, **kwargs):
         # matrix = gui.QMatrix()
         global num  # can be replaced, probably could use a running total of # blocks for this
-        label_value = 1  # initial label value
+        
 
         # is no kwargs are passed find the highest value of
         # this type of block currently on the scene and add
         # one to that for this label
-        if kwargs == {}:
-            items = list(self.ui.scene.items())
-            for obj in items:
-                if getattr(obj, 'block_type', None):
-                    if obj.block_type == self.block_ID:
-                        if int(obj.block_index) >= label_value:
-                            label_value = x + 1
-        else:  # if there are kwargs passed use those instead
+        # if kwargs == {}:
+        #     items = list(self.ui.scene.items())
+        #     for obj in items:
+        #         if getattr(obj, 'block_type', None):
+        #             if obj.block_type == self.block_ID:
+        #                 if int(obj.block_index) >= label_value:
+        #                     label_value = x + 1
+        if kwargs:  # if there are kwargs passed use those instead
             for key, value in kwargs.items():
                 if key == "value":
                     label_value = value
                 if key == 'block_ID':
                     self.block_ID = value
+            self.block_indices[self.block_ID] = label_value + 1
+        else:
+            label_value = self.block_indices[self.block_ID]
+            self.block_indices[self.block_ID] += 1
         block_id = f'{self.block_ID}{label_value}'
         pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
         # item = widgets.QGraphicsPixmapItem(pix_item)
@@ -309,7 +321,6 @@ class MyMainScreen(widgets.QMainWindow):
 
     # creates labels for nodes
     def create_label(self, value, b_ID, position, qtItem):
-        global num  # again, replace global with self...
         item = ''
         block_num = str(value)
         item_id = str(b_ID) + block_num
@@ -331,20 +342,8 @@ class MyMainScreen(widgets.QMainWindow):
         font.setBold(True)
         item.setFont(font)
         self.ui.scene.addItem(item)
-        # item.setData(7, item_id)
         return item
 
-    # # allows users to click blocks while in the link generate dialog
-    # # so when th
-    # def block_click(self, field):
-    #     sel_items = list(self.ui.scene.selectedItems())
-    #     x = 0
-    #     for item in sel_items:
-    #         block_id = self.get_item_id(item)
-    #         self.dialog.ui.field.setText(block_id)
-    #         x = 1
-    #     if x == 0:
-    #         self.block_click(field)
 
     # allows user to clear scene and start over
     def new_scene(self):
@@ -942,13 +941,6 @@ class MyMainScreen(widgets.QMainWindow):
         link.setPen(pen)
         self.ui.scene.addItem(link)
 
-        # parent and child ID
-        # chil_num = int(link_start.data(6))
-        # par_num = int(link_stop.data(5))
-        # link_start.setData(6, str(chil_num + 1))
-        # link_stop.setData(5, str(par_num + 1))
-        # link_start.setData(int('6' + str(chil_num + 1)), stop)
-        # link_stop.setData(int('5' + str(par_num + 1)), start)
 
         link_start.children.append(stop)
         link_stop.parents.append(start)
@@ -980,16 +972,6 @@ class MyMainScreen(widgets.QMainWindow):
         link_item.start_node = start
         link_item.stop_node = stop
         
-        # link.setData(1, 'L')
-        # link.setData(2, num)
-        # link.setData(3, start)
-        # link.setData(4, stop)
-        # link_item.setData(2, num)
-        # link_item.setData(3, start)
-        # link_item.setData(4, stop)
-        # link_item.setData(7, 'L' + str(num))
-        # link_item.setData(1, 'L')
-        # link_item.setFlags(widgets.QGraphicsItem.ItemIsMovable)
         self.ui.scene.clearSelection()
 
     # checks if the link being drawn is valid
@@ -1161,15 +1143,6 @@ class MyMainScreen(widgets.QMainWindow):
             link.stop_node = b_ID_local_stop
             link_item.start_node = b_ID_local_start
             link_item.stop_node = b_ID_local_stop
-            # link.setData(1, 'L')
-            # link.setData(2, value)
-            # link.setData(3, b_ID_local_start)
-            # link.setData(4, b_ID_local_stop)
-            # link_item.setData(2, value)
-            # link_item.setData(3, b_ID_local_start)
-            # link_item.setData(4, b_ID_local_stop)
-            # link_item.setData(7, 'L' + str(value))
-            # link_item.setData(1, 'L')
 
             self.ui.scene.clearSelection()
             
@@ -1177,19 +1150,6 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop = self.block_objects[b_ID_local_stop][0]
             link_start.children.append(stop)
             link_stop.parents.append(start)
-
-            # for item in items:
-            #     try:
-            #         par_num = item.get_n_parents()
-            #         name = self.get_item_id(item)
-            #         if name == b_ID_local_start:
-            #             chil_num = item.get_n_children()
-            #             item.setData(int('6' + str(chil_num + 1)), name)
-            #         if name == b_ID_local_stop:
-            #             par_num = item.get_n_parents()
-            #             item.setData(int('5' + str(par_num + 1)), name)
-            #     except:
-            #         pass
 
     # prints a pdf of the scene
     def print_scene(self):
