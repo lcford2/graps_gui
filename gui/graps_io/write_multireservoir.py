@@ -103,7 +103,7 @@ def write_input(self, filename):
             item_types['13'].append(inum)
             item_types['13'].sort()
             num_of_items['13'] += 1
-    II()
+    
     with open(filename, 'w') as f:
         f.write(f"{gs_dict['ntime_steps']}\t{gs_dict['nensembles']}\n")
         line2_nums = [str(num_of_items[str(i)]) for i in range(1, 14)]
