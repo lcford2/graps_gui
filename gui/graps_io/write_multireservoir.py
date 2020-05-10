@@ -29,9 +29,13 @@ def write_input(self, filename):
     # of modeled object. The full types are listed above in `types`
     # The simplified types for the GUI are in `type_map`
     for item in items:
-        itype = item.data(1)
-        inum = item.data(2)
-        item_id = self.get_item_id(item)
+        if not getattr(item, "itemid", None):
+            continue
+        if item.item_type == "text":
+            continue
+        itype = item.block_type
+        inum = item.block_index
+        item_id = item.itemid
         if itype == 'W':
             num_of_items['1'] += 1
             item_types['1'].append(inum)
@@ -49,8 +53,8 @@ def write_input(self, filename):
             item_types['5'].sort()
             num_of_items['5'] += 1
         elif itype == 'L':
-            start = str(item.data(3))
-            stop = str(item.data(4))
+            start = item.start_node
+            stop = item.stop_node
             # Links that start at watershed are natural flows
             if start[0] == 'W':
                 if inum not in item_types['2']:
@@ -96,12 +100,10 @@ def write_input(self, filename):
             item_types['12'].sort()
             num_of_items['12'] += 1
         elif itype == 'I':
-            item_id = str(itype +
-                          inum)
             item_types['13'].append(inum)
             item_types['13'].sort()
             num_of_items['13'] += 1
-
+    II()
     with open(filename, 'w') as f:
         f.write(f"{gs_dict['ntime_steps']}\t{gs_dict['nensembles']}\n")
         line2_nums = [str(num_of_items[str(i)]) for i in range(1, 14)]
@@ -198,24 +200,9 @@ def write_ws_details(self, filename):
                     count += 1
             nchild = 0
             children = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    if block.type() == 7:
-                        item_id = 'W' + item_num
-                        block_id = self.get_item_id(block)
-                        if item_id == block_id:
-                            nchild = int(
-                                str(block.data(6)))
-                            if nchild == 1:
-                                child = str(block.data(
-                                    61))
-                                children.append(child)
-                            if nchild > 1:
-                                for i in range(nchild):
-                                    child = str(block.data(
-                                        int('6' + str(i + 1))))
-                                    children.append(child)
+            gitem = self.block_objects[f'W{item_num}'][0]
+            nchild = gitem.get_n_children()
+            children = gitem.children
             f.write(item_num + '\n' + item_name + '\n' + item_num +
                     ' ' + str(nchild) + '  ' + drainage_area + '\n')
             for child in children:
@@ -238,14 +225,10 @@ def write_link_details(self, filename, link_type):
         for item in item_types[link_types[link_type]]:
             item_num = item
             item_id = 'L' + item_num
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    block_id = self.get_item_id(block)
-                    if block_id == item_id:
-                        start = str(block.data(3))
-                        start_num = start[1:]
-                        item_num = start_num
+            gitem = self.block_objects[f'L{item_num}'][0]
+            start = gitem.start_node
+            stop = gitem.stop_node
+            start_num = start[1:]
             item_name = str(info_dict[item_id]['link_Name'])
             start_node = str(info_dict[item_id]['start_node'])
             stop_node = str(info_dict[item_id]['stop_node'])
@@ -282,37 +265,12 @@ def write_res_details(self, filename):
             nrestric = gs_dict['nrestric']
             nspillways = info_dict[item_id]['num_spillways']
             noutlets = info_dict[item_id]['num_outlets']
-            nparent = 0
-            nchild = 0
-            parents = []
-            children = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    if block.type() == 7:
-                        item_id = 'R' + item_num
-                        block_id = self.get_item_id(block)
-                        if item_id == block_id:
-                            nparent = int(block.data(5))
-                            nchild = int(block.data(6))
-                            if nchild == 1:
-                                child = str(
-                                    block.data(61))
-                                children.append(child)
-                            elif nchild > 1:
-                                for i in range(nchild):
-                                    child = str(block.data(
-                                        int('6' + str(i + 1))))
-                                    children.append(child)
-                            if nparent == 1:
-                                parent = str(block.data(
-                                    51))
-                                parents.append(parent)
-                            elif nparent > 1:
-                                for i in range(nparent):
-                                    parent = str(block.data(
-                                        int('5' + str(i + 1))))
-                                    parents.append(parent)
+            gitem = self.block_objects[f'R{item_num}'][0]
+            nchild = gitem.get_n_children()
+            nparent = gitem.get_n_parents()
+            children = gitem.children
+            parents = gitem.parents
+        
             f.write(f'{item_num}\n')
             f.write(f'{item_name}\n')
             f.write(f'{latitude}\t{longitude}\n')
@@ -374,39 +332,12 @@ def write_user_details(self, filename):
             elif user_type_str == 'Environmental':
                 user_type = '5'
             nrestric = gs_dict['nrestric']
-            nparent = 0
-            nchild = 0
-            parents = []
-            children = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    if block.type() == 7:
-                        item_id = 'U' + item_num
-                        block_id = self.get_item_id(block)
-                        if item_id == block_id:
-                            nparent = int(
-                                str(block.data(5)))
-                            nchild = int(
-                                str(block.data(6)))
-                            if nchild == 1:
-                                child = str(block.data(
-                                    61))
-                                children.append(child)
-                            elif nchild > 1:
-                                for i in range(nchild):
-                                    child = str(block.data(
-                                        int('6' + str(i + 1))))
-                                    children.append(child)
-                            if nparent == 1:
-                                parent = str(block.data(
-                                    51))
-                                parents.append(parent)
-                            elif nparent > 1:
-                                for i in range(nparent):
-                                    parent = str(block.data(
-                                        int('5' + str(i + 1))))
-                                    parents.append(parent)
+            gitem = self.block_objects[f'U{item_num}'][0]
+            nchild = gitem.get_n_children()
+            nparent = gitem.get_n_parents()
+            children = gitem.children
+            parents = gitem.parents
+            
             reliability = str(info_dict[item_id]['reliability'])
             restric_vol = str(info_dict[item_id]['restrict_volume'])
             tariff = str(info_dict[item_id]['tariff'])
@@ -462,31 +393,29 @@ def write_user_details(self, filename):
                     pass
                     'Not sure if mutliple turbines are able to be considered'
             return_link = ''
+            items = list(self.ui.scene.items())
             for link in items:
-                if link.type() == 7:
-                    link_id = str(link.data(1) +
-                                  link.data(2))
+                if not getattr(link, "itemid", None):
+                    continue
+                if link.item_type == "line":
+                    link_id = link.itemid
                     global user_control_list
-                    try:
-                        start = str(link.data(3))
-                        item_id = 'U' + str(item_num)
-                        if start == item_id:
-                            x = start in user_control_list
-                            if not x:
-                                return_link = link_id
-                                nlags = info_dict[link_id]['nlags']
-                                f.write(nlags + '\n')
-                                ret_flows = info_dict[link_id]['ret_flows']
-                                if len(ret_flows) == 0:
-                                    f.write(str(0.01) + '\n')
-                                else:
-                                    for value in sorted(ret_flows.values()):
-                                        f.write(value + '  ')
-                                    f.write('\n')
-                                user_control_list.append(start)
+                    start = link.start_node
+                    item_id = 'U' + str(item_num)
+                    if start == item_id:
+                        if start not in user_control_list:
+                            return_link = link_id
+                            nlags = info_dict[link_id]['nlags']
+                            f.write(nlags + '\n')
+                            ret_flows = info_dict[link_id]['ret_flows']
+                            if len(ret_flows) == 0:
+                                f.write(str(0.01) + '\n')
+                            else:
+                                for value in sorted(ret_flows.values()):
+                                    f.write(value + '  ')
+                                f.write('\n')
+                            user_control_list.append(start)
 
-                    except:
-                        pass
 
 
 def write_jun_details(self, filename):
@@ -496,39 +425,12 @@ def write_jun_details(self, filename):
             item_num = item
             item_id = 'J' + item_num
             item_name = str(info_dict[item_id]['junction_Name'])
-            nparent = 0
-            nchild = 0
-            parents = []
-            children = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    if block.type() == 7:
-                        item_id = 'J' + item_num
-                        block_id = self.get_item_id(block)
-                        if item_id == block_id:
-                            nparent = int(
-                                str(block.data(5)))
-                            nchild = int(
-                                str(block.data(6)))
-                            if nchild == 1:
-                                child = str(block.data(
-                                    61))
-                                children.append(child)
-                            elif nchild > 1:
-                                for i in range(nchild):
-                                    child = str(block.data(
-                                        int('6' + str(i + 1))))
-                                    children.append(child)
-                            if nparent == 1:
-                                parent = str(block.data(
-                                    51))
-                                parents.append(parent)
-                            elif nparent > 1:
-                                for i in range(nparent):
-                                    parent = str(block.data(
-                                        int('5' + str(i + 1))))
-                                    parents.append(parent)
+            gitem = self.block_objects[f'J{item_num}'][0]
+            nchild = gitem.get_n_children()
+            nparent = gitem.get_n_parents()
+            children = gitem.children
+            parents = gitem.parents
+            
             f.write(f'{item_num}\n')
             f.write(f'{item_name}\n')
             f.write(f'{item_num}  {nchild}  {nparent}\n')
@@ -548,27 +450,11 @@ def write_sink_details(self, filename):
             item_name = str(info_dict[item_id]['sink_Name'])
             max_storage = str(info_dict[item_id]['max_storage'])
 
-            nparent = 0
-            parents = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    if block.type() == 7:
-                        item_id = 'S' + item_num
-                        block_id = self.get_item_id(block)
-                        if item_id == block_id:
-                            nparent = int(
-                                str(block.data(5)))
-                            if nparent == 1:
-                                parent = str(block.data(
-                                    51))
-                                parents.append(parent)
-                            if nparent > 1:
-                                for i in range(nparent):
-                                    parent = str(block.data(
-                                        int('5' + str(i + 1))))
-                                    parents.append(parent)
+            gitem = self.block_objects[f'S{item_num}'][0]
+            nparent = gitem.get_n_parents()
+            parents = gitem.parents
 
+        
             f.write(f'{item_num}\n')
             f.write(f'{item_name}\n')
             f.write(f'{item_num}  {nparent}\n')
@@ -586,25 +472,10 @@ def write_ibasin_details(self, filename):
             item_name = str(info_dict[item_id]['interbasin_Name'])
             drainage_area = str(info_dict[item_id]['drain_Area'])
             inflow_file = info_dict[item_id]['inflows_file']
-            nchild = 0
-            children = []
-            items = list(self.ui.scene.items())
-            for block in items:
-                if block.data(1):
-                    item_id = 'I' + item_num
-                    block_id = self.get_item_id(block)
-                    if item_id == block_id:
-                        nchild = int(
-                            str(block.data(6)))
-                        if nchild == 1:
-                            child = str(block.data(
-                                61))
-                            children.append(child)
-                        if nchild > 1:
-                            for i in range(nchild):
-                                child = str(block.data(
-                                    int('6' + str(i + 1))))
-                                children.append(child)
+            gitem = self.block_objects[f'I{item_num}'][0]
+            nchild = gitem.get_n_children()
+            children = gitem.children
+           
             f.write(f'{item_num}\n')
             f.write(f'{item_name}\n')
             f.write(f'{drainage_area}\n')

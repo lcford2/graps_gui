@@ -23,7 +23,7 @@ from ui.interbasin_dialog import Ui_interbasin_dialog
 from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
 # import my graphics with overloaded signals
-from graphics_items import myPixmapItem, myGraphicsTextItem
+from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
 import dictionaries as dlg_populate
 # saves the graphics created by the user
@@ -258,10 +258,10 @@ class MyMainScreen(widgets.QMainWindow):
         if kwargs == {}:
             items = list(self.ui.scene.items())
             for obj in items:
-                if obj.data(1) == self.block_ID:
-                    x = int(obj.data(2))
-                    if x >= label_value:
-                        label_value = x + 1
+                if getattr(obj, 'block_type', None):
+                    if obj.block_type == self.block_ID:
+                        if int(obj.block_index) >= label_value:
+                            label_value = x + 1
         else:  # if there are kwargs passed use those instead
             for key, value in kwargs.items():
                 if key == "value":
@@ -297,13 +297,13 @@ class MyMainScreen(widgets.QMainWindow):
         self.block_objects[f"{self.block_ID}{label_value}"] = (item, g_label)
 
         # setting item parameters to initial values
-        item.setData(1, str(self.block_ID))
-        item.setData(2, str(label_value))
-        item.setData(5, '0')  # number of parents
-        item.setData(6, '0')  # number of children
+        # item.setData(1, str(self.block_ID))
+        # item.setData(2, str(label_value))
+        # item.setData(5, '0')  # number of parents
+        # item.setData(6, '0')  # number of children
         # item.setData(7, str(block))
-        item.setData(51, 'None')
-        item.setData(61, 'None')
+        # item.setData(51, 'None')
+        # item.setData(61, 'None')
         # II()
         Dirty = True
 
@@ -331,7 +331,7 @@ class MyMainScreen(widgets.QMainWindow):
         font.setBold(True)
         item.setFont(font)
         self.ui.scene.addItem(item)
-        item.setData(7, item_id)
+        # item.setData(7, item_id)
         return item
 
     # # allows users to click blocks while in the link generate dialog
@@ -366,7 +366,7 @@ class MyMainScreen(widgets.QMainWindow):
             items = list(self.ui.scene.items())
             for item in items:
                 if item.type() == 8:
-                    relation = item.data(7)
+                    relation = item.itemid
                     if relation in self.dialog_dict:
                         item_dict = self.dialog_dict[relation]
                         name_tag = ''
@@ -498,7 +498,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dlg = "dlg_closed"
 
     def get_item_id(self, item):
-        return f'{item.data(1)}{item.data(2)}'
+        return item.itemid
     
     def open_error_dialog(self):
         self.dialog = widgets.QDialog(self)
@@ -857,11 +857,11 @@ class MyMainScreen(widgets.QMainWindow):
                     if item_id in self.dialog_dict:
                         self.dialog_dict.pop(item_id)
                     remove_items = self.block_objects[item_id]
-                    if item.data(1) == "L":
+                    if item.block_type == "L":
                         link_item = {'link': remove_items[0],
                                      'label': remove_items[1],
-                                     'start': item.data(3),
-                                     'stop': item.data(4)}
+                                     'start': item.start_node,
+                                     'stop': item.stop_node}
                         self.link_objects.remove(link_item)
                         
                     for remove_item in remove_items:
@@ -937,18 +937,21 @@ class MyMainScreen(widgets.QMainWindow):
         stoppos.setY(stoppos.y() + self.bitmap_height/2)
         stoppos.setX(stoppos.x() + self.bitmap_width/2)
         line.setPoints(startpos, stoppos)
-        link = widgets.QGraphicsLineItem(line)
+        link = myGraphicsLineItem(line, f'L{num}', self)
         # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
         link.setPen(pen)
         self.ui.scene.addItem(link)
 
         # parent and child ID
-        chil_num = int(link_start.data(6))
-        par_num = int(link_stop.data(5))
-        link_start.setData(6, str(chil_num + 1))
-        link_stop.setData(5, str(par_num + 1))
-        link_start.setData(int('6' + str(chil_num + 1)), stop)
-        link_stop.setData(int('5' + str(par_num + 1)), start)
+        # chil_num = int(link_start.data(6))
+        # par_num = int(link_stop.data(5))
+        # link_start.setData(6, str(chil_num + 1))
+        # link_stop.setData(5, str(par_num + 1))
+        # link_start.setData(int('6' + str(chil_num + 1)), stop)
+        # link_stop.setData(int('5' + str(par_num + 1)), start)
+
+        link_start.children.append(stop)
+        link_stop.parents.append(start)
 
         link_id = str(start) + '->' + str(stop)
         link_item = myGraphicsTextItem(link_id, f'L{num}', self)
@@ -967,20 +970,25 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene.addItem(link_item)
         self.link_objects.append({'link': link,
                                       'label': link_item,
-                                      'start': self.get_item_id(link_start),
-                                      'stop': self.get_item_id(link_stop)})
+                                      'start': link_start.itemid,
+                                      'stop': link_stop.itemid})
         self.block_objects[f'L{num}'] = (link, link_item)
 
         name = 'L:' + num
-        link.setData(1, 'L')
-        link.setData(2, num)
-        link.setData(3, start)
-        link.setData(4, stop)
-        link_item.setData(2, num)
-        link_item.setData(3, start)
-        link_item.setData(4, stop)
-        link_item.setData(7, 'L' + str(num))
-        link_item.setData(1, 'L')
+        link.start_node = start
+        link.stop_node = stop
+        link_item.start_node = start
+        link_item.stop_node = stop
+        
+        # link.setData(1, 'L')
+        # link.setData(2, num)
+        # link.setData(3, start)
+        # link.setData(4, stop)
+        # link_item.setData(2, num)
+        # link_item.setData(3, start)
+        # link_item.setData(4, stop)
+        # link_item.setData(7, 'L' + str(num))
+        # link_item.setData(1, 'L')
         # link_item.setFlags(widgets.QGraphicsItem.ItemIsMovable)
         self.ui.scene.clearSelection()
 
@@ -1081,6 +1089,7 @@ class MyMainScreen(widgets.QMainWindow):
         global b_ID_control
         global b_ID_local_stop
         global b_ID_local_start
+        global link_list
         select_items = []
 
         items = list(self.ui.scene.items())
@@ -1102,6 +1111,12 @@ class MyMainScreen(widgets.QMainWindow):
                     if item_id == b_ID_local_stop:
                         stoppos = item.pos()
 
+            value = 1
+            while value in link_list:
+                value += 1
+            
+            link_list.append(value)
+
             pen = gui.QPen(core.Qt.black, 1, core.Qt.SolidLine)
             line = core.QLineF()
             startpos.setY(startpos.y() + self.bitmap_height/2)
@@ -1109,18 +1124,11 @@ class MyMainScreen(widgets.QMainWindow):
             stoppos.setY(stoppos.y() + self.bitmap_height/2)
             stoppos.setX(stoppos.x() + self.bitmap_width/2)
             line.setPoints(startpos, stoppos)
-            link = widgets.QGraphicsLineItem(line)
+            link = myGraphicsLineItem(line, f'L{value}', self)
             linedraw_go = False
             link.setPen(pen)
             self.ui.scene.addItem(link)
-
-            value = 1
-            x = value in link_list
-            while x:
-                value += 1
-                x = value in link_list
-            if not x:
-                link_list.append(value)
+            
 
             link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
             link_item = myGraphicsTextItem(link_id, f'L{value}', self)
@@ -1149,30 +1157,39 @@ class MyMainScreen(widgets.QMainWindow):
             self.block_objects[f'L{value}'] = (link, link_item)
             name = 'L:' + link_id
 
-            link.setData(1, 'L')
-            link.setData(2, value)
-            link.setData(3, b_ID_local_start)
-            link.setData(4, b_ID_local_stop)
-            link_item.setData(2, value)
-            link_item.setData(3, b_ID_local_start)
-            link_item.setData(4, b_ID_local_stop)
-            link_item.setData(7, 'L' + str(value))
-            link_item.setData(1, 'L')
+            link.start_node = b_ID_local_start
+            link.stop_node = b_ID_local_stop
+            link_item.start_node = b_ID_local_start
+            link_item.stop_node = b_ID_local_stop
+            # link.setData(1, 'L')
+            # link.setData(2, value)
+            # link.setData(3, b_ID_local_start)
+            # link.setData(4, b_ID_local_stop)
+            # link_item.setData(2, value)
+            # link_item.setData(3, b_ID_local_start)
+            # link_item.setData(4, b_ID_local_stop)
+            # link_item.setData(7, 'L' + str(value))
+            # link_item.setData(1, 'L')
 
             self.ui.scene.clearSelection()
+            
+            link_start = self.block_objects[b_ID_local_start][0]
+            link_stop = self.block_objects[b_ID_local_stop][0]
+            link_start.children.append(stop)
+            link_stop.parents.append(start)
 
-            for item in items:
-                try:
-                    par_num = int(item.data(5))
-                    name = self.get_item_id(item)
-                    if name == b_ID_local_start:
-                        chil_num = int(item.data(6))
-                        item.setData(int('6' + str(chil_num + 1)), name)
-                    if name == b_ID_local_stop:
-                        par_num = int(item.data(5))
-                        item.setData(int('5' + str(par_num + 1)), name)
-                except:
-                    pass
+            # for item in items:
+            #     try:
+            #         par_num = item.get_n_parents()
+            #         name = self.get_item_id(item)
+            #         if name == b_ID_local_start:
+            #             chil_num = item.get_n_children()
+            #             item.setData(int('6' + str(chil_num + 1)), name)
+            #         if name == b_ID_local_stop:
+            #             par_num = item.get_n_parents()
+            #             item.setData(int('5' + str(par_num + 1)), name)
+            #     except:
+            #         pass
 
     # prints a pdf of the scene
     def print_scene(self):
@@ -1446,7 +1463,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[watershed_ID] = watershed_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == watershed_ID:
                 self.change_label(item_id=label_item, name_tag=watershed_Name)
         # print self.dialog_dict
@@ -1670,7 +1687,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[reservoir_ID] = reservoir_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == reservoir_ID:
                 self.change_label(item_id=label_item, name_tag=reservoir_Name)
         # print self.dialog_dict
@@ -1820,7 +1837,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[user_ID] = user_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == user_ID:
                 self.change_label(item_id=label_item, name_tag=user_Name)
 
@@ -1866,7 +1883,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[interbasin_ID] = interbasin_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == interbasin_ID:
                 self.change_label(item_id=label_item, name_tag=interbasin_Name)
 
@@ -1880,7 +1897,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[junction_ID] = junction_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == junction_ID:
                 self.change_label(item_id=label_item, name_tag=junction_Name)
 
@@ -1897,7 +1914,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[sink_ID] = sink_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == sink_ID:
                 self.change_label(item_id=label_item, name_tag=sink_Name)
         # print self.dialog_dict
@@ -1947,7 +1964,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[link_ID] = link_dict
         items = list(self.ui.scene.items())
         for label_item in items:
-            label = str(label_item.data(7))
+            label = label_item.itemid
             if label == link_ID:
                 self.change_label(item_id=label_item, name_tag=link_Name)
 
