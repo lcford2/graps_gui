@@ -955,19 +955,19 @@ class MyMainScreen(widgets.QMainWindow):
         else:
             if start[0] in ['W','I','U']:
                 good = ['R', 'J', 'S']
-                if stop not in good:
+                if stop[0] not in good:
                     self.dialog.done(1)
                     self.open_error_dialog(text="Invalid link.")
                     return False
             if start[0] == 'R':
                 good = ['J', 'U', 'S', 'R']
-                if stop not in good:
+                if stop[0] not in good:
                     self.dialog.done(1)
                     self.open_error_dialog(text="Invalid link.")
                     return False
             if start[0] == 'J':
                 good = ['R', 'U', 'S']
-                if stop not in good:
+                if stop[0] not in good:
                     self.dialog.done(1)
                     self.open_error_dialog(text="Invalid link.")
                     return False
@@ -1811,12 +1811,7 @@ def main():
     from stylesheets import style
     style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
-    # app.setStyleSheet(style_selector.BreezeLight())
-    # file = core.QFile("./stylesheets/ubuntu.qss")
-    # file.open(core.QFile.ReadOnly | core.QFile.Text)
-    # stream = core.QTextStream(file)
-    # app.setStyleSheet(stream.readAll())
-    # with open("./stylesheets/aqua.qss)
+    app.setStyleSheet(style_selector.BreezeLight())
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
