@@ -13,6 +13,7 @@ class myPixmapItem(QtWidgets.QGraphicsPixmapItem):
         self.itemid = itemid
         self.block_type = itemid[0]
         self.block_index = itemid[1:]
+        self.label_item = None
     
     def mouseDoubleClickEvent(self, event):
         self.owner.open_dialogs()
@@ -52,3 +53,4 @@ class myGraphicsLineItem(QtWidgets.QGraphicsLineItem):
         self.block_index = itemid[1:]
         self.start_node = ""
         self.stop_node = ""
+        self.label_item = None

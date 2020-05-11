@@ -22,6 +22,7 @@ from ui.junction_dialog import Ui_junction_dialog
 from ui.interbasin_dialog import Ui_interbasin_dialog
 from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
+from ui.not_saved_dialog import Ui_NotSavedDialog
 # import my graphics with overloaded signals
 from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
@@ -37,28 +38,6 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_sink_details, write_link_details,
                                            write_dec_var_details)
 from IPython import embed as II
-
-Dirty = False
-
-
-link_control = 1
-startpos = (0, 0)
-stoppos = (0, 0)
-firstClick = True
-secondClick = True
-linedraw_go = False
-b_ID_control = 1
-
-first_Block = ''
-second_Block = ''
-save_file_name = ''
-b_ID_local_start = ''
-b_ID_local_stop = ''
-link_list = []
-
-go = True
-x = 0
-num = {'W': 1, 'R': 1, 'I': 1, 'J': 1, 'U': 1, 'S': 1, 'L': 1}
 
 class MyMainScreen(widgets.QMainWindow):
     # These next seven functions are called when a user selects
@@ -207,6 +186,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene = widgets.QGraphicsScene(self)
         # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
 
+        # save indicator
+        self.dirty = False
+
         # self.ui.view.setEventFilter(self.eventFilter())
         # Setting up printer to create a pdf of the system
         # global screen_res
@@ -256,38 +238,20 @@ class MyMainScreen(widgets.QMainWindow):
     # Places block near cursor and labels it based on other blocks of that type
 
     def createPixmapItem(self, pixmap, position, **kwargs):
-        # matrix = gui.QMatrix()
-        global num  # can be replaced, probably could use a running total of # blocks for this
-        
-
-        # is no kwargs are passed find the highest value of
-        # this type of block currently on the scene and add
-        # one to that for this label
-        # if kwargs == {}:
-        #     items = list(self.ui.scene.items())
-        #     for obj in items:
-        #         if getattr(obj, 'block_type', None):
-        #             if obj.block_type == self.block_ID:
-        #                 if int(obj.block_index) >= label_value:
-        #                     label_value = x + 1
         if kwargs:  # if there are kwargs passed use those instead
             for key, value in kwargs.items():
                 if key == "value":
                     label_value = value
                 if key == 'block_ID':
                     self.block_ID = value
-            self.block_indices[self.block_ID] = label_value + 1
+            self.block_indices[self.block_ID] = int(label_value) + 1
         else:
             label_value = self.block_indices[self.block_ID]
             self.block_indices[self.block_ID] += 1
         block_id = f'{self.block_ID}{label_value}'
         pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
-        # item = widgets.QGraphicsPixmapItem(pix_item)
         item = myPixmapItem(parent=pix_item, itemid=block_id, owner=self)
-        # item = gui.QGraphicsObject(pix_item)
         item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
-        # the -15 and -68 here are to place the block as close as possible
-        # to where the user clicked the canvas
         
         position.setX(position.x() - self.bitmap_width/2)
         position.setY(position.y() - self.bitmap_height/2)
@@ -298,7 +262,6 @@ class MyMainScreen(widgets.QMainWindow):
         # making sure there is not another Item selected
         self.ui.scene.clearSelection()
         self.ui.scene.addItem(item)
-        # II()
         # Unselecting the item
         item.setSelected(False)
 
@@ -307,17 +270,9 @@ class MyMainScreen(widgets.QMainWindow):
         g_label = self.create_label(label_value, self.block_ID, position, item)
         # add item and label to block container
         self.block_objects[f"{self.block_ID}{label_value}"] = (item, g_label)
+        item.label_item = g_label
 
-        # setting item parameters to initial values
-        # item.setData(1, str(self.block_ID))
-        # item.setData(2, str(label_value))
-        # item.setData(5, '0')  # number of parents
-        # item.setData(6, '0')  # number of children
-        # item.setData(7, str(block))
-        # item.setData(51, 'None')
-        # item.setData(61, 'None')
-        # II()
-        Dirty = True
+        self.dirty = True
 
     # creates labels for nodes
     def create_label(self, value, b_ID, position, qtItem):
@@ -356,10 +311,10 @@ class MyMainScreen(widgets.QMainWindow):
 
     # changes the label of items in the scene if the name is updated via dialog
     def change_label(self, *args, **kwargs):
-        if kwargs != {}:
+        if kwargs:
             name_tag = kwargs['name_tag']
             item_id = kwargs['item_id']
-            if name_tag != '':
+            if name_tag != '' and item_id.item_type == 'text':
                 item_id.setPlainText(name_tag)
         else:
             items = list(self.ui.scene.items())
@@ -499,12 +454,24 @@ class MyMainScreen(widgets.QMainWindow):
     def get_item_id(self, item):
         return item.itemid
     
-    def open_error_dialog(self):
+    def open_error_dialog(self, text=None):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_ErrorDialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
+        if text:
+            self.dialog.ui.label.setText('Invalid link.')
+        self.dialog.exec_()
+        self.dialog = None
+    
+    def open_not_saved_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_NotSavedDialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.setAttribute(
+            core.Qt.WA_DeleteOnClose)
+        self.dialog.ui.buttonBox.accepted.connect(self.save_screen)
         self.dialog.exec_()
         self.dialog = None
 
@@ -820,6 +787,7 @@ class MyMainScreen(widgets.QMainWindow):
                     self.linkdraw()
                 
     def open_dialogs(self, enter=False):
+        self.dirty = True
         sel_items = list(self.ui.scene.selectedItems())
         if self.dlg == 'dlg_closed':
             pass
@@ -891,6 +859,10 @@ class MyMainScreen(widgets.QMainWindow):
         if QKeyEvent.key() == return_key or QKeyEvent.key() == enter_key:
             self.open_dialogs(enter=True)
             
+    def closeEvent(self, event):
+        if self.dirty:
+            self.open_not_saved_dialog()
+            
 
     # opens dialog to allow file saving
     def save_screen(self):
@@ -902,6 +874,7 @@ class MyMainScreen(widgets.QMainWindow):
             pass
         else:
             sv(self, save_file_name, self.gen_setup_dict, self.dialog_dict)
+            self.dirty = False
 
     # opens files for editing
     def file_open(self):
@@ -937,7 +910,6 @@ class MyMainScreen(widgets.QMainWindow):
         stoppos.setX(stoppos.x() + self.bitmap_width/2)
         line.setPoints(startpos, stoppos)
         link = myGraphicsLineItem(line, f'L{num}', self)
-        # link.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
         link.setPen(pen)
         self.ui.scene.addItem(link)
 
@@ -958,6 +930,7 @@ class MyMainScreen(widgets.QMainWindow):
         link_item.setFont(font)
         link_item.setFlags(widgets.QGraphicsItem.ItemIsSelectable |
                            widgets.QGraphicsItem.ItemIsMovable)
+        link.label_item = link_item
 
         self.ui.scene.addItem(link_item)
         self.link_objects.append({'link': link,
@@ -973,107 +946,39 @@ class MyMainScreen(widgets.QMainWindow):
         link_item.stop_node = stop
         
         self.ui.scene.clearSelection()
+        self.dirty = True
 
     # checks if the link being drawn is valid
     def check_link(self, start, stop):
         if len(start) == 0 or len(stop) == 0:
-            return 'no go'
+            return False
         else:
-            if start[0] == 'W':
+            if start[0] in ['W','I','U']:
                 good = ['R', 'J', 'S']
-                x = stop[0] in good
-                if not x:
+                if stop not in good:
                     self.dialog.done(1)
-                    self.dialog = widgets.QDialog(self)
-                    self.dialog.ui = Ui_ErrorDialog()
-                    self.dialog.ui.setupUi(self.dialog)
-                    self.dialog.ui.label.setText('Invalid link.')
-                    self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                    self.dialog.exec_()
-                    return 'no go'
-                else:
-                    return 'go'
-            if start[0] == 'I':
-                good = ['R', 'J', 'S']
-                x = stop[0] in good
-                if not x:
-                    self.dialog.done(1)
-                    self.dialog = widgets.QDialog(self)
-                    self.dialog.ui = Ui_ErrorDialog()
-                    self.dialog.ui.setupUi(self.dialog)
-                    self.dialog.ui.label.setText('Invalid link.')
-                    self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                    self.dialog.exec_()
-                    return 'no go'
-                else:
-                    return 'go'
+                    self.open_error_dialog(text="Invalid link.")
+                    return False
             if start[0] == 'R':
                 good = ['J', 'U', 'S', 'R']
-                x = stop[0] in good
-                if not x:
+                if stop not in good:
                     self.dialog.done(1)
-                    self.dialog = widgets.QDialog(self)
-                    self.dialog.ui = Ui_ErrorDialog()
-                    self.dialog.ui.setupUi(self.dialog)
-                    self.dialog.ui.label.setText('Invalid link.')
-                    self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                    self.dialog.exec_()
-                    return 'no go'
-                else:
-                    return 'go'
+                    self.open_error_dialog(text="Invalid link.")
+                    return False
             if start[0] == 'J':
                 good = ['R', 'U', 'S']
-                x = stop[0] in good
-                if not x:
+                if stop not in good:
                     self.dialog.done(1)
-                    self.dialog = widgets.QDialog(self)
-                    self.dialog.ui = Ui_ErrorDialog()
-                    self.dialog.ui.setupUi(self.dialog)
-                    self.dialog.ui.label.setText('Invalid link.')
-                    self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                    self.dialog.exec_()
-                    return 'no go'
-                else:
-                    return 'go'
-            if start[0] == 'U':
-                good = ['R', 'J', 'S']
-                x = stop[0] in good
-                if not x:
-                    self.dialog.done(1)
-                    self.dialog = widgets.QDialog(self)
-                    self.dialog.ui = Ui_ErrorDialog()
-                    self.dialog.ui.setupUi(self.dialog)
-                    self.dialog.ui.label.setText('Invalid link.')
-                    self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                    self.dialog.exec_()
-                    return 'no go'
-                else:
-                    return 'go'
+                    self.open_error_dialog(text="Invalid link.")
+                    return False
             if start[0] == 'S':
                 self.dialog.done(1)
-                self.dialog = widgets.QDialog(self)
-                self.dialog.ui = Ui_ErrorDialog()
-                self.dialog.ui.setupUi(self.dialog)
-                self.dialog.ui.label.setText('Invalid link.')
-                self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-                self.dialog.exec_()
-                return 'no go'
+                self.open_error_dialog(text="Invalid link.")
+                return False
+            return True
 
     # controls link generation from user interaction
     def linkdraw(self):
-        global firstClick
-        global secondClick
-        global linedraw_go
-        global startpos
-        global stoppos
-        global go
-        global link_control
-        global b_ID_control
-        global b_ID_local_stop
-        global b_ID_local_start
-        global link_list
-        select_items = []
-
         items = list(self.ui.scene.items())
         first_go = 0
         start = str(self.dialog.ui.start_edit.text())
@@ -1084,7 +989,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.stop_edit.setText('')
         self.dialog.ui.start_edit.setFocus()
         check = self.check_link(start, stop)
-        if check == 'go':
+        if check:
             for item in items:
                 if item.type() == 7:
                     item_id = self.get_item_id(item)
@@ -1093,11 +998,8 @@ class MyMainScreen(widgets.QMainWindow):
                     if item_id == b_ID_local_stop:
                         stoppos = item.pos()
 
-            value = 1
-            while value in link_list:
-                value += 1
-            
-            link_list.append(value)
+            value = self.block_indices[self.block_ID]
+            self.block_indices[self.block_ID] += 1
 
             pen = gui.QPen(core.Qt.black, 1, core.Qt.SolidLine)
             line = core.QLineF()
@@ -1128,7 +1030,7 @@ class MyMainScreen(widgets.QMainWindow):
             link_item.setFont(font)
             link_item.setFlags(widgets.QGraphicsItem.ItemIsSelectable |
                                widgets.QGraphicsItem.ItemIsMovable)
-
+            link.label_item = link_item
             self.ui.scene.addItem(link_item)
             self.link_objects.append({'link': link,
                                       'label': link_item,
@@ -1150,6 +1052,7 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop = self.block_objects[b_ID_local_stop][0]
             link_start.children.append(stop)
             link_stop.parents.append(start)
+            self.dirty = True
 
     # prints a pdf of the scene
     def print_scene(self):
@@ -1421,12 +1324,8 @@ class MyMainScreen(widgets.QMainWindow):
         watershed_dict['forecast_file'] = forecast_file
         watershed_dict['inflows_file'] = inflows_file
         self.dialog_dict[watershed_ID] = watershed_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == watershed_ID:
-                self.change_label(item_id=label_item, name_tag=watershed_Name)
-        # print self.dialog_dict
+        label_item = self.block_objects[watershed_ID][1]
+        self.change_label(item_id=label_item, name_tag=watershed_Name)
 
     def get_info_reservoir(self):
         reservoir_dict = {}
@@ -1645,12 +1544,8 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['outlets'] = outlets
         reservoir_dict['num_outlets'] = str(num_outlets)
         self.dialog_dict[reservoir_ID] = reservoir_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == reservoir_ID:
-                self.change_label(item_id=label_item, name_tag=reservoir_Name)
-        # print self.dialog_dict
+        label_item = self.block_objects[reservoir_ID][1]
+        self.change_label(item_id=label_item, name_tag=reservoir_Name)
 
     def get_info_user(self):
         user_dict = {}
@@ -1795,11 +1690,8 @@ class MyMainScreen(widgets.QMainWindow):
         user_dict['turbine_elevs'] = turb_elev
         user_dict['hydro'] = hydro
         self.dialog_dict[user_ID] = user_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == user_ID:
-                self.change_label(item_id=label_item, name_tag=user_Name)
+        label_item = self.block_objects[user_ID][1]
+        self.change_label(item_id=label_item, name_tag=user_Name)
 
     def get_info_interbasin(self):
         time_steps = self.gen_setup_dict['ntime_steps']
@@ -1841,11 +1733,8 @@ class MyMainScreen(widgets.QMainWindow):
         interbasin_dict['drain_area'] = drain_area
         interbasin_dict['average_flows'] = average_flows
         self.dialog_dict[interbasin_ID] = interbasin_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == interbasin_ID:
-                self.change_label(item_id=label_item, name_tag=interbasin_Name)
+        label_item = self.block_objects[interbasin_ID][1]
+        self.change_label(item_id=label_item, name_tag=interbasin_Name)
 
     def get_info_junction(self):
         junction_dict = {}
@@ -1855,11 +1744,8 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.flow_jun_node_edit.text())
         junction_dict['junction_Name'] = junction_Name
         self.dialog_dict[junction_ID] = junction_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == junction_ID:
-                self.change_label(item_id=label_item, name_tag=junction_Name)
+        label_item = self.block_objects[junction_ID][1]
+        self.change_label(item_id=label_item, name_tag=junction_Name)
 
     def get_info_sink(self):
         sink_dict = {}
@@ -1872,12 +1758,8 @@ class MyMainScreen(widgets.QMainWindow):
         sink_dict['sink_Name'] = sink_Name
         sink_dict['max_storage'] = max_storage
         self.dialog_dict[sink_ID] = sink_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == sink_ID:
-                self.change_label(item_id=label_item, name_tag=sink_Name)
-        # print self.dialog_dict
+        label_item = self.block_objects[sink_ID][1]
+        self.change_label(item_id=label_item, name_tag=sink_Name)
 
     def get_info_link(self):
         link_dict = {}
@@ -1922,13 +1804,8 @@ class MyMainScreen(widgets.QMainWindow):
         link_dict['nlags'] = nlags
         link_dict['ret_flows'] = ret_flows
         self.dialog_dict[link_ID] = link_dict
-        items = list(self.ui.scene.items())
-        for label_item in items:
-            label = label_item.itemid
-            if label == link_ID:
-                self.change_label(item_id=label_item, name_tag=link_Name)
-
-        # print self.dialog_dict
+        label_item = self.block_objects[link_ID][1]
+        self.change_label(item_id=label_item, name_tag=link_Name)
 
 def main():
     from stylesheets import style
@@ -1946,17 +1823,4 @@ def main():
     app.exec_()
 
 if __name__ == "__main__":
-    # from stylesheets import style
-    # style_selector = style.StyleSheets()
-    # app = widgets.QApplication(sys.argv)
-    # # app.setStyleSheet(style_selector.BreezeLight())
-    # # file = core.QFile("./stylesheets/ubuntu.qss")
-    # # file.open(core.QFile.ReadOnly | core.QFile.Text)
-    # # stream = core.QTextStream(file)
-    # # app.setStyleSheet(stream.readAll())
-    # # with open("./stylesheets/aqua.qss)
-    # screen_res = app.desktop().screenGeometry()
-    # mainscreen = MyMainScreen()
-    # mainscreen.showMaximized()
-    # app.exec_()
     main()
