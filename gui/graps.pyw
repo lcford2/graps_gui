@@ -1811,7 +1811,7 @@ def main():
     from stylesheets import style
     style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
-    app.setStyleSheet(style_selector.BreezeLight())
+    app.setStyleSheet(style_selector.Ubuntu())
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
