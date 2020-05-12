@@ -39,6 +39,7 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_dec_var_details)
 from IPython import embed as II
 
+
 class MyMainScreen(widgets.QMainWindow):
     # These next seven functions are called when a user selects
     # type of block from the applications toolbar
@@ -160,13 +161,13 @@ class MyMainScreen(widgets.QMainWindow):
         self.block_objects = {}
         self.link_objects = []
         self.block_indices = {
-            "W":1,
-            "R":1,
-            "S":1,
-            "J":1,
-            "I":1,
-            "L":1,
-            "U":1
+            "W": 1,
+            "R": 1,
+            "S": 1,
+            "J": 1,
+            "I": 1,
+            "L": 1,
+            "U": 1
         }
         # setup drawing parameters
         self.block_ID = ''
@@ -252,9 +253,9 @@ class MyMainScreen(widgets.QMainWindow):
         pix_item = gui.QPixmap(os.path.join("gui", "icons", pixmap))
         item = myPixmapItem(parent=pix_item, itemid=block_id, owner=self)
         item.setFlags(widgets.QGraphicsItem.ItemIsSelectable)
-        
-        position.setX(position.x() - self.bitmap_width/2)
-        position.setY(position.y() - self.bitmap_height/2)
+
+        position.setX(position.x() - self.bitmap_width / 2)
+        position.setY(position.y() - self.bitmap_height / 2)
 
         item.setPos(position)
         # item.setMatrix(matrix)
@@ -264,7 +265,6 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene.addItem(item)
         # Unselecting the item
         item.setSelected(False)
-
 
         # creating and placing a label for the block
         g_label = self.create_label(label_value, self.block_ID, position, item)
@@ -299,8 +299,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene.addItem(item)
         return item
 
-
     # allows user to clear scene and start over
+
     def new_scene(self):
         items = list(self.ui.scene.items())
         for item in items:
@@ -453,7 +453,7 @@ class MyMainScreen(widgets.QMainWindow):
 
     def get_item_id(self, item):
         return item.itemid
-    
+
     def open_error_dialog(self, text=None):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_ErrorDialog()
@@ -464,7 +464,7 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.label.setText('Invalid link.')
         self.dialog.exec_()
         self.dialog = None
-    
+
     def open_not_saved_dialog(self):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_NotSavedDialog()
@@ -498,7 +498,7 @@ class MyMainScreen(widgets.QMainWindow):
             dlg_populate.WS(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
-    
+
     def open_reservoir_dialog(self, item):
         item_type = item.block_type
         item_num = item.block_index
@@ -548,7 +548,7 @@ class MyMainScreen(widgets.QMainWindow):
         except KeyError as e:
             self.open_error_dialog()
             return
-            
+
         self.dialog.ui.target_rest_table.setRowCount(1)
         self.dialog.ui.target_rest_table.setColumnCount(
             int(num_restric))
@@ -599,7 +599,7 @@ class MyMainScreen(widgets.QMainWindow):
             dlg_populate.RES(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
-    
+
     def open_user_dialog(self, item):
         item_type = item.block_type
         item_num = item.block_index
@@ -664,7 +664,7 @@ class MyMainScreen(widgets.QMainWindow):
             dlg_populate.US(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
-    
+
     def open_sink_dialog(self, item):
         item_type = item.block_type
         item_num = item.block_index
@@ -785,7 +785,7 @@ class MyMainScreen(widgets.QMainWindow):
             else:
                 if enter:
                     self.linkdraw()
-                
+
     def open_dialogs(self, enter=False):
         self.dirty = True
         sel_items = list(self.ui.scene.selectedItems())
@@ -797,14 +797,14 @@ class MyMainScreen(widgets.QMainWindow):
             self.link_draw_interface(enter)
         else:
             dialog_map = {
-                    "W":self.open_watershed_dialog,
-                    "R":self.open_reservoir_dialog,
-                    "U":self.open_user_dialog,
-                    "J":self.open_junction_dialog,
-                    "S":self.open_sink_dialog,
-                    "L":self.open_link_dialog,
-                    "I":self.open_interbasin_dialog
-                }
+                "W": self.open_watershed_dialog,
+                "R": self.open_reservoir_dialog,
+                "U": self.open_user_dialog,
+                "J": self.open_junction_dialog,
+                "S": self.open_sink_dialog,
+                "L": self.open_link_dialog,
+                "I": self.open_interbasin_dialog
+            }
             for item in sel_items:
                 item_type = item.block_type
                 dialog_map[item_type](item)
@@ -830,11 +830,11 @@ class MyMainScreen(widgets.QMainWindow):
                                      'start': item.start_node,
                                      'stop': item.stop_node}
                         self.link_objects.remove(link_item)
-                        
+
                     for remove_item in remove_items:
                         if remove_item:
-                            self.ui.scene.removeItem(remove_item)                
-                    self.block_objects[item_id] = None                        
+                            self.ui.scene.removeItem(remove_item)
+                    self.block_objects[item_id] = None
             else:
                 item = sel_items[0]
                 item_id = self.get_item_id(item)
@@ -844,7 +844,7 @@ class MyMainScreen(widgets.QMainWindow):
                     remove_items = self.block_objects[item_id]
                     for remove_item in remove_items:
                         if remove_item.scene():
-                            self.ui.scene.removeItem(remove_item)                
+                            self.ui.scene.removeItem(remove_item)
                     del self.block_objects[item_id]
                 remove_ids = []
                 for i, link_item in enumerate(self.link_objects):
@@ -858,13 +858,13 @@ class MyMainScreen(widgets.QMainWindow):
 
         if QKeyEvent.key() == return_key or QKeyEvent.key() == enter_key:
             self.open_dialogs(enter=True)
-            
+
     def closeEvent(self, event):
         if self.dirty:
             self.open_not_saved_dialog()
-            
 
     # opens dialog to allow file saving
+
     def save_screen(self):
         if not os.path.isdir("graps_graphics"):
             os.mkdir("graps_graphics")
@@ -904,15 +904,14 @@ class MyMainScreen(widgets.QMainWindow):
         line = core.QLineF()
         startpos = link_start.pos()
         stoppos = link_stop.pos()
-        startpos.setY(startpos.y() + self.bitmap_height/2)
-        startpos.setX(startpos.x() + self.bitmap_width/2)
-        stoppos.setY(stoppos.y() + self.bitmap_height/2)
-        stoppos.setX(stoppos.x() + self.bitmap_width/2)
+        startpos.setY(startpos.y() + self.bitmap_height / 2)
+        startpos.setX(startpos.x() + self.bitmap_width / 2)
+        stoppos.setY(stoppos.y() + self.bitmap_height / 2)
+        stoppos.setX(stoppos.x() + self.bitmap_width / 2)
         line.setPoints(startpos, stoppos)
         link = myGraphicsLineItem(line, f'L{num}', self)
         link.setPen(pen)
         self.ui.scene.addItem(link)
-
 
         link_start.children.append(stop)
         link_stop.parents.append(start)
@@ -921,8 +920,8 @@ class MyMainScreen(widgets.QMainWindow):
         link_item = myGraphicsTextItem(link_id, f'L{num}', self)
         link_item.start_node = link_start.itemid
         link_item.stop_node = link_stop.itemid
-        x_pos = (startpos.x() + stoppos.x())/ 2
-        y_pos = (startpos.y() + stoppos.y())/ 2
+        x_pos = (startpos.x() + stoppos.x()) / 2
+        y_pos = (startpos.y() + stoppos.y()) / 2
         link_item.setPos(x_pos, y_pos)
         link_item.setZValue(2)
         font = gui.QFont(self.font())
@@ -934,9 +933,9 @@ class MyMainScreen(widgets.QMainWindow):
 
         self.ui.scene.addItem(link_item)
         self.link_objects.append({'link': link,
-                                      'label': link_item,
-                                      'start': link_start.itemid,
-                                      'stop': link_stop.itemid})
+                                  'label': link_item,
+                                  'start': link_start.itemid,
+                                  'stop': link_stop.itemid})
         self.block_objects[f'L{num}'] = (link, link_item)
 
         name = 'L:' + num
@@ -944,7 +943,7 @@ class MyMainScreen(widgets.QMainWindow):
         link.stop_node = stop
         link_item.start_node = start
         link_item.stop_node = stop
-        
+
         self.ui.scene.clearSelection()
         self.dirty = True
 
@@ -953,7 +952,7 @@ class MyMainScreen(widgets.QMainWindow):
         if len(start) == 0 or len(stop) == 0:
             return False
         else:
-            if start[0] in ['W','I','U']:
+            if start[0] in ['W', 'I', 'U']:
                 good = ['R', 'J', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
@@ -1003,16 +1002,15 @@ class MyMainScreen(widgets.QMainWindow):
 
             pen = gui.QPen(core.Qt.black, 1, core.Qt.SolidLine)
             line = core.QLineF()
-            startpos.setY(startpos.y() + self.bitmap_height/2)
-            startpos.setX(startpos.x() + self.bitmap_width/2)
-            stoppos.setY(stoppos.y() + self.bitmap_height/2)
-            stoppos.setX(stoppos.x() + self.bitmap_width/2)
+            startpos.setY(startpos.y() + self.bitmap_height / 2)
+            startpos.setX(startpos.x() + self.bitmap_width / 2)
+            stoppos.setY(stoppos.y() + self.bitmap_height / 2)
+            stoppos.setX(stoppos.x() + self.bitmap_width / 2)
             line.setPoints(startpos, stoppos)
             link = myGraphicsLineItem(line, f'L{value}', self)
             linedraw_go = False
             link.setPen(pen)
             self.ui.scene.addItem(link)
-            
 
             link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
             link_item = myGraphicsTextItem(link_id, f'L{value}', self)
@@ -1020,9 +1018,9 @@ class MyMainScreen(widgets.QMainWindow):
             link_item_w = link_item.shape().boundingRect().size().width()
             link_item.start_node = b_ID_local_start
             link_item.stop_node = b_ID_local_stop
-            x_pos = (startpos.x() + stoppos.x()) / 2 - link_item_w/2
-            y_pos = (startpos.y() + stoppos.y()) / 2 - link_item_h/2
-            
+            x_pos = (startpos.x() + stoppos.x()) / 2 - link_item_w / 2
+            y_pos = (startpos.y() + stoppos.y()) / 2 - link_item_h / 2
+
             link_item.setPos(x_pos, y_pos)
             link_item.setZValue(2)
             font = gui.QFont(self.font())
@@ -1036,7 +1034,6 @@ class MyMainScreen(widgets.QMainWindow):
                                       'label': link_item,
                                       'start': b_ID_local_start,
                                       'stop': b_ID_local_stop})
-            
 
             self.block_objects[f'L{value}'] = (link, link_item)
             name = 'L:' + link_id
@@ -1047,7 +1044,7 @@ class MyMainScreen(widgets.QMainWindow):
             link_item.stop_node = b_ID_local_stop
 
             self.ui.scene.clearSelection()
-            
+
             link_start = self.block_objects[b_ID_local_start][0]
             link_stop = self.block_objects[b_ID_local_stop][0]
             link_start.children.append(stop)
@@ -1151,9 +1148,9 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.sim_info_frame.setVisible(False)
             self.dialog.ui.analysis_option.setVisible(False)
             self.dialog.ui.adaptive_box.setVisible(False)
-            
 
     # also controls what is visible in the general setup menu based on the user selection for the forecast option
+
     def forecast_option_change(self):
         if self.dialog.ui.retro_button.isChecked():
             self.dialog.ui.adaptive_box.setVisible(False)
@@ -1807,15 +1804,17 @@ class MyMainScreen(widgets.QMainWindow):
         label_item = self.block_objects[link_ID][1]
         self.change_label(item_id=label_item, name_tag=link_Name)
 
+
 def main():
     from stylesheets import style
     style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
-    app.setStyleSheet(style_selector.Ubuntu())
+    # app.setStyleSheet(style_selector.Medize())
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
     app.exec_()
+
 
 if __name__ == "__main__":
     main()
