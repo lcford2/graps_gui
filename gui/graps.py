@@ -308,6 +308,18 @@ class MyMainScreen(widgets.QMainWindow):
                 self.ui.scene.removeItem(item)
         self.gen_setup_dict.clear()
         self.dialog_dict.clear()
+        self.block_objects = {}
+        self.link_objects = []
+        self.block_indices = {
+            "W": 1,
+            "R": 1,
+            "S": 1,
+            "J": 1,
+            "I": 1,
+            "L": 1,
+            "U": 1
+        }
+        self.dirty = False
 
     # changes the label of items in the scene if the name is updated via dialog
     def change_label(self, *args, **kwargs):

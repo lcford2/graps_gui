@@ -78,7 +78,7 @@
      <x>0</x>
      <y>0</y>
      <width>840</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -93,6 +93,9 @@
     <addaction name="actionClose"/>
     <addaction name="separator"/>
     <addaction name="actionSave_and_Quit"/>
+    <addaction name="separator"/>
+    <addaction name="actionMenuPrint"/>
+    <addaction name="actionPrintPreview"/>
    </widget>
    <widget class="QMenu" name="menuGen_Setup">
     <property name="title">
@@ -129,16 +132,17 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen_2"/>
    <addaction name="actionSave_2"/>
+   <addaction name="actionPrint"/>
    <addaction name="separator"/>
    <addaction name="actionGS"/>
    <addaction name="separator"/>
    <addaction name="actionN"/>
+   <addaction name="actionWatershed"/>
    <addaction name="actionReservoir"/>
    <addaction name="actionUser"/>
    <addaction name="actionJunction"/>
-   <addaction name="actionSink"/>
-   <addaction name="actionWatershed"/>
    <addaction name="actionInterBT"/>
+   <addaction name="actionSink"/>
    <addaction name="separator"/>
    <addaction name="actionLink"/>
    <addaction name="separator"/>
@@ -518,6 +522,16 @@
    </property>
    <property name="statusTip">
     <string>General Setup</string>
+   </property>
+  </action>
+  <action name="actionMenuPrint">
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionPrintPreview">
+   <property name="text">
+    <string>Print Preview</string>
    </property>
   </action>
  </widget>

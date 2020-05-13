@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\graps_graphics.ui'
+# Form implementation generated from reading ui file 'graps_graphics.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from ui.my_graphics_view import GraphicsView
-
+from ui.my_graphics_view import GraphicsView 
 
 class Ui_GRAPSInterface(object):
     def setupUi(self, GRAPSInterface):
@@ -27,25 +26,18 @@ class Ui_GRAPSInterface(object):
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.graphicsView = GraphicsView(self.centralWidget)
-        self.graphicsView.viewport().setProperty(
-            "cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.graphicsView.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
-        self.graphicsView.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
-        self.graphicsView.setSizeAdjustPolicy(
-            QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
-        self.graphicsView.setRenderHints(
-            QtGui.QPainter.SmoothPixmapTransform | QtGui.QPainter.TextAntialiasing)
-        self.graphicsView.setTransformationAnchor(
-            QtWidgets.QGraphicsView.AnchorUnderMouse)
-        self.graphicsView.setResizeAnchor(
-            QtWidgets.QGraphicsView.AnchorUnderMouse)
+        self.graphicsView.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        self.graphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.graphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.graphicsView.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.graphicsView.setRenderHints(QtGui.QPainter.SmoothPixmapTransform|QtGui.QPainter.TextAntialiasing)
+        self.graphicsView.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+        self.graphicsView.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.graphicsView.setObjectName("graphicsView")
         self.gridLayout_2.addWidget(self.graphicsView, 0, 0, 1, 1)
         GRAPSInterface.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(GRAPSInterface)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 840, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 840, 20))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -81,52 +73,45 @@ class Ui_GRAPSInterface(object):
         self.actionWatershed = QtWidgets.QAction(GRAPSInterface)
         self.actionWatershed.setCheckable(True)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("./gui/icons/W.png"),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("./gui/icons/W.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionWatershed.setIcon(icon)
         self.actionWatershed.setIconVisibleInMenu(True)
         self.actionWatershed.setObjectName("actionWatershed")
         self.actionJunction = QtWidgets.QAction(GRAPSInterface)
         self.actionJunction.setCheckable(True)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("./gui/icons/J.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("./gui/icons/J.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionJunction.setIcon(icon1)
         self.actionJunction.setObjectName("actionJunction")
         self.actionReservoir = QtWidgets.QAction(GRAPSInterface)
         self.actionReservoir.setCheckable(True)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("./gui/icons/R.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("./gui/icons/R.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionReservoir.setIcon(icon2)
         self.actionReservoir.setObjectName("actionReservoir")
         self.actionUser = QtWidgets.QAction(GRAPSInterface)
         self.actionUser.setCheckable(True)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("./gui/icons/U.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("./gui/icons/U.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionUser.setIcon(icon3)
         self.actionUser.setObjectName("actionUser")
         self.actionN = QtWidgets.QAction(GRAPSInterface)
         self.actionN.setCheckable(True)
         self.actionN.setChecked(True)
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("./gui/icons/transparent.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap("./gui/icons/transparent.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionN.setIcon(icon4)
         self.actionN.setObjectName("actionN")
         self.actionInterBT = QtWidgets.QAction(GRAPSInterface)
         self.actionInterBT.setCheckable(True)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("./gui/icons/I.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap("./gui/icons/I.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionInterBT.setIcon(icon5)
         self.actionInterBT.setObjectName("actionInterBT")
         self.actionSink = QtWidgets.QAction(GRAPSInterface)
         self.actionSink.setCheckable(True)
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("./gui/icons/S.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(QtGui.QPixmap("./gui/icons/S.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSink.setIcon(icon6)
         self.actionSink.setObjectName("actionSink")
         self.actionLink = QtWidgets.QAction(GRAPSInterface)
@@ -158,6 +143,10 @@ class Ui_GRAPSInterface(object):
         self.actionGS.setObjectName("actionGS")
         self.actionGeneral_Setup = QtWidgets.QAction(GRAPSInterface)
         self.actionGeneral_Setup.setObjectName("actionGeneral_Setup")
+        self.actionMenuPrint = QtWidgets.QAction(GRAPSInterface)
+        self.actionMenuPrint.setObjectName("actionMenuPrint")
+        self.actionPrintPreview = QtWidgets.QAction(GRAPSInterface)
+        self.actionPrintPreview.setObjectName("actionPrintPreview")
         self.menu_File.addAction(self.actionNew_File)
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addAction(self.actionSave)
@@ -166,6 +155,9 @@ class Ui_GRAPSInterface(object):
         self.menu_File.addAction(self.actionClose)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actionSave_and_Quit)
+        self.menu_File.addSeparator()
+        self.menu_File.addAction(self.actionMenuPrint)
+        self.menu_File.addAction(self.actionPrintPreview)
         self.menuGen_Setup.addAction(self.actionGeneral_Setup)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuGen_Setup.menuAction())
@@ -173,16 +165,17 @@ class Ui_GRAPSInterface(object):
         self.toolBar.addAction(self.actionNew)
         self.toolBar.addAction(self.actionOpen_2)
         self.toolBar.addAction(self.actionSave_2)
+        self.toolBar.addAction(self.actionPrint)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionGS)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionN)
+        self.toolBar.addAction(self.actionWatershed)
         self.toolBar.addAction(self.actionReservoir)
         self.toolBar.addAction(self.actionUser)
         self.toolBar.addAction(self.actionJunction)
-        self.toolBar.addAction(self.actionSink)
-        self.toolBar.addAction(self.actionWatershed)
         self.toolBar.addAction(self.actionInterBT)
+        self.toolBar.addAction(self.actionSink)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionLink)
         self.toolBar.addSeparator()
@@ -198,80 +191,57 @@ class Ui_GRAPSInterface(object):
 
     def retranslateUi(self, GRAPSInterface):
         _translate = QtCore.QCoreApplication.translate
-        GRAPSInterface.setWindowTitle(_translate(
-            "GRAPSInterface", "GRAPS Interface"))
+        GRAPSInterface.setWindowTitle(_translate("GRAPSInterface", "GRAPS Interface"))
         self.menu_File.setTitle(_translate("GRAPSInterface", "File"))
         self.menuGen_Setup.setTitle(_translate("GRAPSInterface", "Gen. Setup"))
         self.menuHelp.setTitle(_translate("GRAPSInterface", "Help"))
         self.toolBar.setWindowTitle(_translate("GRAPSInterface", "toolBar"))
         self.actionNew_File.setText(_translate("GRAPSInterface", "New File"))
-        self.actionNew_File.setStatusTip(
-            _translate("GRAPSInterface", "New File"))
+        self.actionNew_File.setStatusTip(_translate("GRAPSInterface", "New File"))
         self.actionOpen.setText(_translate("GRAPSInterface", "Open"))
         self.actionOpen.setStatusTip(_translate("GRAPSInterface", "Open"))
         self.actionSave.setText(_translate("GRAPSInterface", "Save"))
         self.actionSave.setStatusTip(_translate("GRAPSInterface", "Save"))
         self.actionSave_As.setText(_translate("GRAPSInterface", "Save As"))
-        self.actionSave_As.setStatusTip(
-            _translate("GRAPSInterface", "Save As"))
+        self.actionSave_As.setStatusTip(_translate("GRAPSInterface", "Save As"))
         self.actionPrint.setText(_translate("GRAPSInterface", "Print"))
         self.actionPrint.setStatusTip(_translate("GRAPSInterface", "Print"))
-        self.actionPrint_Preview.setText(
-            _translate("GRAPSInterface", "Print Preview"))
-        self.actionPrint_Preview.setStatusTip(
-            _translate("GRAPSInterface", "Print Preview"))
+        self.actionPrint_Preview.setText(_translate("GRAPSInterface", "Print Preview"))
+        self.actionPrint_Preview.setStatusTip(_translate("GRAPSInterface", "Print Preview"))
         self.actionClose.setText(_translate("GRAPSInterface", "Close"))
         self.actionClose.setStatusTip(_translate("GRAPSInterface", "Close"))
-        self.actionSave_and_Quit.setText(
-            _translate("GRAPSInterface", "Save and Quit"))
-        self.actionSave_and_Quit.setStatusTip(
-            _translate("GRAPSInterface", "Save and Quit"))
+        self.actionSave_and_Quit.setText(_translate("GRAPSInterface", "Save and Quit"))
+        self.actionSave_and_Quit.setStatusTip(_translate("GRAPSInterface", "Save and Quit"))
         self.actionWatershed.setText(_translate("GRAPSInterface", "Watershed"))
-        self.actionWatershed.setToolTip(_translate(
-            "GRAPSInterface", "Watershed (Ctrl+W)"))
-        self.actionWatershed.setStatusTip(
-            _translate("GRAPSInterface", "Watershed"))
-        self.actionWatershed.setShortcut(
-            _translate("GRAPSInterface", "Ctrl+W"))
+        self.actionWatershed.setToolTip(_translate("GRAPSInterface", "Watershed (Ctrl+W)"))
+        self.actionWatershed.setStatusTip(_translate("GRAPSInterface", "Watershed"))
+        self.actionWatershed.setShortcut(_translate("GRAPSInterface", "Ctrl+W"))
         self.actionJunction.setText(_translate("GRAPSInterface", "Junction"))
-        self.actionJunction.setToolTip(_translate(
-            "GRAPSInterface", "Junction (Ctrl+J)"))
-        self.actionJunction.setStatusTip(
-            _translate("GRAPSInterface", "Junction"))
+        self.actionJunction.setToolTip(_translate("GRAPSInterface", "Junction (Ctrl+J)"))
+        self.actionJunction.setStatusTip(_translate("GRAPSInterface", "Junction"))
         self.actionJunction.setShortcut(_translate("GRAPSInterface", "Ctrl+J"))
         self.actionReservoir.setText(_translate("GRAPSInterface", "Reservoir"))
-        self.actionReservoir.setToolTip(_translate(
-            "GRAPSInterface", "Reservoir (Ctrl+R)"))
-        self.actionReservoir.setStatusTip(
-            _translate("GRAPSInterface", "Reservoir"))
-        self.actionReservoir.setShortcut(
-            _translate("GRAPSInterface", "Ctrl+R"))
+        self.actionReservoir.setToolTip(_translate("GRAPSInterface", "Reservoir (Ctrl+R)"))
+        self.actionReservoir.setStatusTip(_translate("GRAPSInterface", "Reservoir"))
+        self.actionReservoir.setShortcut(_translate("GRAPSInterface", "Ctrl+R"))
         self.actionUser.setText(_translate("GRAPSInterface", "User"))
-        self.actionUser.setToolTip(_translate(
-            "GRAPSInterface", "User (Ctrl+U)"))
+        self.actionUser.setToolTip(_translate("GRAPSInterface", "User (Ctrl+U)"))
         self.actionUser.setStatusTip(_translate("GRAPSInterface", "User"))
         self.actionUser.setShortcut(_translate("GRAPSInterface", "Ctrl+U"))
         self.actionN.setText(_translate("GRAPSInterface", "None"))
-        self.actionN.setToolTip(_translate(
-            "GRAPSInterface", "N (Ctrl+Shift+N)"))
+        self.actionN.setToolTip(_translate("GRAPSInterface", "N (Ctrl+Shift+N)"))
         self.actionN.setStatusTip(_translate("GRAPSInterface", "N"))
         self.actionN.setShortcut(_translate("GRAPSInterface", "Ctrl+Shift+N"))
-        self.actionInterBT.setText(_translate(
-            "GRAPSInterface", "Inter-Basin Transfer"))
-        self.actionInterBT.setToolTip(_translate(
-            "GRAPSInterface", "Inter-Basin Transfer (Ctrl+I)"))
-        self.actionInterBT.setStatusTip(_translate(
-            "GRAPSInterface", "Inter-Basin Transfer"))
+        self.actionInterBT.setText(_translate("GRAPSInterface", "Inter-Basin Transfer"))
+        self.actionInterBT.setToolTip(_translate("GRAPSInterface", "Inter-Basin Transfer (Ctrl+I)"))
+        self.actionInterBT.setStatusTip(_translate("GRAPSInterface", "Inter-Basin Transfer"))
         self.actionInterBT.setShortcut(_translate("GRAPSInterface", "Ctrl+I"))
         self.actionSink.setText(_translate("GRAPSInterface", "Sink"))
-        self.actionSink.setToolTip(_translate(
-            "GRAPSInterface", "Sink (Ctrl+Shift+S)"))
+        self.actionSink.setToolTip(_translate("GRAPSInterface", "Sink (Ctrl+Shift+S)"))
         self.actionSink.setStatusTip(_translate("GRAPSInterface", "Sink"))
-        self.actionSink.setShortcut(
-            _translate("GRAPSInterface", "Ctrl+Shift+S"))
+        self.actionSink.setShortcut(_translate("GRAPSInterface", "Ctrl+Shift+S"))
         self.actionLink.setText(_translate("GRAPSInterface", "Link"))
-        self.actionLink.setToolTip(_translate(
-            "GRAPSInterface", "Link (Ctrl+L)"))
+        self.actionLink.setToolTip(_translate("GRAPSInterface", "Link (Ctrl+L)"))
         self.actionLink.setStatusTip(_translate("GRAPSInterface", "Link"))
         self.actionLink.setShortcut(_translate("GRAPSInterface", "Ctrl+L"))
         self.actionE.setText(_translate("GRAPSInterface", "Export"))
@@ -291,8 +261,7 @@ class Ui_GRAPSInterface(object):
         self.actionR.setToolTip(_translate("GRAPSInterface", "R"))
         self.actionR.setStatusTip(_translate("GRAPSInterface", "R"))
         self.actionOpen_2.setText(_translate("GRAPSInterface", "Open"))
-        self.actionOpen_2.setToolTip(
-            _translate("GRAPSInterface", "Open (Ctrl+O)"))
+        self.actionOpen_2.setToolTip(_translate("GRAPSInterface", "Open (Ctrl+O)"))
         self.actionOpen_2.setStatusTip(_translate("GRAPSInterface", "Open"))
         self.actionOpen_2.setShortcut(_translate("GRAPSInterface", "Ctrl+O"))
         self.actionNew.setText(_translate("GRAPSInterface", "New"))
@@ -300,15 +269,13 @@ class Ui_GRAPSInterface(object):
         self.actionNew.setStatusTip(_translate("GRAPSInterface", "New"))
         self.actionNew.setShortcut(_translate("GRAPSInterface", "Ctrl+N"))
         self.actionSave_2.setText(_translate("GRAPSInterface", "Save"))
-        self.actionSave_2.setToolTip(
-            _translate("GRAPSInterface", "Save (Ctrl+S)"))
+        self.actionSave_2.setToolTip(_translate("GRAPSInterface", "Save (Ctrl+S)"))
         self.actionSave_2.setStatusTip(_translate("GRAPSInterface", "Save"))
         self.actionSave_2.setShortcut(_translate("GRAPSInterface", "Ctrl+S"))
         self.actionGS.setText(_translate("GRAPSInterface", "General Setup"))
         self.actionGS.setToolTip(_translate("GRAPSInterface", "General Setup"))
-        self.actionGS.setStatusTip(_translate(
-            "GRAPSInterface", "General Setup"))
-        self.actionGeneral_Setup.setText(
-            _translate("GRAPSInterface", "General Setup"))
-        self.actionGeneral_Setup.setStatusTip(
-            _translate("GRAPSInterface", "General Setup"))
+        self.actionGS.setStatusTip(_translate("GRAPSInterface", "General Setup"))
+        self.actionGeneral_Setup.setText(_translate("GRAPSInterface", "General Setup"))
+        self.actionGeneral_Setup.setStatusTip(_translate("GRAPSInterface", "General Setup"))
+        self.actionMenuPrint.setText(_translate("GRAPSInterface", "Print"))
+        self.actionPrintPreview.setText(_translate("GRAPSInterface", "Print Preview"))
