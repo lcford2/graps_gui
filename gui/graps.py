@@ -193,20 +193,18 @@ class MyMainScreen(widgets.QMainWindow):
         # self.ui.view.setEventFilter(self.eventFilter())
         # Setting up printer to create a pdf of the system
         # global screen_res
-        scale_factor = 5
-        rect = core.QRectF(0, 0, screen_res.width() *
-                           scale_factor * 0.75, screen_res.height() * scale_factor)
-        # rect = gui.QRectF(0,0,self.ui.graphicsView.width()*19,self.ui.graphicsView.height()*30)
-        self.ui.scene.setSceneRect(rect)
+        # scale_factor = 5
+        # rect = core.QRectF(0, 0, screen_res.width() *
+        #                    scale_factor * 0.75, screen_res.height() * scale_factor)
+        # # rect = gui.QRectF(0,0,self.ui.graphicsView.width()*19,self.ui.graphicsView.height()*30)
+        # self.ui.scene.setSceneRect(rect)
 
-        self.borders = []
-        self.borders.append(self.ui.scene.addRect(rect, core.Qt.yellow))
+        # self.borders = []
+        # self.borders.append(self.ui.scene.addRect(rect, core.Qt.yellow))
 
         self.ui.view.setScene(self.ui.scene)
 
-        self.printer = printsupp.QPrinter(printsupp.QPrinter.HighResolution)
-        # self.printer.setPageSize(printsupp.QPrinter.Letter)
-        self.printer.setOrientation(printsupp.QPrinter.Landscape)
+        
 
         # connecting toolbar actions to functions that open dialogs
         # or perform actions like exporting data files
@@ -221,6 +219,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionNew.triggered.connect(self.new_scene)
         self.ui.actionE.triggered.connect(self.export)
         self.ui.actionPrint.triggered.connect(self.print_scene)
+        self.ui.actionMenuPrint.triggered.connect(self.print_scene)
+        # self.ui.actionPrintPreview.triggered.connect(self.print_preview)
 
         # connecting user block selections to the block handling functions
         self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
@@ -380,7 +380,7 @@ class MyMainScreen(widgets.QMainWindow):
                 save_folder, 'interbasin_details.dat'))
             write_dec_var_details(self, os.path.join(
                 save_folder, 'decisionvar_details.dat'))
-
+    
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == 1:
@@ -1063,41 +1063,39 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop.parents.append(start)
             self.dirty = True
 
+
+    def find_extents(self):
+        xs, ys = [], []
+        for item in self.ui.scene.items():
+            if not hasattr(item, "itemid"):
+                continue
+            if item.item_type == "line":
+                continue
+            # II()
+            # sys.exit()
+            # point = self.ui.view.mapFromGlobal(item.pos())
+            # pos = self.ui.view.mapToScene(item.x(), item.y())
+            pos = item.pos()
+            xs.append(pos.x())
+            ys.append(pos.y())
+        maxx = max(xs)
+        minx = min(xs)
+        maxy = max(ys)
+        miny = min(ys)
+        return (maxx, maxy, minx, miny)
+
     # prints a pdf of the scene
     def print_scene(self):
+        self.printer = printsupp.QPrinter(printsupp.QPrinter.HighResolution)
+        self.printer.setOrientation(printsupp.QPrinter.Landscape)
+        self.printer.setOutputFormat(printsupp.QPrinter.PdfFormat)
         dialog = printsupp.QPrintDialog(self.printer)
         items = list(self.ui.scene.items())
-        xpos1 = 0
-        ypos1 = 0
-        xpos2 = 1000000000
-        ypos2 = 1000000000
-
-        # for item in items:
-        #     item_type = str(type(item))
-        #     if item_type == "<class 'PyQt4.QtWidgets.QGraphicsPixmapItem'>":
-        #         temp_x = item.x()
-        #         temp_y = item.y()
-        #         if temp_x > xpos1:
-        #             xpos1 = temp_x
-        #         if temp_y > ypos1:
-        #             ypos1 = temp_y
-        #         if temp_x < xpos2:
-        #             xpos2 = temp_x
-        #         if temp_y < ypos2:
-        #             ypos2 = temp_y
-        # rect = core.QRectF(xpos2, ypos2, xpos1, ypos1)
-        if dialog.exec_():
-            self.printer.setPageSize(printsupp.QPrinter.Letter)
-            painter = printsupp.QPainter(self.printer)
-            painter.setRenderHint(printsupp.QPainter.Antialiasing)
-            painter.setRenderHint(printsupp.QPainter.TextAntialiasing)
+        if dialog.exec_():            
+            painter = gui.QPainter(self.printer)
             self.ui.scene.clearSelection()
-            border = self.borders.pop()
-            self.ui.scene.removeItem(border)
             self.ui.scene.render(painter)
-            self.ui.scene.addItem(border)
-            self.borders.append(border)
-
+    
     # Controls zoom on gui.QGraphicsScene
     def wheelEvent(self, event: gui.QWheelEvent):
         if event.modifiers() == core.Qt.ControlModifier:
