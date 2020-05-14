@@ -41,10 +41,84 @@ from IPython import embed as II
 
 
 class MyMainScreen(widgets.QMainWindow):
-    # These next seven functions are called when a user selects
-    # type of block from the applications toolbar
-    # they control the picture that is painted on the screen in the variable "block"
-    # as well as the "block_id" which is used for many purposes
+    def __init__(self, parent=None, screen_res=None):
+        # initialize the main window
+        super().__init__(parent)
+
+        # load and setup the interface via ui file
+        self.ui = Ui_GRAPSInterface()
+        self.ui.setupUi(self)
+        self.setWindowIcon(gui.QIcon("./gui/icons/app_icon.png"))
+
+        # setup containers
+        self.gen_setup_dict = {}
+        self.dialog_dict = {}
+        # will contain tuples of image objects and their labels with keys of the block ID
+        # e.g. self.block_objects["R1"] = (image object, label object)
+        # should be useful when removing objects by ID or creating links
+        self.block_objects = {}
+        self.link_objects = []
+        self.block_indices = {
+            "W": 1,
+            "R": 1,
+            "S": 1,
+            "J": 1,
+            "I": 1,
+            "L": 1,
+            "U": 1
+        }
+        # setup drawing parameters
+        self.block_ID = ''
+        self.block = 0
+        self.dlg = 'dlg_closed'
+        self.bitmap_width = 35
+        self.bitmap_height = 32
+
+        # self.filename=core.QString()
+        self.filename = str
+        self.ui.pasteOffset = 5
+        self.ui.prevPoint = core.QPoint()
+        self.ui.addOffset = 5
+        # Setup the view. Using a graphics scene and view
+        # as the canvas which the user will create system on
+        self.ui.view = self.ui.graphicsView
+        self.ui.scene = widgets.QGraphicsScene(self)
+        self.ui.scene.setSceneRect(0, 0, 10000, 10000)
+        # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
+
+        # save indicator
+        self.dirty = False
+
+        self.ui.view.setScene(self.ui.scene)
+
+        # connecting toolbar actions to functions that open dialogs
+        # or perform actions like exporting data files
+        self.ui.menuGen_Setup.triggered.connect(self.open_dataDialog)
+        self.ui.actionGS.triggered.connect(self.open_dataDialog)
+        self.ui.actionSave.triggered.connect(self.save_screen)
+        self.ui.actionSave_As.triggered.connect(self.save_screen)
+        self.ui.actionSave_2.triggered.connect(self.save_screen)
+        self.ui.actionOpen.triggered.connect(self.file_open)
+        self.ui.actionOpen_2.triggered.connect(self.file_open)
+        self.ui.actionNew_File.triggered.connect(self.new_scene)
+        self.ui.actionNew.triggered.connect(self.new_scene)
+        self.ui.actionE.triggered.connect(self.export)
+        self.ui.actionPrint.triggered.connect(self.print_scene)
+        self.ui.actionMenuPrint.triggered.connect(self.print_scene)
+        self.ui.actionCenter_View.triggered.connect(self.center_scene)
+        self.ui.actionPrintPreview.triggered.connect(self.print_preview)
+
+        # connecting user block selections to the block handling functions
+        self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
+        self.ui.actionReservoir.triggered.connect(self.toolbar_interaction)
+        self.ui.actionInterBT.triggered.connect(self.toolbar_interaction)
+        self.ui.actionJunction.triggered.connect(self.toolbar_interaction)
+        self.ui.actionUser.triggered.connect(self.toolbar_interaction)
+        self.ui.actionSink.triggered.connect(self.toolbar_interaction)
+        self.ui.actionN.triggered.connect(self.toolbar_interaction)
+        self.ui.actionLink.triggered.connect(self.draw_line)
+
+        self.ui.toolBar.setToolButtonStyle(core.Qt.ToolButtonIconOnly)
 
     def toolbar_interaction(self):
         tools = {
@@ -108,92 +182,10 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.stop_edit.setFocus()
         self.dialog.show()
 
-    def __init__(self, parent=None, screen_res=None):
-        # FOR LUKE - Should go through here and make all global variables
-        # class variables where they need to be referenced with "self.variable"
-        # this will clean up the name space and be more similar to OOP
-
-        # initialize the main window
-        super().__init__(parent)
-
-        # load and setup the interface via ui file
-        self.ui = Ui_GRAPSInterface()
-        self.ui.setupUi(self)
-
-        # setup containers
-        self.gen_setup_dict = {}
-        self.dialog_dict = {}
-        # will contain tuples of image objects and their labels with keys of the block ID
-        # e.g. self.block_objects["R1"] = (image object, label object)
-        # should be useful when removing objects by ID or creating links
-        self.block_objects = {}
-        self.link_objects = []
-        self.block_indices = {
-            "W": 1,
-            "R": 1,
-            "S": 1,
-            "J": 1,
-            "I": 1,
-            "L": 1,
-            "U": 1
-        }
-        # setup drawing parameters
-        self.block_ID = ''
-        self.block = 0
-        self.dlg = 'dlg_closed'
-        self.bitmap_width = 35
-        self.bitmap_height = 32
-
-        # self.filename=core.QString()
-        self.filename = str
-        self.ui.pasteOffset = 5
-        self.ui.prevPoint = core.QPoint()
-        self.ui.addOffset = 5
-        # Setup the view. Using a graphics scene and view
-        # as the canvas which the user will create system on
-        self.ui.view = self.ui.graphicsView
-        self.ui.scene = widgets.QGraphicsScene(self)
-        self.ui.scene.setSceneRect(0, 0, 10000, 10000)
-        # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
-
-        # save indicator
-        self.dirty = False
-
-        self.ui.view.setScene(self.ui.scene)       
-
-        # connecting toolbar actions to functions that open dialogs
-        # or perform actions like exporting data files
-        self.ui.menuGen_Setup.triggered.connect(self.open_dataDialog)
-        self.ui.actionGS.triggered.connect(self.open_dataDialog)
-        self.ui.actionSave.triggered.connect(self.save_screen)
-        self.ui.actionSave_As.triggered.connect(self.save_screen)
-        self.ui.actionSave_2.triggered.connect(self.save_screen)
-        self.ui.actionOpen.triggered.connect(self.file_open)
-        self.ui.actionOpen_2.triggered.connect(self.file_open)
-        self.ui.actionNew_File.triggered.connect(self.new_scene)
-        self.ui.actionNew.triggered.connect(self.new_scene)
-        self.ui.actionE.triggered.connect(self.export)
-        self.ui.actionPrint.triggered.connect(self.print_scene)
-        self.ui.actionMenuPrint.triggered.connect(self.print_scene)
-        self.ui.actionCenter_View.triggered.connect(self.center_scene)
-        self.ui.actionPrintPreview.triggered.connect(self.print_preview)
-
-        # connecting user block selections to the block handling functions
-        self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
-        self.ui.actionReservoir.triggered.connect(self.toolbar_interaction)
-        self.ui.actionInterBT.triggered.connect(self.toolbar_interaction)
-        self.ui.actionJunction.triggered.connect(self.toolbar_interaction)
-        self.ui.actionUser.triggered.connect(self.toolbar_interaction)
-        self.ui.actionSink.triggered.connect(self.toolbar_interaction)
-        self.ui.actionN.triggered.connect(self.toolbar_interaction)
-        self.ui.actionLink.triggered.connect(self.draw_line)
-
-        self.ui.toolBar.setToolButtonStyle(core.Qt.ToolButtonIconOnly)
 
     # Creates pixmap items to be placed on the screen
     # called when a user has a block selected and clicks on the screen
     # Places block near cursor and labels it based on other blocks of that type
-
     def createPixmapItem(self, pixmap, position, **kwargs):
         if kwargs:  # if there are kwargs passed use those instead
             for key, value in kwargs.items():
