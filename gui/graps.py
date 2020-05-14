@@ -76,38 +76,6 @@ class MyMainScreen(widgets.QMainWindow):
             self.block = 0
             self.ui.actionN.setChecked(True)
 
-    @core.pyqtSlot()
-    def watershed(self):
-        if self.sender().isChecked():
-            print("checked")
-            self.block = 'W.png'
-            self.block_ID = 'W'
-        else:
-            print("unchecked")
-
-    def reservoir(self):
-        self.block = 'R.png'
-        self.block_ID = 'R'
-
-    def interbasin(self):
-        self.block = 'I.png'
-        self.block_ID = 'I'
-
-    def junction(self):
-        self.block = 'J.png'
-        self.block_ID = 'J'
-
-    def user(self):
-        self.block = 'U.png'
-        self.block_ID = 'U'
-
-    def sink(self):
-        self.block = 'S.png'
-        self.block_ID = 'S'
-
-    def no_block(self):
-        self.block = 0
-
     def draw_line(self):
         self.dlg = 'dlg_open'
         # block = 1
@@ -185,26 +153,13 @@ class MyMainScreen(widgets.QMainWindow):
         # as the canvas which the user will create system on
         self.ui.view = self.ui.graphicsView
         self.ui.scene = widgets.QGraphicsScene(self)
+        self.ui.scene.setSceneRect(0, 0, 10000, 10000)
         # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
 
         # save indicator
         self.dirty = False
 
-        # self.ui.view.setEventFilter(self.eventFilter())
-        # Setting up printer to create a pdf of the system
-        # global screen_res
-        # scale_factor = 5
-        # rect = core.QRectF(0, 0, screen_res.width() *
-        #                    scale_factor * 0.75, screen_res.height() * scale_factor)
-        # # rect = gui.QRectF(0,0,self.ui.graphicsView.width()*19,self.ui.graphicsView.height()*30)
-        # self.ui.scene.setSceneRect(rect)
-
-        # self.borders = []
-        # self.borders.append(self.ui.scene.addRect(rect, core.Qt.yellow))
-
-        self.ui.view.setScene(self.ui.scene)
-
-        
+        self.ui.view.setScene(self.ui.scene)       
 
         # connecting toolbar actions to functions that open dialogs
         # or perform actions like exporting data files
@@ -220,7 +175,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionE.triggered.connect(self.export)
         self.ui.actionPrint.triggered.connect(self.print_scene)
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
-        # self.ui.actionPrintPreview.triggered.connect(self.print_preview)
+        self.ui.actionCenter_View.triggered.connect(self.center_scene)
+        self.ui.actionPrintPreview.triggered.connect(self.print_preview)
 
         # connecting user block selections to the block handling functions
         self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
@@ -245,7 +201,8 @@ class MyMainScreen(widgets.QMainWindow):
                     label_value = value
                 if key == 'block_ID':
                     self.block_ID = value
-            self.block_indices[self.block_ID] = int(label_value) + 1
+            if int(label_value) >= self.block_indices[self.block_ID]:
+                self.block_indices[self.block_ID] = int(label_value) + 1
         else:
             label_value = self.block_indices[self.block_ID]
             self.block_indices[self.block_ID] += 1
@@ -899,6 +856,13 @@ class MyMainScreen(widgets.QMainWindow):
         else:
             open_file(self, open_file_name)
             self.change_label()
+            self.center_scene()
+
+    def center_scene(self):
+        bounds = self.ui.scene.itemsBoundingRect()
+        center_x = bounds.x() + bounds.width()/2
+        center_y = bounds.y() + bounds.height()/2
+        self.ui.view.centerOn(center_x, center_y)
 
     # Draw links between nodes on the Scene
     def link_draw_fromSave(self, start, stop, num):
@@ -1063,38 +1027,41 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop.parents.append(start)
             self.dirty = True
 
+    @staticmethod
+    def setup_printer():
+        printer = printsupp.QPrinter(printsupp.QPrinter.HighResolution)
+        printer.setOrientation(printsupp.QPrinter.Landscape)
+        printer.setOutputFormat(printsupp.QPrinter.PdfFormat)
+        return printer
 
-    def find_extents(self):
-        xs, ys = [], []
-        for item in self.ui.scene.items():
-            if not hasattr(item, "itemid"):
-                continue
-            if item.item_type == "line":
-                continue
-            # II()
-            # sys.exit()
-            # point = self.ui.view.mapFromGlobal(item.pos())
-            # pos = self.ui.view.mapToScene(item.x(), item.y())
-            pos = item.pos()
-            xs.append(pos.x())
-            ys.append(pos.y())
-        maxx = max(xs)
-        minx = min(xs)
-        maxy = max(ys)
-        miny = min(ys)
-        return (maxx, maxy, minx, miny)
+    def paint_scene(self, printer):
+        self.ui.scene.render(gui.QPainter(printer))
 
     # prints a pdf of the scene
     def print_scene(self):
-        self.printer = printsupp.QPrinter(printsupp.QPrinter.HighResolution)
-        self.printer.setOrientation(printsupp.QPrinter.Landscape)
-        self.printer.setOutputFormat(printsupp.QPrinter.PdfFormat)
-        dialog = printsupp.QPrintDialog(self.printer)
-        items = list(self.ui.scene.items())
-        if dialog.exec_():            
-            painter = gui.QPainter(self.printer)
+        printer = self.setup_printer()
+        dialog = printsupp.QPrintDialog(printer)
+        bounds = self.ui.scene.itemsBoundingRect()
+        rect = self.ui.scene.sceneRect()
+        self.ui.scene.setSceneRect(bounds)
+        if dialog.exec_():
             self.ui.scene.clearSelection()
-            self.ui.scene.render(painter)
+            self.paint_scene(printer)
+        self.ui.scene.setSceneRect(rect)
+        self.center_scene()
+
+    def print_preview(self):
+        printer = self.setup_printer() 
+        bounds = self.ui.scene.itemsBoundingRect()
+        rect = self.ui.scene.sceneRect()
+        self.ui.scene.setSceneRect(bounds)
+        dialog = printsupp.QPrintPreviewDialog(printer)
+        dialog.paintRequested.connect(self.paint_scene)
+        dialog.exec_()
+        self.ui.scene.setSceneRect(rect)
+        self.center_scene()
+
+
     
     # Controls zoom on gui.QGraphicsScene
     def wheelEvent(self, event: gui.QWheelEvent):

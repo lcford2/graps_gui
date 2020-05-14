@@ -136,6 +136,8 @@
    <addaction name="separator"/>
    <addaction name="actionGS"/>
    <addaction name="separator"/>
+   <addaction name="actionCenter_View"/>
+   <addaction name="separator"/>
    <addaction name="actionN"/>
    <addaction name="actionWatershed"/>
    <addaction name="actionReservoir"/>
@@ -532,6 +534,21 @@
   <action name="actionPrintPreview">
    <property name="text">
     <string>Print Preview</string>
+   </property>
+  </action>
+  <action name="actionCenter_View">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/center_view_icon.png</normaloff>../icons/center_view_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Center View</string>
+   </property>
+   <property name="toolTip">
+    <string>Center View on Items</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
    </property>
   </action>
  </widget>

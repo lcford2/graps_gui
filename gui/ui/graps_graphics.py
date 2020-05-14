@@ -8,7 +8,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from ui.my_graphics_view import GraphicsView 
+from ui.my_graphics_view import GraphicsView
+
 
 class Ui_GRAPSInterface(object):
     def setupUi(self, GRAPSInterface):
@@ -147,6 +148,11 @@ class Ui_GRAPSInterface(object):
         self.actionMenuPrint.setObjectName("actionMenuPrint")
         self.actionPrintPreview = QtWidgets.QAction(GRAPSInterface)
         self.actionPrintPreview.setObjectName("actionPrintPreview")
+        self.actionCenter_View = QtWidgets.QAction(GRAPSInterface)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap("./gui/icons/center_view_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionCenter_View.setIcon(icon7)
+        self.actionCenter_View.setObjectName("actionCenter_View")
         self.menu_File.addAction(self.actionNew_File)
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addAction(self.actionSave)
@@ -168,6 +174,8 @@ class Ui_GRAPSInterface(object):
         self.toolBar.addAction(self.actionPrint)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionGS)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actionCenter_View)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionN)
         self.toolBar.addAction(self.actionWatershed)
@@ -279,3 +287,6 @@ class Ui_GRAPSInterface(object):
         self.actionGeneral_Setup.setStatusTip(_translate("GRAPSInterface", "General Setup"))
         self.actionMenuPrint.setText(_translate("GRAPSInterface", "Print"))
         self.actionPrintPreview.setText(_translate("GRAPSInterface", "Print Preview"))
+        self.actionCenter_View.setText(_translate("GRAPSInterface", "Center View"))
+        self.actionCenter_View.setToolTip(_translate("GRAPSInterface", "Center View on Items"))
+        self.actionCenter_View.setShortcut(_translate("GRAPSInterface", "Alt+C"))

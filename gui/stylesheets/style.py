@@ -9,7 +9,6 @@ class StyleSheets(object):
             "MaterialDark", "Ubuntu", "ExcelOffice",
             "Medize", "BreezeLight", "BreezeDark"
         ]
-        print(os.getcwd())
 
     def styles(self):
         return self.sheets

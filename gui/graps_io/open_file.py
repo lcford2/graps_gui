@@ -32,6 +32,8 @@ def open_file(self, filename):
             pos = QPointF(pointx, pointy)
             self.createPixmapItem(
                 block_dict[block], pos, value=block_num, block_ID=block)
+            if int(block_num) >= self.block_indices[block]:
+                self.block_indices[block] = int(block_num) + 1
         else:
             start, stop = info.split('-')
             print_dict['L'][block_num] = {}
