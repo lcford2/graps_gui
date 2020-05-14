@@ -154,6 +154,8 @@
    <addaction name="actionMS"/>
    <addaction name="actionG"/>
    <addaction name="actionR"/>
+   <addaction name="actionRun_Model"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew_File">
    <property name="text">
@@ -549,6 +551,14 @@
    </property>
    <property name="shortcut">
     <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionRun_Model">
+   <property name="text">
+    <string>Run Model</string>
+   </property>
+   <property name="toolTip">
+    <string>Run GRAPS</string>
    </property>
   </action>
  </widget>

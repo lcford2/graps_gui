@@ -10,7 +10,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ui.my_graphics_view import GraphicsView
 
-
 class Ui_GRAPSInterface(object):
     def setupUi(self, GRAPSInterface):
         GRAPSInterface.setObjectName("GRAPSInterface")
@@ -153,6 +152,8 @@ class Ui_GRAPSInterface(object):
         icon7.addPixmap(QtGui.QPixmap("./gui/icons/center_view_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionCenter_View.setIcon(icon7)
         self.actionCenter_View.setObjectName("actionCenter_View")
+        self.actionRun_Model = QtWidgets.QAction(GRAPSInterface)
+        self.actionRun_Model.setObjectName("actionRun_Model")
         self.menu_File.addAction(self.actionNew_File)
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addAction(self.actionSave)
@@ -193,6 +194,8 @@ class Ui_GRAPSInterface(object):
         self.toolBar.addAction(self.actionMS)
         self.toolBar.addAction(self.actionG)
         self.toolBar.addAction(self.actionR)
+        self.toolBar.addAction(self.actionRun_Model)
+        self.toolBar.addSeparator()
 
         self.retranslateUi(GRAPSInterface)
         QtCore.QMetaObject.connectSlotsByName(GRAPSInterface)
@@ -290,3 +293,5 @@ class Ui_GRAPSInterface(object):
         self.actionCenter_View.setText(_translate("GRAPSInterface", "Center View"))
         self.actionCenter_View.setToolTip(_translate("GRAPSInterface", "Center View on Items"))
         self.actionCenter_View.setShortcut(_translate("GRAPSInterface", "Alt+C"))
+        self.actionRun_Model.setText(_translate("GRAPSInterface", "Run Model"))
+        self.actionRun_Model.setToolTip(_translate("GRAPSInterface", "Run GRAPS"))

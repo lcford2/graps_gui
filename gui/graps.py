@@ -107,6 +107,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
+        self.ui.actionRun_Model.triggered.connect(self.run_model)
 
         # connecting user block selections to the block handling functions
         self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
@@ -290,16 +291,22 @@ class MyMainScreen(widgets.QMainWindow):
                                 name_tag = key
                         item_name = item_dict[name_tag]
                         item.setPlainText(item_name)
+    @staticmethod
+    def get_save_dir(directory="."):
+        save_folder = widgets.QFileDialog.getExistingDirectory(directory=directory)
+        return save_folder
+
+    
+    def run_model(self):
+        save_folder = self.get_save_dir()
+        self.export(save_folder)
 
     # exports files needed to run the fortran code
-    def export(self):
-        if not os.path.isdir("graps_export"):
-            os.mkdir("graps_export")
-        save_folder = str(widgets.QFileDialog.getExistingDirectory(
-            directory="graps_export"))
-        if save_folder == '':
-            pass
-        else:
+    def export(self, save_folder=None):
+        if not save_folder:
+            save_folder = self.get_save_dir(directory="graps_export")
+            
+        if save_folder != "":
             write_input(self, os.path.join(save_folder, 'input.dat'))
             write_ws_details(self, os.path.join(
                 save_folder, 'watershed_details.dat'))
