@@ -90,6 +90,7 @@ class MyMainScreen(widgets.QMainWindow):
 
         # save indicator
         self.dirty = False
+        self.save_file_name = ""
 
         self.ui.view.setScene(self.ui.scene)
 
@@ -98,7 +99,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.menuGen_Setup.triggered.connect(self.open_dataDialog)
         self.ui.actionGS.triggered.connect(self.open_dataDialog)
         self.ui.actionSave.triggered.connect(self.save_screen)
-        self.ui.actionSave_As.triggered.connect(self.save_screen)
+        self.ui.actionSave_As.triggered.connect(self.save_screen_as)
         self.ui.actionSave_2.triggered.connect(self.save_screen)
         self.ui.actionOpen.triggered.connect(self.file_open)
         self.ui.actionOpen_2.triggered.connect(self.file_open)
@@ -849,15 +850,26 @@ class MyMainScreen(widgets.QMainWindow):
     # opens dialog to allow file saving
 
     def save_screen(self):
+        if not self.save_file_name:
+            self.save_screen_as()()
+        else:
+            sv(self, self.save_file_name)
+            self.dirty = False
+    
+    def save_screen_as(self):
         if not os.path.isdir("graps_graphics"):
             os.mkdir("graps_graphics")
-        save_file_name = widgets.QFileDialog.getSaveFileName(
-            directory="graps_graphics", filter="*.graps")[0]
-        if save_file_name == '':
+        self.save_file_name = widgets.QFileDialog.getSaveFileName(
+                        directory="graps_graphics", filter="*.graps")[0]
+        # if the user exits the file dialog without selecting a file
+        # self.save_file_name will be an empty string
+        # This will be the equivalent of cancelling the save action
+        if not self.save_file_name:
             pass
         else:
-            sv(self, save_file_name, self.gen_setup_dict, self.dialog_dict)
+            sv(self, self.save_file_name)
             self.dirty = False
+        
 
     # opens files for editing
     def file_open(self):
@@ -871,6 +883,7 @@ class MyMainScreen(widgets.QMainWindow):
             open_file(self, open_file_name)
             self.change_label()
             self.center_scene()
+            self.save_file_name = open_file_name
 
     def center_scene(self):
         bounds = self.ui.scene.itemsBoundingRect()
@@ -1174,7 +1187,6 @@ class MyMainScreen(widgets.QMainWindow):
         if len(self.gen_setup_dict) != 0:
             dlg_populate.GS(self, self.gen_setup_dict)
         self.dialog.exec_()
-        # print self.gen_setup_dict
 
     # changes the number of columns in tables in certain dialogs
     def table_set_column(self):
