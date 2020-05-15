@@ -37,6 +37,8 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_jun_details, write_ibasin_details,
                                            write_sink_details, write_link_details,
                                            write_dec_var_details)
+# import python interface to fortran model
+from graps_model.res_model_interface import ReservoirModel
 from IPython import embed as II
 
 
@@ -299,7 +301,20 @@ class MyMainScreen(widgets.QMainWindow):
     
     def run_model(self):
         save_folder = self.get_save_dir()
-        self.export(save_folder)
+        # self.export(save_folder)
+        nuser = 0
+        for block in self.block_objects.keys():
+            if block[0] == "U":
+                nuser += 1
+        ntime = self.gen_setup_dict.get('ntime_steps', None)
+        if not ntime:
+            nparam = 84
+        else:
+            nparam = ntime*nuser        
+        output_path = os.path.join(save_folder, "output")
+        model = ReservoirModel(nparam, save_folder, output_path)
+        model.InitializeModel()
+        model.Simulate()
 
     # exports files needed to run the fortran code
     def export(self, save_folder=None):
