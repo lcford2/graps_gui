@@ -1023,13 +1023,12 @@ class MyMainScreen(widgets.QMainWindow):
     def setup_printer():
         printer = printsupp.QPrinter(printsupp.QPrinter.HighResolution)
         printer.setOrientation(printsupp.QPrinter.Landscape)
-        printer.setOutputFormat(printsupp.QPrinter.PdfFormat)
         return printer
 
     def paint_scene(self, printer):
         self.ui.scene.render(gui.QPainter(printer))
 
-    # prints a pdf of the scene
+    # allows user to print scene
     def print_scene(self):
         printer = self.setup_printer()
         dialog = printsupp.QPrintDialog(printer)
@@ -1053,50 +1052,26 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene.setSceneRect(rect)
         self.center_scene()
 
-
-    
     # Controls zoom on gui.QGraphicsScene
     def wheelEvent(self, event: gui.QWheelEvent):
         if event.modifiers() == core.Qt.ControlModifier:
             delta = event.angleDelta()
             y = delta.y()
             x = delta.x()
-            if y > 0:
-                exp = 25
-            elif y < 0:
-                exp = -25
-            else:
-                exp = 0
+            exp = 25*abs(y)/y
+            # if y > 0:
+            #     exp = 25
+            # elif y < 0:
+            #     exp = -25
+            # else:
+            #     exp = 0
             factor = 1.41 ** (exp / 240.0)
-            # II()
             self.ui.view.setTransformationAnchor(
                 widgets.QGraphicsView.AnchorUnderMouse)
             self.ui.view.setResizeAnchor(
                 widgets.QGraphicsView.AnchorUnderMouse)
             self.ui.view.scale(factor, factor)
-            return
 
-    def eventFilter(self, qobject, event):
-        def scale():
-            delta = event.angleDelta()
-            y = delta.y()
-            x = delta.x()
-            if y > 0:
-                exp = 25
-            elif y < 0:
-                exp = -25
-            else:
-                exp = 0
-            factor = 1.41 ** (exp / 240.0)
-            self.ui.view.scale(factor, factor)
-        print(event.type())
-        if (event.type() == core.QEvent.Wheel):
-            print('Wheel Event Captured')
-            modifiers = gui.QApplication.keyboardModifiers()
-            if modifiers == core.Qt.ControlModifier:
-                scale()
-                return True
-        return self.ui.view.eventFilter(self, qobject, event)
 
     # controls what is visible in the general setup menu based on the user selection for the simulation type
     def sim_type_change(self):
@@ -1119,7 +1094,6 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.adaptive_box.setVisible(False)
 
     # also controls what is visible in the general setup menu based on the user selection for the forecast option
-
     def forecast_option_change(self):
         if self.dialog.ui.retro_button.isChecked():
             self.dialog.ui.adaptive_box.setVisible(False)
@@ -1152,7 +1126,6 @@ class MyMainScreen(widgets.QMainWindow):
         if len(self.gen_setup_dict) != 0:
             dlg_populate.GS(self, self.gen_setup_dict)
         self.dialog.exec_()
-        # print self.gen_setup_dict
 
     # changes the number of columns in tables in certain dialogs
     def table_set_column(self):
@@ -1214,7 +1187,6 @@ class MyMainScreen(widgets.QMainWindow):
         sender = self.sender()
         if sender.currentText() == "Hydropower":
             self.dialog.ui.user_dia_tab.setTabEnabled(3, True)
-            # sender.user_dia_tab.setTabEnabled(3, True)
 
     # gets the file name for certain fields in dialog boxes
     def get_file_name(self):
@@ -1385,63 +1357,33 @@ class MyMainScreen(widgets.QMainWindow):
             rule_curve_option = str(
                 self.dialog.ui.curve_file_edit.text())
 
-        column = 0
-        row = 0
-        storage_rule = []
-        # storage_constraint = {}
-        # flood_volume = {}
-        # flood_constraint = {}
+        lower_rule = []
+        upper_rule = []
         if rule_curve_option == 'Table':
             for column in range(time_steps):
-                # while row < 4:
                 try:
-                    if row == 0:
-                        current_item = self.dialog.ui.rule_curve_table.item(
-                            row, column)
-                        user_input = str(current_item.text())
-                        storage_rule.apend(user_input)
-                        # row += 1
-
-                        # elif row == 1:
-                        #     current_item = self.dialog.ui.rule_curve_table.item(row, column)
-                        #     if current_item.checkState() == core.Qt.Checked:
-                        #         storage_constraint[str(column+1)] = 'No'
-                        #     elif current_item.checkState() == core.Qt.Unchecked:
-                        #         storage_constraint[str(column+1)] = 'Yes'
-                        #     row += 1
-                        # elif row == 2:
-                        #     current_item = self.dialog.ui.rule_curve_table.item(row, column)
-                        #     user_input = unicode(current_item.text())
-                        #     user_input = user_input
-                        #     flood_volume[str(column+1)] = user_input
-                        #     row += 1
-                        # elif row == 3:
-                        #     current_item = self.dialog.ui.rule_curve_table.item(row, column)
-                        #     if current_item.checkState() == core.Qt.Checked:
-                        #         flood_constraint[str(column+1)] = 'No'
-                        #     elif current_item.checkState() == core.Qt.Unchecked:
-                        #         flood_constraint[str(column+1)] = 'Yes'
-                        #     row += 1
+                    lower_item = self.dialog.ui.rule_curve_table.item(
+                        0, column).text()
+                    upper_item = self.dialog.ui.rule_curve_table.item(
+                        1, column).text()
+                    lower_rule.append(str(lower_item))
+                    upper_rule.append(str(upper_item))
                 except:
                     continue
         else:
             try:
                 with open(rule_curve_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    storage_rule = lst
+                    data = f.readlines()
+                    lower_rule = data[0].split()
+                    upper_rule = data[1].split()
             except:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
-        reservoir_dict['storage_rule'] = storage_rule
-        """
-        reservoir_dict['storage_constraint'] = storage_constraint
-        reservoir_dict['flood_volume'] = flood_volume
-        reservoir_dict['flood_constraint'] = flood_constraint
-        """
+        reservoir_dict['lower_rule'] = lower_rule
+        reservoir_dict['upper_rule'] = upper_rule
 
         # Target Restriction Level Table in Op Info Tab
         column = 0
