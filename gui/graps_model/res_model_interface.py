@@ -29,9 +29,9 @@ class ReservoirModel(object):
         self.UpdatePathFile
         script_loc = os.path.dirname(os.path.realpath(__file__))
         if sys.platform[:3] == "win":
-            lib = "res_model.dll"
+            lib = "windows\\res_model.dll"
         else:
-            lib = "res_model.so"
+            lib = "linux/res_model.so"
         self.library = ct.CDLL(os.path.join(script_loc,lib))
         self.py_init_params = [0.0 for i in range(n_init_params)]
         self.ArrayType1 = ct.c_double * n_init_params
