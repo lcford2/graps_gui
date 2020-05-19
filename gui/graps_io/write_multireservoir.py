@@ -300,18 +300,17 @@ def write_res_details(self, filename):
                 max_coef, min_coef = outlet['max_loss_coeff'], outlet['min_loss_coeff']
                 f.write(
                     f'{elev}  {area}  {max_coef}  {min_coef}  {target_storage}  {storage_prob}\n')
-            rule_curve = info_dict[item_id]['lower_rule']
-            for value in rule_curve:
-                f.write(f'{value}  ')
-            f.write('\n')
+            
+            lower_rule = info_dict[item_id]['lower_rule']
+            upper_rule = info_dict[item_id]['upper_rule']
+            f.write('  '.join(upper_rule) + '\n')
+            f.write('  '.join(lower_rule) + '\n')
+            
             evap_table = info_dict[item_id]['evap_info']
-            for value in evap_table:
-                f.write(f'{value}  ')
-            f.write('\n')
+            f.write('  '.join(evap_table) + '\n')
+            
             targ_restric = info_dict[item_id]['target_restrictions']
-            for value in targ_restric:
-                f.write(f'{value}  ')
-            f.write('\n')
+            f.write('  '.join(targ_restric) + '\n')
 
 
 def write_user_details(self, filename):

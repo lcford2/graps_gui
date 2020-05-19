@@ -311,7 +311,7 @@ class MyMainScreen(widgets.QMainWindow):
         if not ntime:
             nparam = 84
         else:
-            nparam = ntime*nuser        
+            nparam = int(ntime)*int(nuser)
         output_path = os.path.join(save_folder, "output")
         model = ReservoirModel(nparam, save_folder, output_path)
         model.InitializeModel()
@@ -538,37 +538,10 @@ class MyMainScreen(widgets.QMainWindow):
             int(num_restric))
         self.dialog.ui.rule_curve_table.setColumnCount(
             int(time_steps))
+        
+        self.dialog.ui.rule_curve_table.verticalHeaderItem(0).setText("Lower Rule")
+        self.dialog.ui.rule_curve_table.verticalHeaderItem(1).setText("Upper Rule")
 
-        for i in range(int(time_steps)):
-            item = widgets.QTableWidgetItem()
-            item.setCheckState(core.Qt.Unchecked)
-            item.setText('No')
-            item.setFlags(
-                core.Qt.ItemIsSelectable | core.Qt.ItemIsEnabled | core.Qt.ItemIsUserCheckable)
-            try:
-                table_item = self.dialog.ui.rule_curve_table.item(
-                    1, i)
-                value = str(
-                    table_item.text())
-                if value == '':
-                    self.dialog.ui.rule_curve_table.setItem(
-                        1, i, item)
-                else:
-                    table_item.setFlags(
-                        core.Qt.ItemIsSelectable)
-                # item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-                # table_item = self.dialog.ui.rule_curve_table.item(2, i)
-                # table_item = self.dialog.ui.rule_curve_table.item(3, i)
-                # item.setFlags(core.Qt.ItemIsSelectable)
-                # value = unicode(table_item.text())
-                # if value == '':
-                #     self.dialog.ui.rule_curve_table.setItem(3, i, item)
-                # else:
-                #     table_item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-            except AttributeError as e:
-                self.dialog.ui.rule_curve_table.setItem(
-                    1, i, item)
-                # self.dialog.ui.rule_curve_table.setItem(3, i, item)
         self.dialog.ui.evap_table.setColumnCount(
             int(time_steps))
         self.dialog.ui.select_file.clicked.connect(

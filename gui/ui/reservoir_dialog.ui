@@ -798,6 +798,9 @@
           </item>
           <item row="0" column="0" colspan="2">
            <widget class="QTableWidget" name="rule_curve_table">
+            <property name="gridStyle">
+             <enum>Qt::SolidLine</enum>
+            </property>
             <row>
              <property name="text">
               <string>Storage</string>
@@ -805,17 +808,7 @@
             </row>
             <row>
              <property name="text">
-              <string>Add as constraint</string>
-             </property>
-            </row>
-            <row>
-             <property name="text">
               <string>Flood Volume</string>
-             </property>
-            </row>
-            <row>
-             <property name="text">
-              <string>Add as constraint</string>
              </property>
             </row>
             <column>
@@ -878,216 +871,6 @@
               <string>12</string>
              </property>
             </column>
-            <item row="1" column="0">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="1">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="2">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="3">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="4">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="5">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="6">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="7">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="8">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="9">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="10">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="1" column="11">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="0">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="1">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="2">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="3">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="4">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="5">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="6">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="7">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="8">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="9">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="10">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
-            <item row="3" column="11">
-             <property name="text">
-              <string>No</string>
-             </property>
-             <property name="background">
-              <brush brushstyle="NoBrush">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </property>
-             <property name="foreground">
-              <brush brushstyle="NoBrush">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -1101,6 +884,12 @@
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
            <widget class="QTableWidget" name="target_rest_table">
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="gridStyle">
+             <enum>Qt::SolidLine</enum>
+            </property>
             <column>
              <property name="text">
               <string>1</string>
@@ -1124,7 +913,7 @@
        <item row="0" column="1">
         <widget class="QGroupBox" name="input_method_box">
          <property name="title">
-          <string>Input Method</string>
+          <string>Rule Curve Input Method</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
@@ -1177,11 +966,11 @@
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>true</bool>
             </attribute>
-            <attribute name="horizontalHeaderHighlightSections">
-             <bool>true</bool>
-            </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>100</number>
+            </attribute>
+            <attribute name="horizontalHeaderHighlightSections">
+             <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
              <bool>false</bool>

@@ -28,7 +28,11 @@ class ReservoirModel(object):
         self.out_path = output_path
         self.UpdatePathFile
         script_loc = os.path.dirname(os.path.realpath(__file__))
-        self.library = ct.CDLL(os.path.join(script_loc,'./res_model.so'))
+        if sys.platform[:3] == "win":
+            lib = "res_model.dll"
+        else:
+            lib = "res_model.so"
+        self.library = ct.CDLL(os.path.join(script_loc,lib))
         self.py_init_params = [0.0 for i in range(n_init_params)]
         self.ArrayType1 = ct.c_double * n_init_params
         self.initial_params = (self.ArrayType1)(*self.py_init_params)
@@ -37,9 +41,14 @@ class ReservoirModel(object):
         self.nres_ct = ct.c_int(0)
         self.nuser_ct = ct.c_int(0)
         self.nrestr_ct = ct.c_int(0)
-        self.init_fun = self.library.initialize_
-        self.simul_fun = self.library.python_simulate_
-        self.opt_fun = self.library.python_optimize_
+        if sys.platform[:3] == "win":
+            self.init_fun = self.library.INITIALIZE
+            self.simul_fun = self.library.PYTHON_SIMULATE
+            self.opt_fun = self.library.PYTHON_OPTIMIZE
+        else:
+            self.init_fun = self.library.initialize_
+            self.simul_fun = self.library.python_simulate_
+            self.opt_fun = self.library.python_optimize_
         self.func_flag_map = {
             "mhb": 1,    # max hydro benefits
             "mhp": 2,    # max hydropower

@@ -4,3 +4,5 @@ __pycache__
 graps_graphics/*
 model_runs/*
 inflow_files/*
+graps_export/**/*
+graps_graphics/**/*
