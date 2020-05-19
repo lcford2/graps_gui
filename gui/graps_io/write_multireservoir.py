@@ -300,7 +300,7 @@ def write_res_details(self, filename):
                 max_coef, min_coef = outlet['max_loss_coeff'], outlet['min_loss_coeff']
                 f.write(
                     f'{elev}  {area}  {max_coef}  {min_coef}  {target_storage}  {storage_prob}\n')
-            rule_curve = info_dict[item_id]['storage_rule']
+            rule_curve = info_dict[item_id]['lower_rule']
             for value in rule_curve:
                 f.write(f'{value}  ')
             f.write('\n')
