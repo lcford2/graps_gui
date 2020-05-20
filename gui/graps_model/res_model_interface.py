@@ -9,7 +9,7 @@ import os
 import sys
 import pprint
 from collections import defaultdict
-from IPython import embed as II
+import platform
 pp = pprint.PrettyPrinter()
 
 
@@ -28,9 +28,14 @@ class ReservoirModel(object):
         self.out_path = output_path
         self.UpdatePathFile
         script_loc = os.path.dirname(os.path.realpath(__file__))
-        if sys.platform[:3] == "win":
-            lib = "windows\\res_model.dll"
-        else:
+        system = platform.system()
+        arch = platform.architecture()[0]
+        if system == "Windows":
+            if arch == "64bit":
+                lib = "windows\\x64\\res_model.dll"
+            elif arch == "32bit":
+                lib = "windows\\x86\\res_model.dll"
+        elif system == "Linux":
             lib = "linux/res_model.so"
         self.library = ct.CDLL(os.path.join(script_loc,lib))
         self.py_init_params = [0.0 for i in range(n_init_params)]
