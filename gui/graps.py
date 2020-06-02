@@ -1214,7 +1214,13 @@ class MyMainScreen(widgets.QMainWindow):
         sender = self.sender()
         if sender.currentText() == "Hydropower":
             self.dialog.ui.user_dia_tab.setTabEnabled(3, True)
-            # sender.user_dia_tab.setTabEnabled(3, True)
+            self.dialog.ui.user_dia_tab.setStyleSheet(
+            "QTabBar::tab::enabled {}")
+        else:
+            self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
+            self.dialog.ui.user_dia_tab.setStyleSheet(
+            "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
+            
 
     # gets the file name for certain fields in dialog boxes
     def get_file_name(self):
