@@ -365,24 +365,24 @@ class MyMainScreen(widgets.QMainWindow):
     def reservoir_button(self):
         sender = self.sender()
         sender_name = sender.objectName()
-        if sender_name == 'table_radio_3':
+        if sender_name == 'evap_depth_table_radio':
             self.dialog.ui.evap_table.show()
             self.dialog.ui.evap_box.show()
             self.dialog.ui.evap_file_box.hide()
             self.dialog.ui.select_evap_file.hide()
             self.dialog.ui.evap_file_edit.hide()
-        elif sender_name == 'input_radio_2':
+        elif sender_name == 'evap_depth_file_radio':
             self.dialog.ui.evap_table.hide()
             self.dialog.ui.evap_box.hide()
             self.dialog.ui.evap_file_box.show()
             self.dialog.ui.select_evap_file.show()
             self.dialog.ui.evap_file_edit.show()
-        elif sender_name == 'table_radio_2':
+        elif sender_name == 'rule_curve_table_radio':
             self.dialog.ui.rule_curve_table.show()
             self.dialog.ui.rule_curve_box.show()
             self.dialog.ui.curve_file_select.hide()
             self.dialog.ui.curve_file_edit.hide()
-        elif sender_name == 'input_radio':
+        elif sender_name == 'rule_curve_file_radio':
             self.dialog.ui.rule_curve_table.hide()
             self.dialog.ui.rule_curve_box.show()
             self.dialog.ui.curve_file_select.show()
@@ -475,13 +475,13 @@ class MyMainScreen(widgets.QMainWindow):
             self.table_set_row)
         self.dialog.ui.num_outlet_edit.textEdited.connect(
             self.table_set_row)
-        self.dialog.ui.input_radio.toggled.connect(
+        self.dialog.ui.evap_depth_table_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.input_radio_2.toggled.connect(
+        self.dialog.ui.evap_depth_file_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.table_radio_2.toggled.connect(
+        self.dialog.ui.rule_curve_table_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.table_radio_3.toggled.connect(
+        self.dialog.ui.rule_curve_file_radio.toggled.connect(
             self.reservoir_button)
         self.dialog.ui.curve_file_select.clicked.connect(
             self.get_file_name)
@@ -496,9 +496,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.evap_file_box.hide()
         self.dialog.ui.evap_box.hide()
         self.dialog.ui.rule_curve_box.hide()
-        self.dialog.ui.vol__gamma_edit.setEnabled(False)
-        self.dialog.ui.level_vol_area_box.setVisible(False)
-        self.dialog.ui.table_radio.setEnabled(False)
+        self.dialog.ui.vol_gamma_edit.setEnabled(False)
         try:
             time_steps = self.gen_setup_dict['ntime_steps']
         except KeyError as e:
@@ -511,45 +509,31 @@ class MyMainScreen(widgets.QMainWindow):
             return
 
         self.dialog.ui.target_rest_table.setRowCount(1)
-        self.dialog.ui.target_rest_table.setColumnCount(
-            int(num_restric))
-        self.dialog.ui.rule_curve_table.setColumnCount(
-            int(time_steps))
-
-        for i in range(int(time_steps)):
-            item = widgets.QTableWidgetItem()
-            item.setCheckState(core.Qt.Unchecked)
-            item.setText('No')
-            item.setFlags(
-                core.Qt.ItemIsSelectable | core.Qt.ItemIsEnabled | core.Qt.ItemIsUserCheckable)
-            try:
-                table_item = self.dialog.ui.rule_curve_table.item(
-                    1, i)
-                value = str(
-                    table_item.text())
-                if value == '':
-                    self.dialog.ui.rule_curve_table.setItem(
-                        1, i, item)
-                else:
-                    table_item.setFlags(
-                        core.Qt.ItemIsSelectable)
-                # item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-                # table_item = self.dialog.ui.rule_curve_table.item(2, i)
-                # table_item = self.dialog.ui.rule_curve_table.item(3, i)
-                # item.setFlags(core.Qt.ItemIsSelectable)
-                # value = unicode(table_item.text())
-                # if value == '':
-                #     self.dialog.ui.rule_curve_table.setItem(3, i, item)
-                # else:
-                #     table_item.setFlags(core.Qt.ItemIsSelectable|core.Qt.ItemIsDisabled)
-            except AttributeError as e:
-                self.dialog.ui.rule_curve_table.setItem(
-                    1, i, item)
-                # self.dialog.ui.rule_curve_table.setItem(3, i, item)
+        self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
+        self.dialog.ui.rule_curve_table.setColumnCount(int(time_steps))
+        # for i in range(int(time_steps)):
+        #     item = widgets.QTableWidgetItem()
+        #     item.setCheckState(core.Qt.Unchecked)
+        #     item.setText('No')
+        #     item.setFlags(
+        #         core.Qt.ItemIsSelectable|core.Qt.ItemIsEnabled|core.Qt.ItemIsUserCheckable
+        #     )
+            
+        #     try:
+        #         table_item = self.dialog.ui.rule_curve_table.item(1, i)
+        #         value = str(table_item.text())
+        #         if value == '':
+        #             self.dialog.ui.rule_curve_table.setItem(1, i, item)
+        #         else:
+        #             table_item.setFlags(core.Qt.ItemIsSelectable)
+    
+        #     except AttributeError as e:
+        #         self.dialog.ui.rule_curve_table.setItem(
+        #             1, i, item)
+        #         # self.dialog.ui.rule_curve_table.setItem(3, i, item)
         self.dialog.ui.evap_table.setColumnCount(
             int(time_steps))
-        self.dialog.ui.select_file.clicked.connect(
-            self.get_file_name)
+
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_reservoir)
         self.dialog.setAttribute(
@@ -1206,8 +1190,6 @@ class MyMainScreen(widgets.QMainWindow):
         elif sending_object == 'select_inflow_file':
             self.dialog.ui.inflows_file_input.setText(filename)
         # reservoir
-        elif sending_object == 'select_file':
-            self.dialog.ui.select_file_field.setText(filename)
         elif sending_object == 'select_evap_file':
             self.dialog.ui.evap_file_edit.setText(filename)
         elif sending_object == 'curve_file_select':
@@ -1294,9 +1276,9 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['res_current_storage'] = res_current_storage
         time_steps = int(self.gen_setup_dict['ntime_steps'])
         evap_option = 0
-        if self.dialog.ui.table_radio_3.isChecked():
+        if self.dialog.ui.evap_depth_table_radio.isChecked():
             evap_option = 'Table'
-        elif self.dialog.ui.input_radio_2.isChecked():
+        elif self.dialog.ui.evap_depth_file_radio.isChecked():
             evap_option = str(
                 self.dialog.ui.evap_file_edit.text())
         # Evaporation Tab
@@ -1305,42 +1287,30 @@ class MyMainScreen(widgets.QMainWindow):
         evap_info = []
         if evap_option == 'Table':
             for int_variable in range(time_steps):
-                try:
-                    current_item = self.dialog.ui.evap_table.item(
-                        0, int_variable)
+                current_item = self.dialog.ui.evap_table.item(
+                        0, int_variable
+                )
+                try:                    
                     user_input = str(current_item.text())
-                    evap_info.append(user_input)
                 except:
-                    continue
+                    user_input = "0"
+                evap_info.append(user_input)
         else:
-            try:
-                with open(evap_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    evap_info = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
+            with open(evap_option, 'r') as f:
+                for line in f:
+                    lst = line.split()
+                evap_info = lst
 
         reservoir_dict['evap_info'] = evap_info
         reservoir_dict['evap_option'] = evap_option
 
         # Storage Elevation Tab
-        storage_option = 0
-        if self.dialog.ui.coeff_radio.isChecked():
-            storage_option = 'Coefficient'
-        elif self.dialog.ui.table_radio.isChecked():
-            storage_option = 'Table'
-        else:
-            storage_option = 'Null'
         elev_alpha = str(self.dialog.ui.elev_alpha_edit.text())
         elev_beta = str(self.dialog.ui.elev_beta_edit.text())
-        elev_gamma = str(self.dialog.ui.elev__gamma_edit.text())
+        elev_gamma = str(self.dialog.ui.elev_gamma_edit.text())
         vol_alpha = str(self.dialog.ui.vol_alpha_edit.text())
         vol_beta = str(self.dialog.ui.vol_beta_edit.text())
-        vol_gamma = str(self.dialog.ui.vol__gamma_edit.text())
-        lev_vol_area_file = str(self.dialog.ui.select_file_field.text())
+        vol_gamma = str(self.dialog.ui.vol_gamma_edit.text())
 
         reservoir_dict['elev_alpha'] = elev_alpha
         reservoir_dict['elev_beta'] = elev_beta
@@ -1348,19 +1318,18 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['vol_alpha'] = vol_alpha
         reservoir_dict['vol_beta'] = vol_beta
         reservoir_dict['vol_gamma'] = vol_gamma
-        reservoir_dict['lev_vol_area_file'] = lev_vol_area_file
-        reservoir_dict['storage_option'] = storage_option
 
         # Operational Information Tab
         target_storage = str(self.dialog.ui.tar_stor_edit.text())
         storage_probability = str(self.dialog.ui.stor_prob_edit.text())
         reservoir_dict['target_storage'] = target_storage
         reservoir_dict['storage_probability'] = storage_probability
+
         # Rule Curve Table in Op Info Tab
-        rule_curve_option = 0
-        if self.dialog.ui.table_radio_2.isChecked():
+        rule_curve_option = "0"
+        if self.dialog.ui.rule_curve_table_radio.isChecked():
             rule_curve_option = 'Table'
-        elif self.dialog.ui.input_radio.isChecked():
+        elif self.dialog.ui.rule_curve_file_radio.isChecked():
             rule_curve_option = str(
                 self.dialog.ui.curve_file_edit.text())
 
@@ -1378,19 +1347,14 @@ class MyMainScreen(widgets.QMainWindow):
                 except:
                     continue
         else:
-            try:
-                with open(rule_curve_option, 'r') as f:
-                    data = f.readlines()
-                    lower_rule = data[0].split()
-                    upper_rule = data[1].split()
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
+            with open(rule_curve_option, 'r') as f:
+                data = f.readlines()
+                lower_rule = data[0].split()
+                upper_rule = data[1].split()
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
-        reservoir_dict['lower_rule'] = lower_rule
-        reservoir_dict['upper_rule'] = upper_rule
+        reservoir_dict['storage_rule'] = lower_rule
+        reservoir_dict['flood_rule'] = upper_rule
 
         # Target Restriction Level Table in Op Info Tab
         column = 0

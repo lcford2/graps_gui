@@ -14,16 +14,6 @@
    <string>User</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QLineEdit" name="user_name_display">
      <property name="enabled">
@@ -31,6 +21,16 @@
      </property>
      <property name="acceptDrops">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -56,26 +56,6 @@
           <string>Description</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="user_id_label">
-            <property name="text">
-             <string>User ID</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="user_name_label">
-            <property name="text">
-             <string>User Name</string>
-            </property>
-            <property name="buddy">
-             <cstring>user_name_edit</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="user_name_edit"/>
-          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="user_type_label">
             <property name="text">
@@ -115,26 +95,6 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="min_release_label">
-            <property name="text">
-             <string>Minimum Release</string>
-            </property>
-            <property name="buddy">
-             <cstring>min_release_edit</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="min_release_edit"/>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="min_release_unit">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0">
            <widget class="QLabel" name="max_release_label">
             <property name="text">
@@ -145,15 +105,28 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="user_id_label">
+            <property name="text">
+             <string>User ID</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="1">
            <widget class="QLineEdit" name="max_release_edit"/>
           </item>
-          <item row="4" column="2">
-           <widget class="QLabel" name="max_release_unit">
+          <item row="3" column="0">
+           <widget class="QLabel" name="min_release_label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Minimum Release</string>
+            </property>
+            <property name="buddy">
+             <cstring>min_release_edit</cstring>
             </property>
            </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="user_name_edit"/>
           </item>
           <item row="0" column="1">
            <widget class="QLabel" name="user_id_display">
@@ -161,6 +134,19 @@
              <string>1</string>
             </property>
            </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="user_name_label">
+            <property name="text">
+             <string>User Name</string>
+            </property>
+            <property name="buddy">
+             <cstring>user_name_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="min_release_edit"/>
           </item>
          </layout>
         </widget>
@@ -187,13 +173,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="contract_restrict_unit">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="tariff_edit"/>
           </item>
@@ -207,13 +186,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="penalty_unit">
-            <property name="text">
-             <string>$</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="2">
            <widget class="QLabel" name="tariff_unit">
             <property name="text">
@@ -224,7 +196,7 @@
           <item row="2" column="2">
            <widget class="QLabel" name="reliability_unit">
             <property name="text">
-             <string>ln%</string>
+             <string>%</string>
             </property>
            </widget>
           </item>
@@ -244,7 +216,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="penalty_label">
             <property name="text">
-             <string>Penalty</string>
+             <string>Penalty Volume</string>
             </property>
             <property name="buddy">
              <cstring>penalty_edit</cstring>
@@ -390,7 +362,7 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="input_method_box">
          <property name="title">
-          <string>Input Method</string>
+          <string>Demand Input Method</string>
          </property>
          <layout class="QFormLayout" name="formLayout_2">
           <item row="0" column="0">
@@ -523,7 +495,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="hydropower_elev_label">
          <property name="text">
-          <string>Turbine Tail Elevation (m)</string>
+          <string>Turbine Tail Elevation</string>
          </property>
         </widget>
        </item>
@@ -540,12 +512,12 @@
         <widget class="QTableWidget" name="hydro_table">
          <column>
           <property name="text">
-           <string>Maximum Discharge (m3/sec)</string>
+           <string>Maximum Discharge</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>Installed Capacity (MWatts)</string>
+           <string>Installed Capacity</string>
           </property>
          </column>
          <column>
