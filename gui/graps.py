@@ -36,7 +36,7 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_res_details, write_user_details,
                                            write_jun_details, write_ibasin_details,
                                            write_sink_details, write_link_details,
-                                           write_dec_var_details)
+                                           write_dec_var_details, get_item_dict)
 from IPython import embed as II
 
 
@@ -57,7 +57,7 @@ class MyMainScreen(widgets.QMainWindow):
         # e.g. self.block_objects["R1"] = (image object, label object)
         # should be useful when removing objects by ID or creating links
         self.block_objects = {}
-        self.link_objects = []
+        self.link_objects = {}
         self.block_indices = {
             "W": 1,
             "R": 1,
@@ -258,7 +258,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.gen_setup_dict.clear()
         self.dialog_dict.clear()
         self.block_objects = {}
-        self.link_objects = []
+        self.link_objects = {}
         self.block_indices = {
             "W": 1,
             "R": 1,
@@ -277,6 +277,7 @@ class MyMainScreen(widgets.QMainWindow):
             item_id = kwargs['item_id']
             if name_tag != '' and item_id.item_type == 'text':
                 item_id.setPlainText(name_tag)
+                item_id.text = name_tag
         else:
             items = list(self.ui.scene.items())
             for item in items:
@@ -300,6 +301,10 @@ class MyMainScreen(widgets.QMainWindow):
         if save_folder == '':
             pass
         else:
+            self.user_control_list = []
+            self.num_of_items = {str(i): 0 for i in range(1, 14)}
+            self.item_types = {str(i): [] for i in range(1, 14)}
+            get_item_dict(self)
             write_input(self, os.path.join(save_folder, 'input.dat'))
             write_ws_details(self, os.path.join(
                 save_folder, 'watershed_details.dat'))
@@ -511,26 +516,6 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.target_rest_table.setRowCount(1)
         self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
         self.dialog.ui.rule_curve_table.setColumnCount(int(time_steps))
-        # for i in range(int(time_steps)):
-        #     item = widgets.QTableWidgetItem()
-        #     item.setCheckState(core.Qt.Unchecked)
-        #     item.setText('No')
-        #     item.setFlags(
-        #         core.Qt.ItemIsSelectable|core.Qt.ItemIsEnabled|core.Qt.ItemIsUserCheckable
-        #     )
-            
-        #     try:
-        #         table_item = self.dialog.ui.rule_curve_table.item(1, i)
-        #         value = str(table_item.text())
-        #         if value == '':
-        #             self.dialog.ui.rule_curve_table.setItem(1, i, item)
-        #         else:
-        #             table_item.setFlags(core.Qt.ItemIsSelectable)
-    
-        #     except AttributeError as e:
-        #         self.dialog.ui.rule_curve_table.setItem(
-        #             1, i, item)
-        #         # self.dialog.ui.rule_curve_table.setItem(3, i, item)
         self.dialog.ui.evap_table.setColumnCount(
             int(time_steps))
 
@@ -771,10 +756,8 @@ class MyMainScreen(widgets.QMainWindow):
                     remove_items = self.block_objects[item_id]
                     if item.block_type == "L":
                         link_item = {'link': remove_items[0],
-                                     'label': remove_items[1],
-                                     'start': item.start_node,
-                                     'stop': item.stop_node}
-                        self.link_objects.remove(link_item)
+                                     'label': remove_items[1]}
+                        del self.link_objects[(item.start_node,item.stop_node)]
 
                     for remove_item in remove_items:
                         if remove_item:
@@ -792,12 +775,12 @@ class MyMainScreen(widgets.QMainWindow):
                             self.ui.scene.removeItem(remove_item)
                     del self.block_objects[item_id]
                 remove_ids = []
-                for i, link_item in enumerate(self.link_objects):
-                    lstart, lstop = link_item["start"], link_item["stop"]
+                for i, (blocks, link_item) in enumerate(self.link_objects.items()):
+                    lstart, lstop = blocks
                     if lstart == item_id or lstop == item_id:
                         self.ui.scene.removeItem(link_item["link"])
                         self.ui.scene.removeItem(link_item["label"])
-                        remove_ids.append(i)
+                        remove_ids.append(blocks)
                 for i in remove_ids[::-1]:
                     del self.link_objects[i]
 
@@ -884,10 +867,7 @@ class MyMainScreen(widgets.QMainWindow):
         link.label_item = link_item
 
         self.ui.scene.addItem(link_item)
-        self.link_objects.append({'link': link,
-                                  'label': link_item,
-                                  'start': link_start.itemid,
-                                  'stop': link_stop.itemid})
+        self.link_objects[(link_start.itemid, link_stop.itemid)] = {'link': link, 'label': link_item}
         self.block_objects[f'L{num}'] = (link, link_item)
 
         name = 'L:' + num
@@ -982,10 +962,7 @@ class MyMainScreen(widgets.QMainWindow):
                                widgets.QGraphicsItem.ItemIsMovable)
             link.label_item = link_item
             self.ui.scene.addItem(link_item)
-            self.link_objects.append({'link': link,
-                                      'label': link_item,
-                                      'start': b_ID_local_start,
-                                      'stop': b_ID_local_stop})
+            self.link_objects[(b_ID_local_start, b_ID_local_stop)] = {'link': link,'label': link_item}
 
             self.block_objects[f'L{value}'] = (link, link_item)
             name = 'L:' + link_id
@@ -1464,7 +1441,7 @@ class MyMainScreen(widgets.QMainWindow):
         column = 0
         demand = []
         if demand_option == 'Table':
-            for column in range(time_steps):
+            for column in range(int(time_steps)):
                 try:
                     current_item = self.dialog.ui.demand_table.item(
                         0, column)
@@ -1683,7 +1660,7 @@ class MyMainScreen(widgets.QMainWindow):
         link_dict['nlags'] = nlags
         link_dict['ret_flows'] = ret_flows
         self.dialog_dict[link_ID] = link_dict
-        label_item = self.block_objects[link_ID][1]
+        label_item = self.link_objects[(start_node, stop_node)]["label"]
         self.change_label(item_id=label_item, name_tag=link_Name)
 
 

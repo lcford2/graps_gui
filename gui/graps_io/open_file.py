@@ -42,3 +42,6 @@ def open_file(self, filename):
             start = start.strip()
             stop = stop.strip()
             self.link_draw_fromSave(start, stop, num)
+            link_Name = self.dialog_dict[f'L{num}']['link_Name']
+            item_id = self.link_objects[(start, stop)]["label"]
+            self.change_label(name_tag=link_Name, item_id=item_id)

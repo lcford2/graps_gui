@@ -9,9 +9,6 @@ import sys
 import os
 from collections import deque
 
-num_of_items = {str(i): 0 for i in range(1, 14)}
-item_types = {str(i): [] for i in range(1, 14)}
-user_control_list = []
 
 # GRAPS modeled blocks.
 types = ['nwatershed', 'nnatural_flow', 'nres', 'nuser', 'nfnode',
@@ -21,8 +18,7 @@ types = ['nwatershed', 'nnatural_flow', 'nres', 'nuser', 'nfnode',
 # in the GUI and then their GRAPS type is determined when the output is written
 type_map = {"W": 1, "R": 3, "U": 4, "J": 5, "S": 12, "I": 13}
 
-
-def write_input(self, filename):
+def get_item_dict(self):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     items = list(self.ui.scene.items())
     # this portion goes through and counts the number of each type
@@ -37,80 +33,84 @@ def write_input(self, filename):
         inum = item.block_index
         item_id = item.itemid
         if itype == 'W':
-            num_of_items['1'] += 1
-            item_types['1'].append(inum)
-            item_types['1'].sort()
+            self.num_of_items['1'] += 1
+            self.item_types['1'].append(inum)
+            self.item_types['1'].sort()
         elif itype == 'R':
-            num_of_items['3'] += 1
-            item_types['3'].append(inum)
-            item_types['3'].sort()
+            self.num_of_items['3'] += 1
+            self.item_types['3'].append(inum)
+            self.item_types['3'].sort()
         elif itype == 'U':
-            item_types['4'].append(inum)
-            item_types['4'].sort()
-            num_of_items['4'] += 1
+            self.item_types['4'].append(inum)
+            self.item_types['4'].sort()
+            self.num_of_items['4'] += 1
         elif itype == 'J':
-            item_types['5'].append(inum)
-            item_types['5'].sort()
-            num_of_items['5'] += 1
+            self.item_types['5'].append(inum)
+            self.item_types['5'].sort()
+            self.num_of_items['5'] += 1
         elif itype == 'L':
             start = item.start_node
             stop = item.stop_node
             # Links that start at watershed are natural flows
             if start[0] == 'W':
-                if inum not in item_types['2']:
-                    item_types['2'].append(inum)
-                    item_types['2'].sort()
-                    num_of_items['2'] += 1
+                if inum not in self.item_types['2']:
+                    self.item_types['2'].append(inum)
+                    self.item_types['2'].sort()
+                    self.num_of_items['2'] += 1
             elif start[0] == 'J':
                 # Links that start at junctions and end at sinks are diversions
                 if stop[0] == 'S':
-                    if inum not in item_types['8']:
-                        item_types['8'].append(inum)
-                        item_types['8'].sort()
-                        num_of_items['8'] += 1
+                    if inum not in self.item_types['8']:
+                        self.item_types['8'].append(inum)
+                        self.item_types['8'].sort()
+                        self.num_of_items['8'] += 1
                 elif stop[0] == "U":
-                    if inum not in item_types['11']:
-                        item_types['11'].append(inum)
-                        item_types['11'].sort()
-                        num_of_items['11'] += 1
+                    if inum not in self.item_types['11']:
+                        self.item_types['11'].append(inum)
+                        self.item_types['11'].sort()
+                        self.num_of_items['11'] += 1
             # Links that start at interbasin nodes are interbasin transfer links
             elif start[0] == 'I':
-                if inum not in item_types['10']:
-                    item_types['10'].append(inum)
-                    item_types['10'].sort()
-                    num_of_items['10'] += 1
+                if inum not in self.item_types['10']:
+                    self.item_types['10'].append(inum)
+                    self.item_types['10'].sort()
+                    self.num_of_items['10'] += 1
             elif start[0] == 'R':
                 if stop[0] == 'U':
-                    if inum not in item_types['11']:
-                        item_types['11'].append(inum)
-                        item_types['11'].sort()
-                        num_of_items['11'] += 1
+                    if inum not in self.item_types['11']:
+                        self.item_types['11'].append(inum)
+                        self.item_types['11'].sort()
+                        self.num_of_items['11'] += 1
                 else:
-                    if inum not in item_types['6']:
-                        item_types['6'].append(inum)
-                        item_types['6'].sort()
-                        num_of_items['6'] += 1
+                    if inum not in self.item_types['6']:
+                        self.item_types['6'].append(inum)
+                        self.item_types['6'].sort()
+                        self.num_of_items['6'] += 1
             elif start[0] == 'U':
-                if inum not in item_types['7']:
-                    item_types['7'].append(inum)
-                    item_types['7'].sort()
-                    num_of_items['7'] += 1
+                if inum not in self.item_types['7']:
+                    self.item_types['7'].append(inum)
+                    self.item_types['7'].sort()
+                    self.num_of_items['7'] += 1
         elif itype == 'S':
-            item_types['12'].append(inum)
-            item_types['12'].sort()
-            num_of_items['12'] += 1
+            self.item_types['12'].append(inum)
+            self.item_types['12'].sort()
+            self.num_of_items['12'] += 1
         elif itype == 'I':
-            item_types['13'].append(inum)
-            item_types['13'].sort()
-            num_of_items['13'] += 1
-    
+            self.item_types['13'].append(inum)
+            self.item_types['13'].sort()
+            self.num_of_items['13'] += 1
+        
+
+def write_input(self, filename):
+    gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
+    items = list(self.ui.scene.items()) 
     with open(filename, 'w') as f:
-        f.write(f"{gs_dict['ntime_steps']}\t{gs_dict['nensembles']}\n")
-        line2_nums = [str(num_of_items[str(i)]) for i in range(1, 14)]
+        f.write(f"{gs_dict['ntime_steps']}\t1\t{gs_dict['nensembles']}\n")
+        line2_nums = [str(self.num_of_items[str(i)]) for i in range(1, 14)]
         line2 = "  ".join(line2_nums) + "\n"
         f.write(line2)
-        for key in sorted(list(item_types.keys()), key=int):
-            system = item_types[key]
+        for key in sorted(list(self.item_types.keys()), key=int):
+            system = self.item_types[key]
             string = "{}\t{}\n".format
             if key == '1':
                 for block in system:
@@ -182,7 +182,7 @@ def write_input(self, filename):
 def write_ws_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['1']:
+        for unique_id, item in enumerate(self.item_types['1']):
             item_num = item
             item_name = str(
                 info_dict[str('W' + item)]['watershed_Name'])
@@ -203,7 +203,7 @@ def write_ws_details(self, filename):
             gitem = self.block_objects[f'W{item_num}'][0]
             nchild = gitem.get_n_children()
             children = gitem.children
-            f.write(item_num + '\n' + item_name + '\n' + item_num +
+            f.write(str(unique_id + 1) + '\n' + item_name + '\n' + item_num +
                     ' ' + str(nchild) + '  ' + drainage_area + '\n')
             for child in children:
                 f.write(f'{type_map[child[0]]}  {child[1:]}\n')
@@ -222,7 +222,7 @@ def write_link_details(self, filename, link_type):
         "demand": "11"
     }
     with open(filename, 'w') as f:
-        for item in item_types[link_types[link_type]]:
+        for unique_id, item in enumerate(self.item_types[link_types[link_type]]):
             item_num = item
             item_id = 'L' + item_num
             gitem = self.block_objects[f'L{item_num}'][0]
@@ -234,7 +234,8 @@ def write_link_details(self, filename, link_type):
             stop_node = str(info_dict[item_id]['stop_node'])
             min_disch = str(info_dict[item_id]['min_discharge'])
             max_disch = str(info_dict[item_id]['max_discharge'])
-            f.write(item_num + '\n' + item_name + '\n')
+            unique_id += 1
+            f.write(str(unique_id) + '\n' + item_name + '\n')
             f.write(f'{type_map[start_node[0]]}  {start_node[1:]}\n')
             f.write(f'{type_map[stop_node[0]]}  {stop_node[1:]}\n')
             f.write(f'{min_disch}   {max_disch}\n')
@@ -243,7 +244,7 @@ def write_link_details(self, filename, link_type):
 def write_res_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['3']:
+        for unique_id, item in enumerate(self.item_types['3']):
             item_num = item
             item_id = 'R' + item_num
             item_name = str(info_dict[item_id]['reservoir_Name'])
@@ -271,7 +272,7 @@ def write_res_details(self, filename):
             children = gitem.children
             parents = gitem.parents
         
-            f.write(f'{item_num}\n')
+            f.write(f'{unique_id+1}\n')
             f.write(f'{item_name}\n')
             f.write(f'{latitude}\t{longitude}\n')
             f.write(f'{max_elev}\t{min_elev}\n')
@@ -298,8 +299,8 @@ def write_res_details(self, filename):
             for outlet in outlets:
                 elev, area = outlet['elevation'], outlet['xsc_area']
                 max_coef, min_coef = outlet['max_loss_coeff'], outlet['min_loss_coeff']
-                f.write(
-                    f'{elev}  {area}  {max_coef}  {min_coef}  {target_storage}  {storage_prob}\n')
+                f.write(f'{elev}  {area}  {max_coef}  {min_coef}\n')
+            f.write(f'{target_storage}  {storage_prob}\n')
             upper_curve = info_dict[item_id]['flood_rule']
             for value in upper_curve:
                 f.write(f'{value}  ')
@@ -321,7 +322,7 @@ def write_res_details(self, filename):
 def write_user_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['4']:
+        for unique_id, item in enumerate(self.item_types['4']):
             item_num = item
             item_id = 'U' + item_num
             item_name = str(info_dict[item_id]['user_Name'])
@@ -349,7 +350,7 @@ def write_user_details(self, filename):
             min_release = str(info_dict[item_id]['min_release'])
             max_release = str(info_dict[item_id]['max_release'])
             penalty_comp = str(info_dict[item_id]['penalty_comp'])
-            f.write(f'{item_num}\n')
+            f.write(f'{unique_id+1}\n')
             f.write(f'{item_name}\n')
             f.write(f'{item_num}  {user_type}  {nchild}  {nparent}  {nrestric}\n')
 
@@ -364,10 +365,10 @@ def write_user_details(self, filename):
                 f'{min_release}  {max_release}  {penalty_comp}\n'
             )
 
-            demand = info_dict[item_id]['demand']
-            for value in demand:
-                f.write(f'{value}   ')
-            f.write('\n')
+            # demand = info_dict[item_id]['demand']
+            # for value in demand:
+            #     f.write(f'{value}   ')
+            # f.write('\n')
             restric_frac = info_dict[item_id]['restric_frac']
             for value in restric_frac:
                 f.write(f'{value}   ')
@@ -403,11 +404,10 @@ def write_user_details(self, filename):
                     continue
                 if link.item_type == "line":
                     link_id = link.itemid
-                    global user_control_list
                     start = link.start_node
                     item_id = 'U' + str(item_num)
                     if start == item_id:
-                        if start not in user_control_list:
+                        if start not in self.user_control_list:
                             return_link = link_id
                             nlags = info_dict[link_id]['nlags']
                             f.write(nlags + '\n')
@@ -418,14 +418,14 @@ def write_user_details(self, filename):
                                 for value in sorted(ret_flows.values()):
                                     f.write(value + '  ')
                                 f.write('\n')
-                            user_control_list.append(start)
+                            self.user_control_list.append(start)
 
 
 
 def write_jun_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['5']:
+        for unique_id, item in enumerate(self.item_types['5']):
             item_num = item
             item_id = 'J' + item_num
             item_name = str(info_dict[item_id]['junction_Name'])
@@ -435,7 +435,7 @@ def write_jun_details(self, filename):
             children = gitem.children
             parents = gitem.parents
             
-            f.write(f'{item_num}\n')
+            f.write(f'{unique_id+1}\n')
             f.write(f'{item_name}\n')
             f.write(f'{item_num}  {nchild}  {nparent}\n')
             for child in children:
@@ -448,7 +448,7 @@ def write_jun_details(self, filename):
 def write_sink_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['12']:
+        for unique_id, item in enumerate(self.item_types['12']):
             item_num = item
             item_id = 'S' + item_num
             item_name = str(info_dict[item_id]['sink_Name'])
@@ -459,7 +459,7 @@ def write_sink_details(self, filename):
             parents = gitem.parents
 
         
-            f.write(f'{item_num}\n')
+            f.write(f'{unique_id+1}\n')
             f.write(f'{item_name}\n')
             f.write(f'{item_num}  {nparent}\n')
             for parent in parents:
@@ -470,7 +470,7 @@ def write_sink_details(self, filename):
 def write_ibasin_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     with open(filename, 'w') as f:
-        for item in item_types['13']:
+        for unique_id, item in enumerate(self.item_types['13']):
             item_num = item
             item_id = 'I' + item
             item_name = str(info_dict[item_id]['interbasin_Name'])
@@ -480,7 +480,7 @@ def write_ibasin_details(self, filename):
             nchild = gitem.get_n_children()
             children = gitem.children
            
-            f.write(f'{item_num}\n')
+            f.write(f'{unique_id+1}\n')
             f.write(f'{item_name}\n')
             f.write(f'{drainage_area}\n')
             f.write(f'{item_num}  {nchild}\n')
@@ -494,10 +494,10 @@ def write_ibasin_details(self, filename):
 
 def write_dec_var_details(self, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    #! I STILL NEED TO UPDATE THIS FUNCTION
     with open(filename, 'w') as f:
-        num = int(num_of_items['4'])
-        time_steps = int(gs_dict['ntime_steps'])
-        ndesc_variables = num * time_steps
-        for i in range(ndesc_variables):
-            f.write('9\n')
+        for unique_id, item in enumerate(self.item_types['4']):
+            item_num = item
+            item_id = 'U' + item_num
+            demand = info_dict[item_id]["demand"]
+            output = "\n".join(demand)
+            f.write(output+"\n")
