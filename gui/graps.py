@@ -1258,25 +1258,28 @@ class MyMainScreen(widgets.QMainWindow):
         elif self.dialog.ui.evap_depth_file_radio.isChecked():
             evap_option = str(
                 self.dialog.ui.evap_file_edit.text())
+      
+        
         # Evaporation Tab
         int_variable = 0
 
         evap_info = []
-        if evap_option == 'Table':
-            for int_variable in range(time_steps):
-                current_item = self.dialog.ui.evap_table.item(
-                        0, int_variable
-                )
-                try:                    
-                    user_input = str(current_item.text())
-                except:
-                    user_input = "0"
-                evap_info.append(user_input)
-        else:
-            with open(evap_option, 'r') as f:
-                for line in f:
-                    lst = line.split()
-                evap_info = lst
+        if evap_option:
+            if evap_option == 'Table':
+                for int_variable in range(time_steps):
+                    current_item = self.dialog.ui.evap_table.item(
+                            0, int_variable
+                    )
+                    try:                    
+                        user_input = str(current_item.text())
+                    except:
+                        user_input = "0"
+                    evap_info.append(user_input)
+            else:
+                with open(evap_option, 'r') as f:
+                    for line in f:
+                        lst = line.split()
+                    evap_info = lst
 
         reservoir_dict['evap_info'] = evap_info
         reservoir_dict['evap_option'] = evap_option
@@ -1303,7 +1306,7 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['storage_probability'] = storage_probability
 
         # Rule Curve Table in Op Info Tab
-        rule_curve_option = "0"
+        rule_curve_option = 0
         if self.dialog.ui.rule_curve_table_radio.isChecked():
             rule_curve_option = 'Table'
         elif self.dialog.ui.rule_curve_file_radio.isChecked():
@@ -1312,22 +1315,23 @@ class MyMainScreen(widgets.QMainWindow):
 
         lower_rule = []
         upper_rule = []
-        if rule_curve_option == 'Table':
-            for column in range(time_steps):
-                try:
-                    lower_item = self.dialog.ui.rule_curve_table.item(
-                        0, column).text()
-                    upper_item = self.dialog.ui.rule_curve_table.item(
-                        1, column).text()
-                    lower_rule.append(str(lower_item))
-                    upper_rule.append(str(upper_item))
-                except:
-                    continue
-        else:
-            with open(rule_curve_option, 'r') as f:
-                data = f.readlines()
-                lower_rule = data[0].split()
-                upper_rule = data[1].split()
+        if rule_curve_option:
+            if rule_curve_option == 'Table':
+                for column in range(time_steps):
+                    try:
+                        lower_item = self.dialog.ui.rule_curve_table.item(
+                            0, column).text()
+                        upper_item = self.dialog.ui.rule_curve_table.item(
+                            1, column).text()
+                        lower_rule.append(str(lower_item))
+                        upper_rule.append(str(upper_item))
+                    except:
+                        continue
+            else:
+                with open(rule_curve_option, 'r') as f:
+                    data = f.readlines()
+                    lower_rule = data[0].split()
+                    upper_rule = data[1].split()
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
         reservoir_dict['storage_rule'] = lower_rule
@@ -1440,25 +1444,21 @@ class MyMainScreen(widgets.QMainWindow):
 
         column = 0
         demand = []
-        if demand_option == 'Table':
-            for column in range(int(time_steps)):
-                try:
-                    current_item = self.dialog.ui.demand_table.item(
-                        0, column)
-                    demand_t = str(current_item.text())
-                    demand.append(demand_t)
-                except:
-                    continue
-        else:
-            try:
+        if demand_option:
+            if demand_option == 'Table':
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.demand_table.item(
+                            0, column)
+                        demand_t = str(current_item.text())
+                        demand.append(demand_t)
+                    except:
+                        continue
+            else:
                 with open(demand_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     demand = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
         # Restriction Compensation Tab
         restric_num = self.gen_setup_dict['nrestric']
         restric_comp = []
@@ -1521,25 +1521,21 @@ class MyMainScreen(widgets.QMainWindow):
                 self.dialog.ui.elev_file_edit.text())
 
         turb_elev = []
-        if elev_option == 'Table':
-            for column in range(int(time_steps)):
-                try:
-                    current_item = self.dialog.ui.hydro_elev_table.item(
-                        0, column)
-                    elevation = str(current_item.text())
-                    turb_elev.append(elevation)
-                except:
-                    continue
-        else:
-            try:
+        if elev_option:
+            if elev_option == 'Table':
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.hydro_elev_table.item(
+                            0, column)
+                        elevation = str(current_item.text())
+                        turb_elev.append(elevation)
+                    except:
+                        continue
+            else:
                 with open(elev_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     turb_elev = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         user_dict['elev_option'] = elev_option
         user_dict['num_turbines'] = num_turbines
@@ -1566,23 +1562,20 @@ class MyMainScreen(widgets.QMainWindow):
                 self.dialog.ui.flow_file_edit.text())
         column = 0
         average_flows = []
-        for column in range(int(time_steps)):
-            try:
-                current_item = self.dialog.ui.ave_flows_table.item(0, column)
-                flow = str(current_item.text())
-                average_flows.append(flow)
-            except:
-                continue
-        else:
-            try:
+        if flow_option:
+            if flow_option == "Table":
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.ave_flows_table.item(0, column)
+                        flow = str(current_item.text())
+                        average_flows.append(flow)
+                    except:
+                        continue
+            else:
                 with open(flow_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     average_flows = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         interbasin_dict['flow_option'] = flow_option
         interbasin_dict['interbasin_Name'] = interbasin_Name

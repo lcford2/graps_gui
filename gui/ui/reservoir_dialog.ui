@@ -283,7 +283,7 @@
           </size>
          </property>
          <property name="title">
-          <string>Evaporation File</string>
+          <string>Evaporation Depth File</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
@@ -324,7 +324,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Elevation Area Coeff.</string>
+             <string>Elevation-Strorage Coefficients</string>
             </property>
            </widget>
           </item>
@@ -367,7 +367,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Volume Area Coeff. </string>
+             <string>Area-Storage Coefficients</string>
             </property>
            </widget>
           </item>
@@ -407,7 +407,7 @@
              <number>7</number>
             </property>
             <property name="text">
-             <string>Alpha</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alpha (&amp;alpha;) &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -420,7 +420,7 @@
              <number>7</number>
             </property>
             <property name="text">
-             <string>Beta</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Beta (&amp;beta;) &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -433,7 +433,7 @@
              <number>7</number>
             </property>
             <property name="text">
-             <string>Gamma</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gamma (&amp;gamma;) &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -470,7 +470,7 @@
           </font>
          </property>
          <property name="title">
-          <string>Evaportation</string>
+          <string> Evaporation Depth </string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
