@@ -7,6 +7,11 @@ from PyQt5 import (QtCore as core,
                    QtGui as gui,
                    QtWidgets as widgets,
                    QtPrintSupport as printsupp)
+from matplotlib.backends.backend_qt5agg import (
+            FigureCanvasQTAgg as FigureCanvas,
+            NavigationToolbar2QT as NavToolbar)
+from matplotlib.figure import Figure
+import matplotlib  
 import sys
 import os
 # imports main window user interface
@@ -23,6 +28,7 @@ from ui.interbasin_dialog import Ui_interbasin_dialog
 from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
 from ui.not_saved_dialog import Ui_NotSavedDialog
+from ui.plot_display_dialog import Ui_plot_display_dialog
 # import my graphics with overloaded signals
 from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
@@ -291,6 +297,31 @@ class MyMainScreen(widgets.QMainWindow):
                                 name_tag = key
                         item_name = item_dict[name_tag]
                         item.setPlainText(item_name)
+
+    def graph_network(self):
+        import networkx as nx
+        graph = nx.DiGraph()
+        pos = {}
+        color_map = {"W":"red", "R":"blue",
+                     "U":"green", "J":"yellow",
+                     "S":"purple", "I":"cyan"}
+        for nodes, item in self.link_objects.items():
+            start, stop = nodes
+            graph.add_node(start, color=color_map[start[0]])
+            graph.add_node(stop, color=color_map[stop[0]])
+            graph.add_edge(*nodes)
+            pos[nodes[0]] = self.block_objects[nodes[0]][0].pos()
+            pos[nodes[1]] = self.block_objects[nodes[1]][0].pos()
+        lab_pos = {key:(value.x()/100, -value.y()/100) for key, value in pos.items()}
+        pos = {key:(value.x()/100, -value.y()/100) for key, value in pos.items()}
+        
+        colors = [graph.nodes.data()[i]["color"] for i in graph.nodes()]
+        figure = Figure()
+        ax = figure.add_subplot(111)
+        nx.draw_networkx_nodes(graph, ax=ax, pos=pos, node_color=colors, node_size=700, node_shape="v")
+        nx.draw_networkx_edges(graph, ax=ax, pos=pos, connectionstyle="arc3,rad=0.3")
+        nx.draw_networkx_labels(graph, ax=ax, pos=lab_pos)
+        self.plot_dialog(figure)        
 
     # exports files needed to run the fortran code
     def export(self):
@@ -715,6 +746,16 @@ class MyMainScreen(widgets.QMainWindow):
             else:
                 if enter:
                     self.linkdraw()
+
+    def plot_dialog(self, figure):
+        plot_dialog = widgets.QDialog(self)
+        plot_dialog.ui = Ui_plot_display_dialog()
+        plot_dialog.ui.setupUi(plot_dialog)
+
+        canvas = FigureCanvas(figure)
+
+        plot_dialog.ui.display_vert_layout.addWidget(canvas)
+        plot_dialog.exec_()
 
     def open_dialogs(self, enter=False):
         self.dirty = True
