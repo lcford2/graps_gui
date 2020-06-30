@@ -254,7 +254,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.block_objects[f"{self.block_ID}{label_value}"] = (item, g_label)
         item.label_item = g_label
 
-        self.dirty = True
+        if not kwargs:
+            self.dirty = True
 
     # creates labels for nodes
     def create_label(self, value, b_ID, position, qtItem):
@@ -882,7 +883,6 @@ class MyMainScreen(widgets.QMainWindow):
         plot_dialog.exec_()
 
     def open_dialogs(self, enter=False):
-        self.dirty = True
         sel_items = list(self.ui.scene.selectedItems())
         if self.dlg == 'dlg_closed':
             pass
@@ -902,7 +902,12 @@ class MyMainScreen(widgets.QMainWindow):
             }
             for item in sel_items:
                 item_type = item.block_type
+                item_id = item.itemid
+                pre_dict = self.dialog_dict[item_id]
                 dialog_map[item_type](item)
+                if self.dialog_dict[item_id] != pre_dict:
+                    self.dirty = True
+                
 
     # delete items and labels associated with those items
     def keyPressEvent(self, QKeyEvent):
@@ -1042,7 +1047,7 @@ class MyMainScreen(widgets.QMainWindow):
         link_item.stop_node = stop
 
         self.ui.scene.clearSelection()
-        self.dirty = True
+        # self.dirty = True
 
     # checks if the link being drawn is valid
     def check_link(self, start, stop):
@@ -1823,10 +1828,8 @@ class MyMainScreen(widgets.QMainWindow):
 
 
 def main():
-    from stylesheets import style
-    style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
-    # app.setStyleSheet(style_selector.Medize())
+    app.setStyle("Fusion")
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
