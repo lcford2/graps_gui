@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
+    <width>648</width>
     <height>427</height>
    </rect>
   </property>
@@ -15,6 +15,36 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1">
+    <widget class="QLabel" name="combo_label">
+     <property name="text">
+      <string>Block Type Selector</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QListWidget" name="attribute_selector">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>200</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="editor_label">
+     <property name="text">
+      <string>Attribute Editor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
     <widget class="QComboBox" name="block_type_combo">
      <item>
       <property name="text">
@@ -41,41 +71,23 @@
        <string>Inter-basin Transfers</string>
       </property>
      </item>
-     <item>
-      <property name="text">
-       <string/>
-      </property>
-     </item>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QListWidget" name="attribute_selector">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>200</width>
-       <height>16777215</height>
-      </size>
+   <item row="2" column="1">
+    <widget class="QLabel" name="selector_label">
+     <property name="text">
+      <string>Attribute Selector</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" rowspan="2">
+   <item row="1" column="0" rowspan="3">
     <widget class="QTableWidget" name="attribute_editor">
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderCascadingSectionResizes">
+      <bool>true</bool>
+     </attribute>
      <row>
       <property name="text">
        <string>R1</string>
@@ -91,6 +103,19 @@
        <string>Attribute</string>
       </property>
      </column>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
   </layout>

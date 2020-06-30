@@ -29,6 +29,7 @@ from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
 from ui.not_saved_dialog import Ui_NotSavedDialog
 from ui.plot_display_dialog import Ui_plot_display_dialog
+from ui.multi_edit_dialog import Ui_multi_edit_dialog
 # import my graphics with overloaded signals
 from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
@@ -113,6 +114,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
+        self.ui.actionMulti_Edit.triggered.connect(self.open_multi_edit_dialog)
 
         # connecting user block selections to the block handling functions
         self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
@@ -125,6 +127,31 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionLink.triggered.connect(self.draw_line)
 
         self.ui.toolBar.setToolButtonStyle(core.Qt.ToolButtonIconOnly)
+
+        # attribute selectors for multi-edit
+        self.attribute_dict = {
+            "R":{
+                "Name":"reservoir_Name","Latitude":"res_latitude","Longitude":"res_longitude",
+                "Min. Elevation":"res_min_elev","Max. Elevation":"res_max_elev","Min. Storage":"res_min_storage",
+                "Max. Storage":"res_max_storage","Current Storage":"res_current_storage",
+                "Target Storage":"target_storage","Storage Reliability":"storage_probability"
+            },
+            "U":{
+                "Name":"user_Name","Min. Release":"min_release","Max. Release":"max_release",
+                "Tariff":"tariff", "Penalty":"penalty","Reliability":"reliability",
+                "Restriction Volume":"restrict_volume","Penalty Compensation":"penalty_comp",
+                "User Type":"user_type"
+            },
+            "W":{
+                "Name":"watershed_Name","Drainage Area":"drain_Area"
+            },
+            "J":{
+                "Name":"junction_Name"
+            },
+            "I":{
+                "Name":"interbasin_Name", "Drainage Area":"drain_area"
+            }
+        }
 
     def toolbar_interaction(self):
         tools = {
@@ -730,6 +757,103 @@ class MyMainScreen(widgets.QMainWindow):
             dlg_populate.IB(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
+    
+    def open_multi_edit_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_multi_edit_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        # Items:
+        # block_type_combo : select Reservoir, User, etc..
+        # attribute_selector : choose what attributes to edit (different for each block)
+        # attribute_editor : table widget for editing and displaying attributes
+        # self.dialog.ui.block_type_combo.set
+        self.medit_combo_slot()
+        self.dialog.ui.block_type_combo.currentIndexChanged.connect(
+            self.medit_combo_slot)
+        self.dialog.ui.attribute_selector.clicked.connect(
+            self.medit_att_selector_slot)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_medit)
+        btn = self.dialog.ui.buttonBox.button(widgets.QDialogButtonBox.Apply)
+        btn.clicked.connect(self.get_info_medit)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        
+        self.dialog.exec_()
+        self.dialog = None
+
+    def medit_combo_slot(self):
+        table = self.dialog.ui.attribute_editor
+        selector = self.dialog.ui.attribute_selector
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        rows = []
+        btype = block_type[0]
+        name_map = {
+            "R":"reservoir_Name",
+            "U":"user_Name",
+            "W":"watershed_Name",
+            "J":"junction_Name",
+            "I":"interbasin_Name",
+        }
+        for bid, (block, label) in self.block_objects.items():
+            if bid[0] == btype:
+                rows.append((bid,self.dialog_dict[bid][name_map[btype]]))
+        rows.sort(key=lambda x: int(x[0][1:]))
+        if len(rows) != 0:
+            row_ids, row_labels = zip(*rows)
+        else:
+            row_ids, row_labels = [], []
+
+        self.row_map = {row_labels[i]:row_ids[i] for i in range(len(row_labels))}
+        table.setRowCount(len(row_labels))
+        table.setVerticalHeaderLabels(row_labels)
+        
+        list_items = self.attribute_dict[btype].keys()
+        selector.clear()
+        selector.addItems(list_items)
+        self.medit_att_selector_slot()
+
+    def medit_att_selector_slot(self):
+        table = self.dialog.ui.attribute_editor
+        selector = self.dialog.ui.attribute_selector
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        attribute_choice = selector.currentItem()
+        if attribute_choice:
+            att_text = attribute_choice.text()
+        else:
+            att_text = "Select Attribute"
+        table.setHorizontalHeaderLabels([att_text])
+        self.populate_medit_table()
+
+    def populate_medit_table(self):
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        btype = block_type[0]
+        table = self.dialog.ui.attribute_editor
+        table.clearContents()
+        attribute = table.horizontalHeaderItem(0).text()
+        rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
+        if attribute != "Select Attribute":
+            dict_key = self.attribute_dict[btype][attribute]
+            for i, row in enumerate(rows):
+                info_key = self.row_map[row]
+                data = self.dialog_dict[info_key][dict_key]
+                table_item = widgets.QTableWidgetItem(data)
+                table.setItem(i, 0, table_item)
+
+    def get_info_medit(self):
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        btype = block_type[0]
+        table = self.dialog.ui.attribute_editor
+        attribute = table.horizontalHeaderItem(0).text()
+        rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
+        if attribute != "Select Attribute":
+            dict_key = self.attribute_dict[btype][attribute]
+            for i, row in enumerate(rows):
+                table_item = table.item(i, 0)
+                if table_item:
+                    text = table_item.text()
+                    info_key = self.row_map[row]
+                    self.dialog_dict[info_key][dict_key] = text
+                
 
     def link_draw_interface(self, enter=False):
         sel_items = list(self.ui.scene.selectedItems())
