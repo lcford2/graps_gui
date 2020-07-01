@@ -854,6 +854,9 @@ class MyMainScreen(widgets.QMainWindow):
                     text = table_item.text()
                     info_key = self.row_map[row]
                     self.dialog_dict[info_key][dict_key] = text
+                    if attribute == "Name":
+                        self.change_label(item_id=self.block_objects[info_key][1], name_tag=text)
+        
                 
 
     def link_draw_interface(self, enter=False):
