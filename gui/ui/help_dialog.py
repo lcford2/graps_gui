@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_help_dialog(object):
     def setupUi(self, help_dialog):
         help_dialog.setObjectName("help_dialog")
-        help_dialog.resize(400, 300)
+        help_dialog.resize(853, 749)
         self.gridLayout = QtWidgets.QGridLayout(help_dialog)
         self.gridLayout.setObjectName("gridLayout")
         self.help_view = QtWebEngineWidgets.QWebEngineView(help_dialog)

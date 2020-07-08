@@ -815,7 +815,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui = Ui_help_dialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        doc_file = os.path.join(os.getcwd(), "docs", "doc.html")
+        doc_file = os.path.join(os.getcwd(), "docs", "html", "doc.html")
         self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
         self.dialog.exec_()
         self.dialog = None
@@ -835,7 +835,12 @@ class MyMainScreen(widgets.QMainWindow):
         }
         for bid, (block, label) in self.block_objects.items():
             if bid[0] == btype:
-                rows.append((bid,self.dialog_dict[bid][name_map[btype]]))
+                block_dict = self.dialog_dict.get(bid, None)
+                if block_dict:
+                    name = block_dict.get(name_map[btype], bid)
+                    rows.append((bid,name))
+                else:
+                    rows.append((bid,bid))
         rows.sort(key=lambda x: int(x[0][1:]))
         if len(rows) != 0:
             row_ids, row_labels = zip(*rows)
@@ -874,9 +879,12 @@ class MyMainScreen(widgets.QMainWindow):
             dict_key = self.attribute_dict[btype][attribute]
             for i, row in enumerate(rows):
                 info_key = self.row_map[row]
-                data = self.dialog_dict[info_key][dict_key]
-                table_item = widgets.QTableWidgetItem(data)
-                table.setItem(i, 0, table_item)
+                data_dict = self.dialog_dict.get(info_key, None)
+                if data_dict:
+                    data = data_dict.get(dict_key, None)
+                    if data:
+                        table_item = widgets.QTableWidgetItem(data)
+                        table.setItem(i, 0, table_item)
 
     def get_info_medit(self):
         block_type = self.dialog.ui.block_type_combo.currentText()
@@ -891,6 +899,8 @@ class MyMainScreen(widgets.QMainWindow):
                 if table_item:
                     text = table_item.text()
                     info_key = self.row_map[row]
+                    if info_key not in self.dialog_dict:
+                        self.dialog_dict[info_key] = {}
                     self.dialog_dict[info_key][dict_key] = text
                     if attribute == "Name":
                         self.change_label(item_id=self.block_objects[info_key][1], name_tag=text)
