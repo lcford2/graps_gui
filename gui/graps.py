@@ -30,6 +30,7 @@ from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
 from ui.not_saved_dialog import Ui_NotSavedDialog
 from ui.plot_display_dialog import Ui_plot_display_dialog
 from ui.multi_edit_dialog import Ui_multi_edit_dialog
+from ui.help_dialog import Ui_help_dialog
 # import my graphics with overloaded signals
 from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
@@ -97,6 +98,14 @@ class MyMainScreen(widgets.QMainWindow):
         self.dirty = False
 
         self.ui.view.setScene(self.ui.scene)
+
+        # add help menu
+        self.ui.actionHelp = widgets.QAction(self)
+        self.ui.actionHelp.setObjectName("actionHelp")
+        self.ui.actionHelp.setText("Help File")
+        self.ui.actionHelp.setToolTip("Open Help File for the Interface")
+        self.ui.menuHelp.addAction(self.ui.actionHelp)
+        self.ui.actionHelp.triggered.connect(self.open_help_dialog)
 
         # connecting toolbar actions to functions that open dialogs
         # or perform actions like exporting data files
@@ -351,8 +360,18 @@ class MyMainScreen(widgets.QMainWindow):
         nx.draw_networkx_labels(graph, ax=ax, pos=lab_pos)
         self.plot_dialog(figure)        
 
+    def check_gen_setup(self):
+        # check if crucial information from the general setup menu has been added
+        time_steps = self.gen_setup_dict.get("ntime_steps", None)
+        num_restric = self.gen_setup_dict.get("nrestric", None)
+        return (time_steps and num_restric)
+
     # exports files needed to run the fortran code
     def export(self):
+        if not self.check_gen_setup():
+            errormsg = "Error: You have not entered the required information.\nPlease finish the network before exporting."
+            self.open_error_dialog(errormsg)
+            return 
         if not os.path.isdir("graps_export"):
             os.mkdir("graps_export")
         save_folder = str(widgets.QFileDialog.getExistingDirectory(
@@ -479,14 +498,27 @@ class MyMainScreen(widgets.QMainWindow):
     def get_item_id(self, item):
         return item.itemid
 
+    def center_bold_stack(self, text_items):
+        front = "<html><head/><body>"
+        back = "</body></html>"
+        prepend = "<p align=\"center\"><span style=\" font-weight:600;\">"
+        postpend = "</span></p>"
+        fixed_items = [f"{prepend}{item}{postpend}" for item in text_items]
+        body = "".join(fixed_items)
+        return f"{front}{body}{back}"
+
     def open_error_dialog(self, text=None):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_ErrorDialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
+        
         if text:
-            self.dialog.ui.label.setText('Invalid link.')
+            text_items = text.split("\n")
+            display_text = self.center_bold_stack(text_items)
+            self.dialog.ui.label.setText(display_text)
+        
         self.dialog.exec_()
         self.dialog = None
 
@@ -517,9 +549,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_watershed)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.WS(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -561,16 +593,13 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.evap_box.hide()
         self.dialog.ui.rule_curve_box.hide()
         self.dialog.ui.vol_gamma_edit.setEnabled(False)
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
-        try:
-            num_restric = self.gen_setup_dict['nrestric']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing reservoirs."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
+        num_restric = self.gen_setup_dict['nrestric']
 
         self.dialog.ui.target_rest_table.setRowCount(1)
         self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
@@ -582,9 +611,9 @@ class MyMainScreen(widgets.QMainWindow):
             self.get_info_reservoir)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.RES(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -601,16 +630,13 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
         self.dialog.ui.user_dia_tab.setStyleSheet(
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
-        try:
-            num_restric = self.gen_setup_dict['nrestric']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing users."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
+        num_restric = self.gen_setup_dict['nrestric']
 
         self.dialog.ui.demand_table.setColumnCount(
             int(time_steps))
@@ -647,9 +673,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.user_type_combo.currentIndexChanged.connect(
             self.hydro_tab_show)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.US(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -666,9 +692,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_sink)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.SINK(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -695,9 +721,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_link)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.LINK(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -714,9 +740,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_junction)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.JUN(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -740,11 +766,12 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.file_button.hide()
         self.dialog.ui.ave_flows_table.hide()
         self.dialog.ui.ave_flow_box.hide()
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing interbasin transfers."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
 
         self.dialog.ui.ave_flows_table.setColumnCount(
             int(time_steps))
@@ -752,9 +779,9 @@ class MyMainScreen(widgets.QMainWindow):
             self.get_info_interbasin)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.IB(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -779,6 +806,19 @@ class MyMainScreen(widgets.QMainWindow):
         btn.clicked.connect(self.get_info_medit)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
         
+        self.dialog.exec_()
+        self.dialog = None
+    
+    def open_help_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_help_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        with open("docs/doc.html", "r") as f:
+            docs = f.read()
+
+        self.dialog.ui.help_view.setHtml(docs)
+        self.dialog.ui.help_view.setReadOnly(True)
         self.dialog.exec_()
         self.dialog = None
 
@@ -906,9 +946,9 @@ class MyMainScreen(widgets.QMainWindow):
             for item in sel_items:
                 item_type = item.block_type
                 item_id = item.itemid
-                pre_dict = self.dialog_dict[item_id]
+                pre_dict = self.dialog_dict.get(item_id, None)
                 dialog_map[item_type](item)
-                if self.dialog_dict[item_id] != pre_dict:
+                if self.dialog_dict.get(item_id, None) != pre_dict:
                     self.dirty = True
                 
 
@@ -1057,27 +1097,28 @@ class MyMainScreen(widgets.QMainWindow):
         if len(start) == 0 or len(stop) == 0:
             return False
         else:
+            errormsg = "Error: Invalid link."
             if start[0] in ['W', 'I', 'U']:
                 good = ['R', 'J', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'R':
                 good = ['J', 'U', 'S', 'R']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'J':
                 good = ['R', 'U', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'S':
                 self.dialog.done(1)
-                self.open_error_dialog(text="Invalid link.")
+                self.open_error_dialog(text=errormsg)
                 return False
             return True
 
@@ -1117,7 +1158,7 @@ class MyMainScreen(widgets.QMainWindow):
             link.setPen(pen)
             self.ui.scene.addItem(link)
 
-            link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
+            link_id = f"{b_ID_local_start}->{b_ID_local_stop}"
             link_item = myGraphicsTextItem(link_id, f'L{value}', self)
             link_item_h = link_item.shape().boundingRect().size().height()
             link_item_w = link_item.shape().boundingRect().size().width()
@@ -1151,6 +1192,8 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop = self.block_objects[b_ID_local_stop][0]
             link_start.children.append(stop)
             link_stop.parents.append(start)
+            # self.get_info_link()
+            print(self.dialog_dict)
             self.dirty = True
 
     @staticmethod
@@ -1828,7 +1871,6 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog_dict[link_ID] = link_dict
         label_item = self.link_objects[(start_node, stop_node)]["label"]
         self.change_label(item_id=label_item, name_tag=link_Name)
-
 
 def main():
     app = widgets.QApplication(sys.argv)
