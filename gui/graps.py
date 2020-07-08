@@ -6,7 +6,8 @@ from past.utils import old_div
 from PyQt5 import (QtCore as core,
                    QtGui as gui,
                    QtWidgets as widgets,
-                   QtPrintSupport as printsupp)
+                   QtPrintSupport as printsupp,
+                   QtWebEngineWidgets as webwidgets)
 from matplotlib.backends.backend_qt5agg import (
             FigureCanvasQTAgg as FigureCanvas,
             NavigationToolbar2QT as NavToolbar)
@@ -814,11 +815,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui = Ui_help_dialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        with open("docs/doc.html", "r") as f:
-            docs = f.read()
-
-        self.dialog.ui.help_view.setHtml(docs)
-        self.dialog.ui.help_view.setReadOnly(True)
+        doc_file = os.path.join(os.getcwd(), "docs", "doc.html")
+        self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
         self.dialog.exec_()
         self.dialog = None
 

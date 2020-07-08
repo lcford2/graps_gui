@@ -17,7 +17,8 @@ class Ui_help_dialog(object):
         help_dialog.resize(400, 300)
         self.gridLayout = QtWidgets.QGridLayout(help_dialog)
         self.gridLayout.setObjectName("gridLayout")
-        self.help_view = QtWidgets.QTextBrowser(help_dialog)
+        self.help_view = QtWebEngineWidgets.QWebEngineView(help_dialog)
+        self.help_view.setUrl(QtCore.QUrl("about:blank"))
         self.help_view.setObjectName("help_view")
         self.gridLayout.addWidget(self.help_view, 0, 0, 1, 1)
 
@@ -27,3 +28,4 @@ class Ui_help_dialog(object):
     def retranslateUi(self, help_dialog):
         _translate = QtCore.QCoreApplication.translate
         help_dialog.setWindowTitle(_translate("help_dialog", "Help"))
+from PyQt5 import QtWebEngineWidgets
