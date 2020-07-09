@@ -415,7 +415,7 @@ def write_user_details(self, filename):
                             if len(ret_flows) == 0:
                                 f.write(str(0.01) + '\n')
                             else:
-                                for value in sorted(ret_flows.values()):
+                                for value in ret_flows:
                                     f.write(value + '  ')
                                 f.write('\n')
                             self.user_control_list.append(start)
