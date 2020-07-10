@@ -45,7 +45,9 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_res_details, write_user_details,
                                            write_jun_details, write_ibasin_details,
                                            write_sink_details, write_link_details,
-                                           write_dec_var_details, get_item_dict)
+                                           write_dec_var_details, get_item_dict,
+                                           make_file_system, write_runflag,
+                                           write_model_params)
 from IPython import embed as II
 
 
@@ -384,35 +386,24 @@ class MyMainScreen(widgets.QMainWindow):
             self.num_of_items = {str(i): 0 for i in range(1, 14)}
             self.item_types = {str(i): [] for i in range(1, 14)}
             get_item_dict(self)
-            write_input(self, os.path.join(save_folder, 'input.dat'))
-            write_ws_details(self, os.path.join(
-                save_folder, 'watershed_details.dat'))
-            write_res_details(self, os.path.join(
-                save_folder, 'reservoir_details.dat'))
-            write_user_details(self, os.path.join(
-                save_folder, 'user_details.dat'))
-            write_jun_details(self, os.path.join(
-                save_folder, 'node_details.dat'))
-            write_link_details(self, os.path.join(
-                save_folder, 'nflow_details.dat'), "nflow")
-            write_link_details(self, os.path.join(
-                save_folder, 'dir_flow_details.dat'), "dir_flow")
-            write_link_details(self, os.path.join(
-                save_folder, 'ret_flow_details.dat'), "ret_flow")
-            write_link_details(self, os.path.join(
-                save_folder, 'diversions_details.dat'), "diversion")
-            write_link_details(self, os.path.join(
-                save_folder, 'spill_flow_details.dat'), "spill")
-            write_link_details(self, os.path.join(
-                save_folder, 'ibasin_flow_details.dat'), "ibasin")
-            write_link_details(self, os.path.join(
-                save_folder, 'demand_flow_details.dat'), "demand")
-            write_sink_details(self, os.path.join(
-                save_folder, 'sink_details.dat'))
-            write_ibasin_details(self, os.path.join(
-                save_folder, 'interbasin_details.dat'))
-            write_dec_var_details(self, os.path.join(
-                save_folder, 'decisionvar_details.dat'))
+            make_file_system(self, save_folder)
+            write_input(self, save_folder, 'input.dat')
+            write_ws_details(self, save_folder, 'watershed_details.dat')
+            write_res_details(self, save_folder, 'reservoir_details.dat')
+            write_user_details(self, save_folder, 'user_details.dat')
+            write_jun_details(self, save_folder, 'node_details.dat')
+            write_link_details(self, save_folder, 'nflow_details.dat', "nflow")
+            write_link_details(self, save_folder, 'dir_flow_details.dat', "dir_flow")
+            write_link_details(self, save_folder, 'ret_flow_details.dat', "ret_flow")
+            write_link_details(self, save_folder, 'diversions_details.dat', "diversion")
+            write_link_details(self, save_folder, 'spill_flow_details.dat', "spill")
+            write_link_details(self, save_folder, 'ibasin_flow_details.dat', "ibasin")
+            write_link_details(self, save_folder, 'demand_flow_details.dat', "demand")
+            write_sink_details(self, save_folder, 'sink_details.dat')
+            write_ibasin_details(self, save_folder, 'interbasin_details.dat')
+            write_dec_var_details(self, save_folder, 'decisionvar_details.dat')
+            write_runflag(self, save_folder, "runflag.dat")
+            write_model_params(self, save_folder, "model_para.dat")
     
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
@@ -1411,6 +1402,8 @@ class MyMainScreen(widgets.QMainWindow):
         sim_type = str(self.dialog.ui.type_sim_combo.currentText())
         nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
+        if nensembles == "":
+            nensembles = "1"
         if self.dialog.ui.retro_button.isChecked():
             forecast_option = 'Retrospective'
         elif self.dialog.ui.adaptive_button.isChecked():

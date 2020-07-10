@@ -7,6 +7,7 @@ import dictionaries as dlg_populate
 from IPython import embed as II
 import sys
 import os
+import shutil
 from collections import deque
 
 
@@ -101,17 +102,25 @@ def get_item_dict(self):
             self.num_of_items['13'] += 1
         
 
-def write_input(self, filename):
+def make_file_system(self, path):
+    folders = ["input_data_files", "inflow_files", "output_files"]
+    for folder in folders:
+        if not os.path.exists(os.path.join(path, folder)):
+            os.mkdir(os.path.join(path, folder))
+    
+
+def write_input(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     items = list(self.ui.scene.items()) 
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         f.write(f"{gs_dict['ntime_steps']}\t1\t{gs_dict['nensembles']}\n")
         line2_nums = [str(self.num_of_items[str(i)]) for i in range(1, 14)]
         line2 = "  ".join(line2_nums) + "\n"
         f.write(line2)
         for key in sorted(list(self.item_types.keys()), key=int):
             system = self.item_types[key]
-            string = "{}\t{}\n".format
+            string = "{: <4}{}\n".format
             if key == '1':
                 for block in system:
                     item_id = 'W' + block
@@ -179,9 +188,10 @@ def write_input(self, filename):
                     f.write(string(key, name))
 
 
-def write_ws_details(self, filename):
+def write_ws_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['1']):
             item_num = item
             item_name = str(
@@ -189,16 +199,11 @@ def write_ws_details(self, filename):
             drainage_area = str(
                 info_dict[str('W' + item)]['drain_Area'])
             inflow_file = info_dict[str('W' + item)]['inflows_file']
-            count = 1
-            file = False
-            while not file:
-                character = inflow_file[-count]
-                if character == '/':
-                    inflow_file = inflow_file[(-count + 1):]
-                    file = True
-                else:
-                    count += 1
-            nchild = 0
+            drive, file = os.path.split(inflow_file)
+            try:
+                shutil.copyfile(inflow_file, os.path.join(path,"inflow_files",file))
+            except shutil.SameFileError as e:
+                pass
             children = []
             gitem = self.block_objects[f'W{item_num}'][0]
             nchild = gitem.get_n_children()
@@ -207,10 +212,11 @@ def write_ws_details(self, filename):
                     ' ' + str(nchild) + '  ' + drainage_area + '\n')
             for child in children:
                 f.write(f'{type_map[child[0]]}  {child[1:]}\n')
-            f.write(inflow_file)
+            write_file = os.path.join("inflow_files",file)
+            f.write(f"{write_file}\n")
 
 
-def write_link_details(self, filename, link_type):
+def write_link_details(self, path, filename, link_type):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
     link_types = {
         "nflow": "6",
@@ -221,7 +227,8 @@ def write_link_details(self, filename, link_type):
         "ibasin": "10",
         "demand": "11"
     }
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types[link_types[link_type]]):
             item_num = item
             item_id = 'L' + item_num
@@ -241,9 +248,10 @@ def write_link_details(self, filename, link_type):
             f.write(f'{min_disch}   {max_disch}\n')
 
 
-def write_res_details(self, filename):
+def write_res_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['3']):
             item_num = item
             item_id = 'R' + item_num
@@ -301,14 +309,14 @@ def write_res_details(self, filename):
                 max_coef, min_coef = outlet['max_loss_coeff'], outlet['min_loss_coeff']
                 f.write(f'{elev}  {area}  {max_coef}  {min_coef}\n')
             f.write(f'{target_storage}  {storage_prob}\n')
-            upper_curve = info_dict[item_id]['flood_rule']
-            for value in upper_curve:
-                f.write(f'{value}  ')
-            f.write('\n')
-            lower_curve = info_dict[item_id]['storage_rule']
-            for value in lower_curve:
-                f.write(f'{value}  ')
-            f.write('\n')
+            # upper_curve = info_dict[item_id]['flood_rule']
+            # for value in upper_curve:
+            #     f.write(f'{value}  ')
+            # f.write('\n')
+            # lower_curve = info_dict[item_id]['storage_rule']
+            # for value in lower_curve:
+            #     f.write(f'{value}  ')
+            # f.write('\n')
             evap_table = info_dict[item_id]['evap_info']
             for value in evap_table:
                 f.write(f'{value}  ')
@@ -319,9 +327,10 @@ def write_res_details(self, filename):
             f.write('\n')
 
 
-def write_user_details(self, filename):
+def write_user_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['4']):
             item_num = item
             item_id = 'U' + item_num
@@ -380,23 +389,23 @@ def write_user_details(self, filename):
             if user_type == '4':
                 turbines = info_dict[item_id]['hydro']
                 elevation_dict = info_dict[item_id]['turbine_elevs']
-                if len(turbines) == 1:
-                    turb_dict = turbines[0]
-                    max_disch = turb_dict['max_discharge']
-                    cap = turb_dict['capacity']
-                    eff = turb_dict['efficiency']
-                    coef1 = turb_dict['energy_coeff_1']
-                    coef2 = turb_dict['energy_coeff_2']
-                    erate = turb_dict['energy_rate']
-                    f.write(
-                        "  ".join([max_disch, cap, eff, coef1, coef2, erate]) + "\n")
+                
+                turb_dict = turbines[0]
+                max_disch = turb_dict['max_discharge']
+                cap = turb_dict['capacity']
+                eff = turb_dict['efficiency']
+                coef1 = turb_dict['energy_coeff_1']
+                coef2 = turb_dict['energy_coeff_2']
+                erate = turb_dict['energy_rate']
+                f.write(
+                    "  ".join([max_disch, cap, eff, coef1, coef2, erate]) + "\n")
 
-                    # for value in elevation_dict:
-                    #     f.write(f'{value}   ')
-                    # f.write('\n')
-                elif len(turbines) > 1:
-                    pass
-                    'Not sure if mutliple turbines are able to be considered'
+                for value in elevation_dict:
+                    f.write(f'{value}   ')
+                f.write('\n')
+                # elif len(turbines) > 1:
+                #     pass
+                #     'Not sure if mutliple turbines are able to be considered'
             return_link = ''
             items = list(self.ui.scene.items())
             for link in items:
@@ -419,12 +428,13 @@ def write_user_details(self, filename):
                                     f.write(value + '  ')
                                 f.write('\n')
                             self.user_control_list.append(start)
+            f.write("0\n") # no gui support for loss factors yet
 
 
-
-def write_jun_details(self, filename):
+def write_jun_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['5']):
             item_num = item
             item_id = 'J' + item_num
@@ -445,9 +455,10 @@ def write_jun_details(self, filename):
                 f.write(f'{type_map[parent[0]]}  {parent[1:]}\n')
 
 
-def write_sink_details(self, filename):
+def write_sink_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['12']):
             item_num = item
             item_id = 'S' + item_num
@@ -467,9 +478,10 @@ def write_sink_details(self, filename):
             f.write(f'{max_storage}\n')
 
 
-def write_ibasin_details(self, filename):
+def write_ibasin_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['13']):
             item_num = item
             item_id = 'I' + item
@@ -492,12 +504,25 @@ def write_ibasin_details(self, filename):
             f.write('\n')
 
 
-def write_dec_var_details(self, filename):
+def write_dec_var_details(self, path, filename):
     gs_dict, info_dict = self.gen_setup_dict, self.dialog_dict
-    with open(filename, 'w') as f:
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
         for unique_id, item in enumerate(self.item_types['4']):
             item_num = item
             item_id = 'U' + item_num
             demand = info_dict[item_id]["demand"]
             output = "\n".join(demand)
             f.write(output+"\n")
+
+def write_runflag(self, path, filename):
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
+        f.write("0\n")
+        f.write("max_release\n")
+
+def write_model_params(self, path, filename):
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
+        f.write("1   210  1   10000000\n")
+        f.write("1.d+10  1.d-015  0.001d0  0.d0\n")
