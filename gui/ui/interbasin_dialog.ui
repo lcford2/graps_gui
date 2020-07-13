@@ -73,25 +73,19 @@
          <string>Description</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QLabel" name="interbasin_id_display">
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="interbasin_id_label">
            <property name="text">
             <string>Interbasin ID</string>
            </property>
           </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="interbasin_name_label">
-           <property name="text">
-            <string>Interbasin Name</string>
-           </property>
-           <property name="buddy">
-            <cstring>interbasin_name_edit</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="interbasin_name_edit"/>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="drainage_area_label">
@@ -106,19 +100,18 @@
          <item row="2" column="1">
           <widget class="QLineEdit" name="drainage_area_edit"/>
          </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="drainage_area_units">
+         <item row="1" column="0">
+          <widget class="QLabel" name="interbasin_name_label">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Km&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Interbasin Name</string>
+           </property>
+           <property name="buddy">
+            <cstring>interbasin_name_edit</cstring>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="interbasin_id_display">
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="interbasin_name_edit"/>
          </item>
         </layout>
        </widget>
@@ -161,7 +154,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Average Flow (Mm3/time)</string>
+         <string>Average Flow</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="1" column="1">

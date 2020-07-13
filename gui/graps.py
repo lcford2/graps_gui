@@ -6,7 +6,13 @@ from past.utils import old_div
 from PyQt5 import (QtCore as core,
                    QtGui as gui,
                    QtWidgets as widgets,
-                   QtPrintSupport as printsupp)
+                   QtPrintSupport as printsupp,
+                   QtWebEngineWidgets as webwidgets)
+from matplotlib.backends.backend_qt5agg import (
+            FigureCanvasQTAgg as FigureCanvas,
+            NavigationToolbar2QT as NavToolbar)
+from matplotlib.figure import Figure
+import matplotlib  
 import sys
 import os
 # imports main window user interface
@@ -23,6 +29,9 @@ from ui.interbasin_dialog import Ui_interbasin_dialog
 from ui.error_dialog import Ui_ErrorDialog
 from ui.draw_link_dialog import Ui_linkDraw_dialog as ld
 from ui.not_saved_dialog import Ui_NotSavedDialog
+from ui.plot_display_dialog import Ui_plot_display_dialog
+from ui.multi_edit_dialog import Ui_multi_edit_dialog
+from ui.help_dialog import Ui_help_dialog
 # import my graphics with overloaded signals
 from graphics_items import myPixmapItem, myGraphicsTextItem, myGraphicsLineItem
 # repopulates dialogs on file open
@@ -36,9 +45,9 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_res_details, write_user_details,
                                            write_jun_details, write_ibasin_details,
                                            write_sink_details, write_link_details,
-                                           write_dec_var_details)
-# import python interface to fortran model
-from graps_model.res_model_interface import ReservoirModel
+                                           write_dec_var_details, get_item_dict,
+                                           make_file_system, write_runflag,
+                                           write_model_params, write_hydro_coeff)
 from IPython import embed as II
 
 
@@ -59,7 +68,7 @@ class MyMainScreen(widgets.QMainWindow):
         # e.g. self.block_objects["R1"] = (image object, label object)
         # should be useful when removing objects by ID or creating links
         self.block_objects = {}
-        self.link_objects = []
+        self.link_objects = {}
         self.block_indices = {
             "W": 1,
             "R": 1,
@@ -94,6 +103,14 @@ class MyMainScreen(widgets.QMainWindow):
 
         self.ui.view.setScene(self.ui.scene)
 
+        # add help menu
+        self.ui.actionHelp = widgets.QAction(self)
+        self.ui.actionHelp.setObjectName("actionHelp")
+        self.ui.actionHelp.setText("Help File")
+        self.ui.actionHelp.setToolTip("Open Help File for the Interface")
+        self.ui.menuHelp.addAction(self.ui.actionHelp)
+        self.ui.actionHelp.triggered.connect(self.open_help_dialog)
+
         # connecting toolbar actions to functions that open dialogs
         # or perform actions like exporting data files
         self.ui.menuGen_Setup.triggered.connect(self.open_dataDialog)
@@ -110,7 +127,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
-        self.ui.actionRun_Model.triggered.connect(self.run_model)
+        # self.ui.actionRun_Model.triggered.connect(self.run_model)
+        self.ui.actionMulti_Edit.triggered.connect(self.open_multi_edit_dialog)
 
         # connecting user block selections to the block handling functions
         self.ui.actionWatershed.triggered.connect(self.toolbar_interaction)
@@ -123,6 +141,31 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionLink.triggered.connect(self.draw_line)
 
         self.ui.toolBar.setToolButtonStyle(core.Qt.ToolButtonIconOnly)
+
+        # attribute selectors for multi-edit
+        self.attribute_dict = {
+            "R":{
+                "Name":"reservoir_Name","Latitude":"res_latitude","Longitude":"res_longitude",
+                "Min. Elevation":"res_min_elev","Max. Elevation":"res_max_elev","Min. Storage":"res_min_storage",
+                "Max. Storage":"res_max_storage","Current Storage":"res_current_storage",
+                "Target Storage":"target_storage","Storage Reliability":"storage_probability"
+            },
+            "U":{
+                "Name":"user_Name","Min. Release":"min_release","Max. Release":"max_release",
+                "Tariff":"tariff", "Penalty":"penalty","Reliability":"reliability",
+                "Restriction Volume":"restrict_volume","Penalty Compensation":"penalty_comp",
+                "User Type":"user_type"
+            },
+            "W":{
+                "Name":"watershed_Name","Drainage Area":"drain_Area", "Inflows File":"inflows_file"
+            },
+            "J":{
+                "Name":"junction_Name"
+            },
+            "I":{
+                "Name":"interbasin_Name", "Drainage Area":"drain_area"
+            }
+        }
 
     def toolbar_interaction(self):
         tools = {
@@ -225,7 +268,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.block_objects[f"{self.block_ID}{label_value}"] = (item, g_label)
         item.label_item = g_label
 
-        self.dirty = True
+        if not kwargs:
+            self.dirty = True
 
     # creates labels for nodes
     def create_label(self, value, b_ID, position, qtItem):
@@ -262,7 +306,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.gen_setup_dict.clear()
         self.dialog_dict.clear()
         self.block_objects = {}
-        self.link_objects = []
+        self.link_objects = {}
         self.block_indices = {
             "W": 1,
             "R": 1,
@@ -281,6 +325,7 @@ class MyMainScreen(widgets.QMainWindow):
             item_id = kwargs['item_id']
             if name_tag != '' and item_id.item_type == 'text':
                 item_id.setPlainText(name_tag)
+                item_id.text = name_tag
         else:
             items = list(self.ui.scene.items())
             for item in items:
@@ -317,41 +362,74 @@ class MyMainScreen(widgets.QMainWindow):
         model.InitializeModel()
         model.Simulate()
 
+    
+    def graph_network(self):
+        import networkx as nx
+        graph = nx.DiGraph()
+        pos = {}
+        color_map = {"W":"red", "R":"blue",
+                     "U":"green", "J":"yellow",
+                     "S":"purple", "I":"cyan"}
+        for nodes, item in self.link_objects.items():
+            start, stop = nodes
+            graph.add_node(start, color=color_map[start[0]])
+            graph.add_node(stop, color=color_map[stop[0]])
+            graph.add_edge(*nodes)
+            pos[nodes[0]] = self.block_objects[nodes[0]][0].pos()
+            pos[nodes[1]] = self.block_objects[nodes[1]][0].pos()
+        lab_pos = {key:(value.x()/100, -value.y()/100) for key, value in pos.items()}
+        pos = {key:(value.x()/100, -value.y()/100) for key, value in pos.items()}
+        
+        colors = [graph.nodes.data()[i]["color"] for i in graph.nodes()]
+        figure = Figure()
+        ax = figure.add_subplot(111)
+        nx.draw_networkx_nodes(graph, ax=ax, pos=pos, node_color=colors, node_size=700, node_shape="v")
+        nx.draw_networkx_edges(graph, ax=ax, pos=pos, connectionstyle="arc3,rad=0.3")
+        nx.draw_networkx_labels(graph, ax=ax, pos=lab_pos)
+        self.plot_dialog(figure)        
+
+    def check_gen_setup(self):
+        # check if crucial information from the general setup menu has been added
+        time_steps = self.gen_setup_dict.get("ntime_steps", None)
+        num_restric = self.gen_setup_dict.get("nrestric", None)
+        return (time_steps and num_restric)
+
     # exports files needed to run the fortran code
-    def export(self, save_folder=None):
-        if not save_folder:
-            save_folder = self.get_save_dir(directory="graps_export")
-            
-        if save_folder != "":
-            write_input(self, os.path.join(save_folder, 'input.dat'))
-            write_ws_details(self, os.path.join(
-                save_folder, 'watershed_details.dat'))
-            write_res_details(self, os.path.join(
-                save_folder, 'reservoir_details.dat'))
-            write_user_details(self, os.path.join(
-                save_folder, 'user_details.dat'))
-            write_jun_details(self, os.path.join(
-                save_folder, 'node_details.dat'))
-            write_link_details(self, os.path.join(
-                save_folder, 'nflow_details.dat'), "nflow")
-            write_link_details(self, os.path.join(
-                save_folder, 'dir_flow_details.dat'), "dir_flow")
-            write_link_details(self, os.path.join(
-                save_folder, 'ret_flow_details.dat'), "ret_flow")
-            write_link_details(self, os.path.join(
-                save_folder, 'diversions_details.dat'), "diversion")
-            write_link_details(self, os.path.join(
-                save_folder, 'spill_flow_details.dat'), "spill")
-            write_link_details(self, os.path.join(
-                save_folder, 'ibasin_flow_details.dat'), "ibasin")
-            write_link_details(self, os.path.join(
-                save_folder, 'demand_flow_details.dat'), "demand")
-            write_sink_details(self, os.path.join(
-                save_folder, 'sink_details.dat'))
-            write_ibasin_details(self, os.path.join(
-                save_folder, 'interbasin_details.dat'))
-            write_dec_var_details(self, os.path.join(
-                save_folder, 'decisionvar_details.dat'))
+    def export(self):
+        if not self.check_gen_setup():
+            errormsg = "Error: You have not entered the required information.\nPlease finish the network before exporting."
+            self.open_error_dialog(errormsg)
+            return 
+        if not os.path.isdir("graps_export"):
+            os.mkdir("graps_export")
+        save_folder = str(widgets.QFileDialog.getExistingDirectory(
+            directory="graps_export"))
+        if save_folder == '':
+            pass
+        else:
+            self.user_control_list = []
+            self.num_of_items = {str(i): 0 for i in range(1, 14)}
+            self.item_types = {str(i): [] for i in range(1, 14)}
+            get_item_dict(self)
+            make_file_system(self, save_folder)
+            write_input(self, save_folder, 'input.dat')
+            write_ws_details(self, save_folder, 'watershed_details.dat')
+            write_res_details(self, save_folder, 'reservoir_details.dat')
+            write_user_details(self, save_folder, 'user_details.dat')
+            write_jun_details(self, save_folder, 'node_details.dat')
+            write_link_details(self, save_folder, 'nflow_details.dat', "nflow")
+            write_link_details(self, save_folder, 'dir_flow_details.dat', "dir_flow")
+            write_link_details(self, save_folder, 'ret_flow_details.dat', "ret_flow")
+            write_link_details(self, save_folder, 'diversions_details.dat', "diversion")
+            write_link_details(self, save_folder, 'spill_flow_details.dat', "spill")
+            write_link_details(self, save_folder, 'ibasin_flow_details.dat', "ibasin")
+            write_link_details(self, save_folder, 'demand_flow_details.dat', "demand")
+            write_sink_details(self, save_folder, 'sink_details.dat')
+            write_ibasin_details(self, save_folder, 'interbasin_details.dat')
+            write_dec_var_details(self, save_folder, 'decisionvar_details.dat')
+            write_runflag(self, save_folder, "runflag.dat")
+            write_model_params(self, save_folder, "model_para.dat")
+            write_hydro_coeff(self, save_folder, "hydropower_conversion.dat")
     
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
@@ -388,24 +466,24 @@ class MyMainScreen(widgets.QMainWindow):
     def reservoir_button(self):
         sender = self.sender()
         sender_name = sender.objectName()
-        if sender_name == 'table_radio_3':
+        if sender_name == 'evap_depth_table_radio':
             self.dialog.ui.evap_table.show()
             self.dialog.ui.evap_box.show()
             self.dialog.ui.evap_file_box.hide()
             self.dialog.ui.select_evap_file.hide()
             self.dialog.ui.evap_file_edit.hide()
-        elif sender_name == 'input_radio_2':
+        elif sender_name == 'evap_depth_file_radio':
             self.dialog.ui.evap_table.hide()
             self.dialog.ui.evap_box.hide()
             self.dialog.ui.evap_file_box.show()
             self.dialog.ui.select_evap_file.show()
             self.dialog.ui.evap_file_edit.show()
-        elif sender_name == 'table_radio_2':
+        elif sender_name == 'rule_curve_table_radio':
             self.dialog.ui.rule_curve_table.show()
             self.dialog.ui.rule_curve_box.show()
             self.dialog.ui.curve_file_select.hide()
             self.dialog.ui.curve_file_edit.hide()
-        elif sender_name == 'input_radio':
+        elif sender_name == 'rule_curve_file_radio':
             self.dialog.ui.rule_curve_table.hide()
             self.dialog.ui.rule_curve_box.show()
             self.dialog.ui.curve_file_select.show()
@@ -438,14 +516,27 @@ class MyMainScreen(widgets.QMainWindow):
     def get_item_id(self, item):
         return item.itemid
 
+    def center_bold_stack(self, text_items):
+        front = "<html><head/><body>"
+        back = "</body></html>"
+        prepend = "<p align=\"center\"><span style=\" font-weight:600;\">"
+        postpend = "</span></p>"
+        fixed_items = [f"{prepend}{item}{postpend}" for item in text_items]
+        body = "".join(fixed_items)
+        return f"{front}{body}{back}"
+
     def open_error_dialog(self, text=None):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_ErrorDialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
+        
         if text:
-            self.dialog.ui.label.setText('Invalid link.')
+            text_items = text.split("\n")
+            display_text = self.center_bold_stack(text_items)
+            self.dialog.ui.label.setText(display_text)
+        
         self.dialog.exec_()
         self.dialog = None
 
@@ -468,17 +559,14 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.ui.watershed_id_display.setText(key)
         self.dialog.ui.display_wateshed_name.setText(key)
-        self.dialog.ui.forecast_file_box.setVisible(False)
-        self.dialog.ui.select_forecast_file.clicked.connect(
-            self.get_file_name)
         self.dialog.ui.select_inflow_file.clicked.connect(
             self.get_file_name)
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_watershed)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.WS(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -498,13 +586,13 @@ class MyMainScreen(widgets.QMainWindow):
             self.table_set_row)
         self.dialog.ui.num_outlet_edit.textEdited.connect(
             self.table_set_row)
-        self.dialog.ui.input_radio.toggled.connect(
+        self.dialog.ui.evap_depth_table_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.input_radio_2.toggled.connect(
+        self.dialog.ui.evap_depth_file_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.table_radio_2.toggled.connect(
+        self.dialog.ui.rule_curve_table_radio.toggled.connect(
             self.reservoir_button)
-        self.dialog.ui.table_radio_3.toggled.connect(
+        self.dialog.ui.rule_curve_file_radio.toggled.connect(
             self.reservoir_button)
         self.dialog.ui.curve_file_select.clicked.connect(
             self.get_file_name)
@@ -519,40 +607,28 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.evap_file_box.hide()
         self.dialog.ui.evap_box.hide()
         self.dialog.ui.rule_curve_box.hide()
-        self.dialog.ui.vol__gamma_edit.setEnabled(False)
-        self.dialog.ui.level_vol_area_box.setVisible(False)
-        self.dialog.ui.table_radio.setEnabled(False)
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
-        try:
-            num_restric = self.gen_setup_dict['nrestric']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        self.dialog.ui.vol_gamma_edit.setEnabled(False)
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing reservoirs."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
+        num_restric = self.gen_setup_dict['nrestric']
 
         self.dialog.ui.target_rest_table.setRowCount(1)
-        self.dialog.ui.target_rest_table.setColumnCount(
-            int(num_restric))
-        self.dialog.ui.rule_curve_table.setColumnCount(
-            int(time_steps))
-        
-        self.dialog.ui.rule_curve_table.verticalHeaderItem(0).setText("Lower Rule")
-        self.dialog.ui.rule_curve_table.verticalHeaderItem(1).setText("Upper Rule")
-
+        self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
+        self.dialog.ui.rule_curve_table.setColumnCount(int(time_steps))
         self.dialog.ui.evap_table.setColumnCount(
             int(time_steps))
-        self.dialog.ui.select_file.clicked.connect(
-            self.get_file_name)
+
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_reservoir)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.RES(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -569,16 +645,13 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
         self.dialog.ui.user_dia_tab.setStyleSheet(
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
-        try:
-            num_restric = self.gen_setup_dict['nrestric']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing users."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
+        num_restric = self.gen_setup_dict['nrestric']
 
         self.dialog.ui.demand_table.setColumnCount(
             int(time_steps))
@@ -615,9 +688,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.user_type_combo.currentIndexChanged.connect(
             self.hydro_tab_show)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.US(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -634,9 +707,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_sink)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.SINK(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -663,9 +736,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_link)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.LINK(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -682,9 +755,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_junction)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.JUN(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
@@ -708,11 +781,12 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.file_button.hide()
         self.dialog.ui.ave_flows_table.hide()
         self.dialog.ui.ave_flow_box.hide()
-        try:
-            time_steps = self.gen_setup_dict['ntime_steps']
-        except KeyError as e:
-            self.open_error_dialog()
-            return
+        if not self.check_gen_setup():
+            errormsg = "You must complete the general setup menu before editing interbasin transfers."
+            self.open_error_dialog(f"Error: {errormsg}")
+            return 
+
+        time_steps = self.gen_setup_dict['ntime_steps']
 
         self.dialog.ui.ave_flows_table.setColumnCount(
             int(time_steps))
@@ -720,12 +794,132 @@ class MyMainScreen(widgets.QMainWindow):
             self.get_info_interbasin)
         self.dialog.setAttribute(
             core.Qt.WA_DeleteOnClose)
-        writeable = key in self.dialog_dict
-        if writeable:
-            item_dict = self.dialog_dict[key]
+        item_dict = self.dialog_dict.get(key, None)
+        # if an entry exists for this dialog, populate it
+        if item_dict:
             dlg_populate.IB(self, item_dict)
         self.dialog.exec_()
         self.dialog = None
+    
+    def open_multi_edit_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_multi_edit_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        # Items:
+        # block_type_combo : select Reservoir, User, etc..
+        # attribute_selector : choose what attributes to edit (different for each block)
+        # attribute_editor : table widget for editing and displaying attributes
+        # self.dialog.ui.block_type_combo.set
+        self.medit_combo_slot()
+        self.dialog.ui.block_type_combo.currentIndexChanged.connect(
+            self.medit_combo_slot)
+        self.dialog.ui.attribute_selector.clicked.connect(
+            self.medit_att_selector_slot)
+        self.dialog.ui.buttonBox.accepted.connect(
+            self.get_info_medit)
+        btn = self.dialog.ui.buttonBox.button(widgets.QDialogButtonBox.Apply)
+        btn.clicked.connect(self.get_info_medit)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        
+        self.dialog.exec_()
+        self.dialog = None
+    
+    def open_help_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_help_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        doc_file = os.path.join(os.getcwd(), "docs", "html", "doc.html")
+        self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
+        self.dialog.exec_()
+        self.dialog = None
+
+    def medit_combo_slot(self):
+        table = self.dialog.ui.attribute_editor
+        selector = self.dialog.ui.attribute_selector
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        rows = []
+        btype = block_type[0]
+        name_map = {
+            "R":"reservoir_Name",
+            "U":"user_Name",
+            "W":"watershed_Name",
+            "J":"junction_Name",
+            "I":"interbasin_Name",
+        }
+        for bid, (block, label) in self.block_objects.items():
+            if bid[0] == btype:
+                block_dict = self.dialog_dict.get(bid, None)
+                if block_dict:
+                    name = block_dict.get(name_map[btype], bid)
+                    rows.append((bid,name))
+                else:
+                    rows.append((bid,bid))
+        rows.sort(key=lambda x: int(x[0][1:]))
+        if len(rows) != 0:
+            row_ids, row_labels = zip(*rows)
+        else:
+            row_ids, row_labels = [], []
+
+        self.row_map = {row_labels[i]:row_ids[i] for i in range(len(row_labels))}
+        table.setRowCount(len(row_labels))
+        table.setVerticalHeaderLabels(row_labels)
+        
+        list_items = self.attribute_dict[btype].keys()
+        selector.clear()
+        selector.addItems(list_items)
+        self.medit_att_selector_slot()
+
+    def medit_att_selector_slot(self):
+        table = self.dialog.ui.attribute_editor
+        selector = self.dialog.ui.attribute_selector
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        attribute_choice = selector.currentItem()
+        if attribute_choice:
+            att_text = attribute_choice.text()
+        else:
+            att_text = "Select Attribute"
+        table.setHorizontalHeaderLabels([att_text])
+        self.populate_medit_table()
+
+    def populate_medit_table(self):
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        btype = block_type[0]
+        table = self.dialog.ui.attribute_editor
+        table.clearContents()
+        attribute = table.horizontalHeaderItem(0).text()
+        rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
+        if attribute != "Select Attribute":
+            dict_key = self.attribute_dict[btype][attribute]
+            for i, row in enumerate(rows):
+                info_key = self.row_map[row]
+                data_dict = self.dialog_dict.get(info_key, None)
+                if data_dict:
+                    data = data_dict.get(dict_key, None)
+                    if data:
+                        table_item = widgets.QTableWidgetItem(data)
+                        table.setItem(i, 0, table_item)
+
+    def get_info_medit(self):
+        block_type = self.dialog.ui.block_type_combo.currentText()
+        btype = block_type[0]
+        table = self.dialog.ui.attribute_editor
+        attribute = table.horizontalHeaderItem(0).text()
+        rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
+        if attribute != "Select Attribute":
+            dict_key = self.attribute_dict[btype][attribute]
+            for i, row in enumerate(rows):
+                table_item = table.item(i, 0)
+                if table_item:
+                    text = table_item.text()
+                    info_key = self.row_map[row]
+                    if info_key not in self.dialog_dict:
+                        self.dialog_dict[info_key] = {}
+                    self.dialog_dict[info_key][dict_key] = text
+                    if attribute == "Name":
+                        self.change_label(item_id=self.block_objects[info_key][1], name_tag=text)
+        
+                
 
     def link_draw_interface(self, enter=False):
         sel_items = list(self.ui.scene.selectedItems())
@@ -743,8 +937,17 @@ class MyMainScreen(widgets.QMainWindow):
                 if enter:
                     self.linkdraw()
 
+    def plot_dialog(self, figure):
+        plot_dialog = widgets.QDialog(self)
+        plot_dialog.ui = Ui_plot_display_dialog()
+        plot_dialog.ui.setupUi(plot_dialog)
+
+        canvas = FigureCanvas(figure)
+
+        plot_dialog.ui.display_vert_layout.addWidget(canvas)
+        plot_dialog.exec_()
+
     def open_dialogs(self, enter=False):
-        self.dirty = True
         sel_items = list(self.ui.scene.selectedItems())
         if self.dlg == 'dlg_closed':
             pass
@@ -764,7 +967,12 @@ class MyMainScreen(widgets.QMainWindow):
             }
             for item in sel_items:
                 item_type = item.block_type
+                item_id = item.itemid
+                pre_dict = self.dialog_dict.get(item_id, None)
                 dialog_map[item_type](item)
+                if self.dialog_dict.get(item_id, None) != pre_dict:
+                    self.dirty = True
+                
 
     # delete items and labels associated with those items
     def keyPressEvent(self, QKeyEvent):
@@ -783,10 +991,8 @@ class MyMainScreen(widgets.QMainWindow):
                     remove_items = self.block_objects[item_id]
                     if item.block_type == "L":
                         link_item = {'link': remove_items[0],
-                                     'label': remove_items[1],
-                                     'start': item.start_node,
-                                     'stop': item.stop_node}
-                        self.link_objects.remove(link_item)
+                                     'label': remove_items[1]}
+                        del self.link_objects[(item.start_node,item.stop_node)]
 
                     for remove_item in remove_items:
                         if remove_item:
@@ -804,12 +1010,12 @@ class MyMainScreen(widgets.QMainWindow):
                             self.ui.scene.removeItem(remove_item)
                     del self.block_objects[item_id]
                 remove_ids = []
-                for i, link_item in enumerate(self.link_objects):
-                    lstart, lstop = link_item["start"], link_item["stop"]
+                for i, (blocks, link_item) in enumerate(self.link_objects.items()):
+                    lstart, lstop = blocks
                     if lstart == item_id or lstop == item_id:
                         self.ui.scene.removeItem(link_item["link"])
                         self.ui.scene.removeItem(link_item["label"])
-                        remove_ids.append(i)
+                        remove_ids.append(blocks)
                 for i in remove_ids[::-1]:
                     del self.link_objects[i]
 
@@ -908,10 +1114,7 @@ class MyMainScreen(widgets.QMainWindow):
         link.label_item = link_item
 
         self.ui.scene.addItem(link_item)
-        self.link_objects.append({'link': link,
-                                  'label': link_item,
-                                  'start': link_start.itemid,
-                                  'stop': link_stop.itemid})
+        self.link_objects[(link_start.itemid, link_stop.itemid)] = {'link': link, 'label': link_item}
         self.block_objects[f'L{num}'] = (link, link_item)
 
         name = 'L:' + num
@@ -921,34 +1124,35 @@ class MyMainScreen(widgets.QMainWindow):
         link_item.stop_node = stop
 
         self.ui.scene.clearSelection()
-        self.dirty = True
+        # self.dirty = True
 
     # checks if the link being drawn is valid
     def check_link(self, start, stop):
         if len(start) == 0 or len(stop) == 0:
             return False
         else:
+            errormsg = "Error: Invalid link."
             if start[0] in ['W', 'I', 'U']:
                 good = ['R', 'J', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'R':
                 good = ['J', 'U', 'S', 'R']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'J':
                 good = ['R', 'U', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text="Invalid link.")
+                    self.open_error_dialog(text=errormsg)
                     return False
             if start[0] == 'S':
                 self.dialog.done(1)
-                self.open_error_dialog(text="Invalid link.")
+                self.open_error_dialog(text=errormsg)
                 return False
             return True
 
@@ -988,7 +1192,7 @@ class MyMainScreen(widgets.QMainWindow):
             link.setPen(pen)
             self.ui.scene.addItem(link)
 
-            link_id = str(b_ID_local_start) + '->' + str(b_ID_local_stop)
+            link_id = f"{b_ID_local_start}->{b_ID_local_stop}"
             link_item = myGraphicsTextItem(link_id, f'L{value}', self)
             link_item_h = link_item.shape().boundingRect().size().height()
             link_item_w = link_item.shape().boundingRect().size().width()
@@ -1006,10 +1210,7 @@ class MyMainScreen(widgets.QMainWindow):
                                widgets.QGraphicsItem.ItemIsMovable)
             link.label_item = link_item
             self.ui.scene.addItem(link_item)
-            self.link_objects.append({'link': link,
-                                      'label': link_item,
-                                      'start': b_ID_local_start,
-                                      'stop': b_ID_local_stop})
+            self.link_objects[(b_ID_local_start, b_ID_local_stop)] = {'link': link,'label': link_item}
 
             self.block_objects[f'L{value}'] = (link, link_item)
             name = 'L:' + link_id
@@ -1067,12 +1268,6 @@ class MyMainScreen(widgets.QMainWindow):
             y = delta.y()
             x = delta.x()
             exp = 25*abs(y)/y
-            # if y > 0:
-            #     exp = 25
-            # elif y < 0:
-            #     exp = -25
-            # else:
-            #     exp = 0
             factor = 1.41 ** (exp / 240.0)
             self.ui.view.setTransformationAnchor(
                 widgets.QGraphicsView.AnchorUnderMouse)
@@ -1195,6 +1390,13 @@ class MyMainScreen(widgets.QMainWindow):
         sender = self.sender()
         if sender.currentText() == "Hydropower":
             self.dialog.ui.user_dia_tab.setTabEnabled(3, True)
+            self.dialog.ui.user_dia_tab.setStyleSheet(
+            "QTabBar::tab::enabled {}")
+        else:
+            self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
+            self.dialog.ui.user_dia_tab.setStyleSheet(
+            "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
+            
 
     # gets the file name for certain fields in dialog boxes
     def get_file_name(self):
@@ -1207,8 +1409,6 @@ class MyMainScreen(widgets.QMainWindow):
         elif sending_object == 'select_inflow_file':
             self.dialog.ui.inflows_file_input.setText(filename)
         # reservoir
-        elif sending_object == 'select_file':
-            self.dialog.ui.select_file_field.setText(filename)
         elif sending_object == 'select_evap_file':
             self.dialog.ui.evap_file_edit.setText(filename)
         elif sending_object == 'curve_file_select':
@@ -1226,9 +1426,12 @@ class MyMainScreen(widgets.QMainWindow):
     def get_info_gs(self):
         ntime_steps = str(self.dialog.ui.time_step_input.text())
         nrestric = str(self.dialog.ui.restrictions_input.text())
+        hydro_coeff = str(self.dialog.ui.hydro_coeff_input.text())
         sim_type = str(self.dialog.ui.type_sim_combo.currentText())
         nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
+        if nensembles == "":
+            nensembles = "1"
         if self.dialog.ui.retro_button.isChecked():
             forecast_option = 'Retrospective'
         elif self.dialog.ui.adaptive_button.isChecked():
@@ -1250,6 +1453,7 @@ class MyMainScreen(widgets.QMainWindow):
                         continue
         self.gen_setup_dict['ntime_steps'] = ntime_steps
         self.gen_setup_dict['nrestric'] = nrestric
+        self.gen_setup_dict['hydro_coeff'] = hydro_coeff
         self.gen_setup_dict['sim_type'] = sim_type
         self.gen_setup_dict['nyears'] = nyears
         self.gen_setup_dict['nensembles'] = nensembles
@@ -1262,12 +1466,10 @@ class MyMainScreen(widgets.QMainWindow):
         watershed_ID = str(self.dialog.ui.watershed_id_display.text())
         watershed_Name = str(self.dialog.ui.id_display.text())
         drain_Area = str(self.dialog.ui.drain_input.text())
-        forecast_file = str(self.dialog.ui.forecast_file_input.text())
         inflows_file = str(self.dialog.ui.inflows_file_input.text())
         watershed_dict = {}
         watershed_dict['watershed_Name'] = watershed_Name
         watershed_dict['drain_Area'] = drain_Area
-        watershed_dict['forecast_file'] = forecast_file
         watershed_dict['inflows_file'] = inflows_file
         self.dialog_dict[watershed_ID] = watershed_dict
         label_item = self.block_objects[watershed_ID][1]
@@ -1295,53 +1497,44 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['res_current_storage'] = res_current_storage
         time_steps = int(self.gen_setup_dict['ntime_steps'])
         evap_option = 0
-        if self.dialog.ui.table_radio_3.isChecked():
+        if self.dialog.ui.evap_depth_table_radio.isChecked():
             evap_option = 'Table'
-        elif self.dialog.ui.input_radio_2.isChecked():
+        elif self.dialog.ui.evap_depth_file_radio.isChecked():
             evap_option = str(
                 self.dialog.ui.evap_file_edit.text())
+      
+        
         # Evaporation Tab
         int_variable = 0
 
         evap_info = []
-        if evap_option == 'Table':
-            for int_variable in range(time_steps):
-                try:
+        if evap_option:
+            if evap_option == 'Table':
+                for int_variable in range(time_steps):
                     current_item = self.dialog.ui.evap_table.item(
-                        0, int_variable)
-                    user_input = str(current_item.text())
+                            0, int_variable
+                    )
+                    try:                    
+                        user_input = str(current_item.text())
+                    except:
+                        user_input = "0"
                     evap_info.append(user_input)
-                except:
-                    continue
-        else:
-            try:
+            else:
                 with open(evap_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     evap_info = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         reservoir_dict['evap_info'] = evap_info
         reservoir_dict['evap_option'] = evap_option
 
         # Storage Elevation Tab
-        storage_option = 0
-        if self.dialog.ui.coeff_radio.isChecked():
-            storage_option = 'Coefficient'
-        elif self.dialog.ui.table_radio.isChecked():
-            storage_option = 'Table'
-        else:
-            storage_option = 'Null'
         elev_alpha = str(self.dialog.ui.elev_alpha_edit.text())
         elev_beta = str(self.dialog.ui.elev_beta_edit.text())
-        elev_gamma = str(self.dialog.ui.elev__gamma_edit.text())
+        elev_gamma = str(self.dialog.ui.elev_gamma_edit.text())
         vol_alpha = str(self.dialog.ui.vol_alpha_edit.text())
         vol_beta = str(self.dialog.ui.vol_beta_edit.text())
-        vol_gamma = str(self.dialog.ui.vol__gamma_edit.text())
-        lev_vol_area_file = str(self.dialog.ui.select_file_field.text())
+        vol_gamma = str(self.dialog.ui.vol_gamma_edit.text())
 
         reservoir_dict['elev_alpha'] = elev_alpha
         reservoir_dict['elev_beta'] = elev_beta
@@ -1349,49 +1542,44 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['vol_alpha'] = vol_alpha
         reservoir_dict['vol_beta'] = vol_beta
         reservoir_dict['vol_gamma'] = vol_gamma
-        reservoir_dict['lev_vol_area_file'] = lev_vol_area_file
-        reservoir_dict['storage_option'] = storage_option
 
         # Operational Information Tab
         target_storage = str(self.dialog.ui.tar_stor_edit.text())
         storage_probability = str(self.dialog.ui.stor_prob_edit.text())
         reservoir_dict['target_storage'] = target_storage
         reservoir_dict['storage_probability'] = storage_probability
+
         # Rule Curve Table in Op Info Tab
         rule_curve_option = 0
-        if self.dialog.ui.table_radio_2.isChecked():
+        if self.dialog.ui.rule_curve_table_radio.isChecked():
             rule_curve_option = 'Table'
-        elif self.dialog.ui.input_radio.isChecked():
+        elif self.dialog.ui.rule_curve_file_radio.isChecked():
             rule_curve_option = str(
                 self.dialog.ui.curve_file_edit.text())
 
         lower_rule = []
         upper_rule = []
-        if rule_curve_option == 'Table':
-            for column in range(time_steps):
-                try:
-                    lower_item = self.dialog.ui.rule_curve_table.item(
-                        0, column).text()
-                    upper_item = self.dialog.ui.rule_curve_table.item(
-                        1, column).text()
-                    lower_rule.append(str(lower_item))
-                    upper_rule.append(str(upper_item))
-                except:
-                    continue
-        else:
-            try:
+        if rule_curve_option:
+            if rule_curve_option == 'Table':
+                for column in range(time_steps):
+                    try:
+                        lower_item = self.dialog.ui.rule_curve_table.item(
+                            0, column).text()
+                        upper_item = self.dialog.ui.rule_curve_table.item(
+                            1, column).text()
+                        lower_rule.append(str(lower_item))
+                        upper_rule.append(str(upper_item))
+                    except:
+                        continue
+            else:
                 with open(rule_curve_option, 'r') as f:
                     data = f.readlines()
                     lower_rule = data[0].split()
                     upper_rule = data[1].split()
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
-        reservoir_dict['lower_rule'] = lower_rule
-        reservoir_dict['upper_rule'] = upper_rule
+        reservoir_dict['storage_rule'] = lower_rule
+        reservoir_dict['flood_rule'] = upper_rule
 
         # Target Restriction Level Table in Op Info Tab
         column = 0
@@ -1500,25 +1688,21 @@ class MyMainScreen(widgets.QMainWindow):
 
         column = 0
         demand = []
-        if demand_option == 'Table':
-            for column in range(time_steps):
-                try:
-                    current_item = self.dialog.ui.demand_table.item(
-                        0, column)
-                    demand_t = str(current_item.text())
-                    demand.append(demand_t)
-                except:
-                    continue
-        else:
-            try:
+        if demand_option:
+            if demand_option == 'Table':
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.demand_table.item(
+                            0, column)
+                        demand_t = str(current_item.text())
+                        demand.append(demand_t)
+                    except:
+                        continue
+            else:
                 with open(demand_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     demand = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
         # Restriction Compensation Tab
         restric_num = self.gen_setup_dict['nrestric']
         restric_comp = []
@@ -1581,25 +1765,21 @@ class MyMainScreen(widgets.QMainWindow):
                 self.dialog.ui.elev_file_edit.text())
 
         turb_elev = []
-        if elev_option == 'Table':
-            for column in range(int(time_steps)):
-                try:
-                    current_item = self.dialog.ui.hydro_elev_table.item(
-                        0, column)
-                    elevation = str(current_item.text())
-                    turb_elev.append(elevation)
-                except:
-                    continue
-        else:
-            try:
+        if elev_option:
+            if elev_option == 'Table':
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.hydro_elev_table.item(
+                            0, column)
+                        elevation = str(current_item.text())
+                        turb_elev.append(elevation)
+                    except:
+                        continue
+            else:
                 with open(elev_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     turb_elev = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         user_dict['elev_option'] = elev_option
         user_dict['num_turbines'] = num_turbines
@@ -1626,23 +1806,20 @@ class MyMainScreen(widgets.QMainWindow):
                 self.dialog.ui.flow_file_edit.text())
         column = 0
         average_flows = []
-        for column in range(int(time_steps)):
-            try:
-                current_item = self.dialog.ui.ave_flows_table.item(0, column)
-                flow = str(current_item.text())
-                average_flows.append(flow)
-            except:
-                continue
-        else:
-            try:
+        if flow_option:
+            if flow_option == "Table":
+                for column in range(int(time_steps)):
+                    try:
+                        current_item = self.dialog.ui.ave_flows_table.item(0, column)
+                        flow = str(current_item.text())
+                        average_flows.append(flow)
+                    except:
+                        continue
+            else:
                 with open(flow_option, 'r') as f:
                     for line in f:
                         lst = line.split()
                     average_flows = lst
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
 
         interbasin_dict['flow_option'] = flow_option
         interbasin_dict['interbasin_Name'] = interbasin_Name
@@ -1720,15 +1897,12 @@ class MyMainScreen(widgets.QMainWindow):
         link_dict['nlags'] = nlags
         link_dict['ret_flows'] = ret_flows
         self.dialog_dict[link_ID] = link_dict
-        label_item = self.block_objects[link_ID][1]
+        label_item = self.link_objects[(start_node, stop_node)]["label"]
         self.change_label(item_id=label_item, name_tag=link_Name)
 
-
 def main():
-    from stylesheets import style
-    style_selector = style.StyleSheets()
     app = widgets.QApplication(sys.argv)
-    # app.setStyleSheet(style_selector.Medize())
+    app.setStyle("Fusion")
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()

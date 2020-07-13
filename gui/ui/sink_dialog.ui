@@ -32,10 +32,20 @@
       <string>Description</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="sink_name_edit"/>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="sink_id_label">
         <property name="text">
          <string>Sink ID</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="sink_id_display">
+        <property name="text">
+         <string>1</string>
         </property>
        </widget>
       </item>
@@ -49,9 +59,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="sink_name_edit"/>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="max_store_label">
         <property name="text">
@@ -64,20 +71,6 @@
       </item>
       <item row="2" column="1">
        <widget class="QLineEdit" name="max_store_edit"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="storage_unit_label">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="sink_id_display">
-        <property name="text">
-         <string>1</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

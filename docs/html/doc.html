@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="../styles/styles.css"
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+
+<h2>Generalized Multi-Reservoir Analyses using Probabilistic Streamflow Forecasts (GRAPS)</h2>
+<h1>GRAPS Interface Documentation</h1>
+
+<h3>Contents</h3>
+<p><a href="#figure_table"><strong>Table of Figures</strong></a></p>
+<p><a href="#introduction"><strong>Introduction</strong></a></p>
+<p><a href="#graps_features"><strong>Features of GRAPS Interface</strong></a></p>
+<p><a href="#using_gui"><strong>Using the GRAPS Interface</strong></a></p>
+<p class="tab"><a href="#gui_layout"><strong>Interface Layout</strong></a></p>
+<p class="tab"><a href="#gen_setup"><strong>General Setup</strong></a></p>
+<p class="tab"><a href="#build_networks"><strong>Building Reservoir Networks</strong></a></p>
+<p class="tab2"><a href="#watersheds"><strong>Watersheds</strong></a></p>
+<p class="tab2"><a href="#reservoirs"><strong>Reservoirs</strong></a></p>
+<p class="tab2"><a href="#users"><strong>Users</strong></a></p>
+<p class="tab2"><a href="#junctions"><strong>Junctions</strong></a></p>
+<p class="tab2"><a href="#ib_transfer"><strong>Inter-basin Transfers</strong></a></p>
+<p class="tab2"><a href="#sinks"><strong>Sinks</strong></a></p>
+<p class="tab2"><a href="#links"><strong>Links</strong></a></p>
+<p class="tab"><a href="#io_desc"><strong>Saving and Reopening Network Files</strong></a></p>
+<p class="tab"><a href="#exporting"><strong>Exporting Input Files for Model-Run</strong></a></p>
+<p class="tab"><a href="#printing"><strong>Printing Network Graphics</strong></a></p>
+<p><a href="#future_work"><strong>Future Work</strong></a></p>
+<p><a href="#references"><strong>References</strong></a></p>
+<p><a href="#tva_examples"><strong>TVA Examples</strong></a></p>
+
+
+
+<h3><a name="figure_table"></a>Table of Figures</h3>
+<p><a href="#fig1">Figure 1 - GRAPS GUI tool bar descriptions.</a></p>
+<p><a href="#fig2">Figure 2 - General Setup Dialog (User Description tab)</a></p>
+<p><a href="#fig3">Figure 3 - General Setup Dialog (Forecast tab)</a></p>
+<p><a href="#fig4">Figure 4 - TVA Downstream Reservoir Example.</a></p>
+<p><a href="#fig5">Figure 5 - Watershed Dialog.</a></p>
+<p><a href="#fig6">Figure 6 - Reservoir Dialog (Reservoir Description tab)</a></p>
+<p><a href="#fig7">Figure 7 - Reservoir Dialog (Evaporation / Storage Relationship tab)</a></p>
+<p><a href="#fig8">Figure 8 - Resevoir Dialog (Operational Information tab)</a></p>
+<p><a href="#fig9">Figure 9 - Reservoir Dialog (Spillway / Outlets tab)</a></p>
+<p><a href="#fig10">Figure 10 - User Dialog (User Description tab)</a></p>
+<p><a href="#fig11">Figure 11 - User Dialog (User Demand tab)</a></p>
+<p><a href="#fig12">Figure 12 - User Dialog (Restriction Compensation tab)</a></p>
+<p><a href="#fig13">Figure 13 - User Dialog (Hydropower tab)</a></p>
+<p><a href="#fig14">Figure 14 - Junction Dialog.</a></p>
+<p><a href="#fig15">Figure 15 - Inter-basin Transfer Dialog.</a></p>
+<p><a href="#fig16">Figure 16 - Sink Dialog.</a></p>
+<p><a href="#fig17">Figure 17 - Link Dialog (a) Identification tab; (b) Discharge tab.</a></p>
+<p><a href="#tva_examples">TVA Network Examples</a></p>
+ 
+<h3><a name="introduction"></a>Introduction</h3>
+
+<p>Traditionally, the input files for the Multi-Objective Reservoir Analyses using Probabilistic Streamflow Forecasts
+    (GRAPS) model are manually created. In addition to this process being meticulous and error-prone, there also was
+    not a way to visualize the network cascade or to easily interact with different parameters associated with the
+    network. This graphical user interface enables GRAPS users to create reservoir networks with intuitive keystrokes
+    and mouse movements. Network files can be saved and opened for editing later, the interface graphics can be exported
+    as a PDF or directly printed, and all input files required to run GRAPS can be exported with the correct information
+    and formatting.</p>
+
+<h3><a name="graps_features"></a>Features of GRAPS Interface</h3>
+<p>Reservoir networks are created by placing blocks that correspond to different network nodes (reservoirs, watersheds,
+    junctions, etc.) on the graphics window and then creating links between those blocks. Each network node and link
+    have a unique dialog that stores user-input associated with that node or link. Saving and opening network files and
+    printing network graphics follow a process similar to other desktop applications and exporting input files only
+    requires the user to specify a directory to place the files.</p>
+
+
+<h3>System Requirements</h3>
+<p>This interface was developed using Python 3.7 and PyQt5. It should be able to run on any Windows, MAC, or Linux
+    operating system as long as the user has a version of Python 3.7 installed as well as PyQt5.</p>
+
+<h3>A Note on Units</h3>
+<p>The user of this interface is responsible for ensuring the units of the values entered correspond with each other
+    (e.g. if storage is provided in acre-feet, inflow should be provided in acre-feet per time step and evaporation
+    depths should be provided in feet). GRAPS makes no assumptions about the units except that they are consistent (i.e.
+    it will not fail if you provide values in mismatched units unless they fall outside the realm of possibility).
+    However, to assist users in setting the model up the dimensions have been provided for each quantity that is to be
+    provided. The dimensions used are <em>M</em> for mass, <em>L</em> for length, and <em>T</em> for time. Combinations
+    of these dimensions will be used to indicate specific types of information to be entered (e.g. <em>L </em>for
+    elevation, <em>L<sup>3</sup> </em>for volumes, <em>L<sup>3</sup>/T </em>for volumetric flowrates, etc&hellip;).</p>
+
+<h2><a name="using_gui"></a><strong>Using the GRAPS Interface</strong></h2>
+<h3><a name="gui_layout"></a><strong>Interface Layout</strong></h3>
+<p>The GRAPS GUI is displayed as a desktop application (Figure 1). A drop-down menu bar is situated at the top of screen
+    and the tool-bar (which the user will interact with the most) directly below it. As indicated in Figure 1, the
+    tool-bar contains buttons for selecting modeling blocks and links as well as generic buttons to create a new file,
+    open an existing file, save the current file, and print the current file. The rectangular button is used to center
+    the screen based on the network that has been drawn and the &ldquo;Export&rdquo; button is used to create the input
+    file for GRAPS to run based on the information entered by the user.</p>
+
+
+<figure name="fig1">
+    <img src="../figures/figure1.jpg" , alt="GRAPS GUI tool bar descriptions" class="center_big"/>
+    <figcaption>Figure 1 - GRAPS GUI tool bar descriptions</figcaption>
+</figure>
+
+<h2><a name="gen_setup"></a><strong>General Setup</strong></h2>
+<p>GRAPS requires basic setup information to adequately model the desired scenario. These parameters are entered in the
+    general setup dialog, which is depicted in Figure 2 and Figure 3. This dialog can be accessed either through the
+    &ldquo;Gen. Setup&rdquo; menu in the Menu Bar or via the &ldquo;General Setup&rdquo; tool bar button. The
+    &ldquo;General Setup&rdquo; dialog requires the following information if the type of simulation is to be &ldquo;Zero
+    Flow&rdquo;: number of time steps, number of restriction levels, and the type of simulation desired. If
+    &ldquo;Climatology&rdquo; is selected as the simulation type then the &ldquo;Number of years&rdquo; is also
+    required.</p>
+
+<figure name="fig2">
+    <img src="../figures/figure2.png" , alt="Figure 2 - General Setup Dialog (User Description tab)" , class="center_small" />
+    <figcaption>Figure 2 - General Setup Dialog (User Description tab)</figcaption>
+</figure>
+
+<p>If the selected simulation type is &ldquo;Forecast&rdquo;, the number of ensembles is required as well as extra
+    information in the &ldquo;Forecast&rdquo; tab. If the &ldquo;Adaptive Forecasts&rdquo; button in the
+    &ldquo;Forecast&rdquo; tab is selected, the number of years of simulations for the forecasts and the values for
+    those forecasts are required in the &ldquo;Adaptive Forecasts&rdquo; table.</p>
+
+<figure name="fig3">
+    <img src="../figures/figure3.png" , alt="Figure 3 - General Setup Dialog (Forecast tab)" ,
+        class="center_small" />
+    <figcaption>Figure 3 - General Setup Dialog (Forecast tab)</figcaption>
+</figure>
+
+<p>&nbsp;</p>
+<table width="700">
+    <tbody>
+        <tr>
+            <td colspan="3" width="329">
+                <a style="font-style: italic">Table 1 - General Setup Variable Information</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162" style="text-align: center">
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td width="50" style="text-align: center">
+                <a><strong>LB</strong></a>
+            </td>
+            <td width="117" style="text-align: center">
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162">
+                <a>Number of time steps</a>
+            </td>
+            <td width="50">
+                <a>1</a>
+            </td>
+            <td width="117">
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162">
+                <a>Number of Restriction Levels</a>
+            </td>
+            <td width="50">
+                <a>1</a>
+            </td>
+            <td width="117">
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" width="329" style="text-align: center">
+                <a><strong>Simulation - Forecast</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162">
+                <a>Number of Years</a>
+            </td>
+            <td width="50">
+                <a>1</a>
+            </td>
+            <td width="117">
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162">
+                <a>Number of Ensembles</a>
+            </td>
+            <td width="50">
+                <a>1</a>
+            </td>
+            <td width="117">
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="162">
+                <a>Number of years of simulation (for adaptive forecasts)</a>
+            </td>
+            <td width="50">
+                <a>1</a>
+            </td>
+            <td width="117">
+                <a>Number of years</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h2>&nbsp;</h2>
+<h2><a name="build_networks"></a><strong>Building Reservoir Networks</strong></h2>
+<p>There are six network nodes to be used when creating reservoir networks (Watershed, Reservoir, Inter-basin Transfer,
+    User, Junction, and Sink) as well as Links/Flow connectors. To begin creating networks in GRAPS, first complete the
+    General Setup dialog and then click the toolbar icon corresponding to the name of the first network node you intend
+    to create e.g. the red block with a white &ldquo;W&rdquo; for a watershed. To use the mouse without placing nodes,
+    click the mouse pointer tool bar button. An example of some of the downstream main-stem reservoirs in the Tennessee
+    Valley Authority&rsquo;s (TVA) reservoir network is show in Figure 4 to illustrate a possible network configuration.
+</p>
+
+<figure name="fig4">
+    <img src="../figures/figure4.jpg" , alt="Figure 4 - TVA Downstream Reservoir Example" , class="center_big" />
+    <figcaption>Figure 4 - TVA Downstream Reservoir Example</figcaption>
+</figure>
+
+
+<p>To open the dialog for a node, the node can be double-clicked, or if it is selected with a single click, hitting
+    &ldquo;Return/Enter&rdquo; key on the keyboard. Table 2 shows valid and invalid node connection. Though the software
+    should not allow invalid connections, it is best to keep in mind what is valid and what is not.</p>
+
+<img src="../figures/connectivity.jpg" , class="center_big">
+
+<h3><a name="watersheds"></a><strong>Watersheds</strong></h3>
+<img src="../../gui/icons/W.png", class="center_icon">
+
+<p>Watersheds provide a description of natural inflows to reservoirs. An example of the watershed dialog is show in
+    Figure 5. The information required in the &ldquo;Watershed&rdquo; dialog is the &ldquo;Watershed Name&rdquo;,
+    &ldquo;Drainage Area&rdquo;, and the user must select a file containing observed inflows. The file must be space
+    delimited (i.e. values separated by white space or tabs) and each line in the file represents one ensemble member
+    and there should be the same number of values as the number of time steps specified in general setup. If you have
+    not specified the number of ensembles to be used, the number is assumed one; therefore, the inflow file should only
+    contain one line of values. For example, if you have specified 5 ensemble members and the number of modeled time
+    steps is 6, your inflow files should look similar to this:</p>
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <p style="margin: 0;"><samp>10&nbsp; 12&nbsp; 13&nbsp; 15&nbsp; 17&nbsp; 15&nbsp;</samp></p>
+                <p style="margin: 0;"><samp>12&nbsp; 11&nbsp; 12&nbsp; 16&nbsp; 13&nbsp; 14&nbsp;</samp></p>
+                <p style="margin: 0;"><samp>13&nbsp; 11&nbsp; 12&nbsp; 13&nbsp; 16&nbsp; 12&nbsp;</samp></p>
+                <p style="margin: 0;"><samp>11&nbsp; 13&nbsp; 15&nbsp; 15&nbsp; 15&nbsp; 11&nbsp;</samp></p>
+                <p style="margin: 0;"><samp>10&nbsp; 15&nbsp; 14&nbsp; 17&nbsp; 13&nbsp; 13&nbsp;</samp></p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>In the above text box, each line represents an ensemble member and each value in each line represents natural inflow
+    into a watershed for a given time step.</p>
+<table width="700">
+    <tbody>
+        <tr>
+            <td colspan="5" width="403">
+                <a style="font-style: italic">Table 3 - Watershed Variable Information</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="160" style="text-align: center;">
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td width="78">
+                <a><strong>Dimension</strong></a>
+            </td>
+            <td width="71">
+                <a><strong>LB</strong></a>
+            </td>
+            <td width="94">
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="160">
+                <a>Drainage Area</a>
+            </td>
+            <td width="78">
+                <a>L<sup>2</sup></a>
+            </td>
+            <td width="71">
+                <a>0.1</a>
+            </td>
+            <td width="94">
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="160">
+                <a>Inflows</a>
+            </td>
+            <td width="78">
+                <a>L<sup>3</sup></a>
+            </td>
+            <td width="71">
+                <a>0</a>
+            </td>
+            <td width="94">
+                <a>User Defined</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>&nbsp;</p>
+
+<figure name="fig5">
+    <img src="../figures/figure5.png" , alt="Figure 5 - Watershed Dialog" , class="center_small" />
+    <figcaption>Figure 5 - Watershed Dialog</figcaption>
+</figure>
+
+<h3><a name="reservoirs"></a><strong>Reservoirs</strong></h3>
+<img src="../../gui/icons/R.png" , class="center_icon">
+<p>The information input into the &ldquo;Reservoir&rdquo; dialog is essential to effectively running GRAPS. There are
+    four tabs that require user input: &ldquo;Reservoir Description&rdquo;, &ldquo;Evaporation / Storage
+    Relationships&rdquo;, &ldquo;Operational Information&rdquo;, and &ldquo;Spillway / Outlets&rdquo;. Each of these
+    tabs is shown below along with a description of what information is required.</p>
+
+<p><em>Reservoir Description</em></p>
+<p>Basic information regarding the reservoir. The most important information for GRAPS are the last 5 fields: min. and
+    max. elevation, min. and max. storage, and current storage.</p>
+    
+<figure name="fig6">
+    <img src="../figures/figure6.png" , alt="Figure 6 - Reservoir Dialog (Reservoir Description tab)" , class="center_small" />
+    <figcaption>Figure 6 - Reservoir Dialog (Reservoir Description tab)</figcaption>
+</figure>
+
+<p><em>Reservoir-Evaporation / Storage Relationships</em></p>
+<p>This tab (Figure 7) requires the user input information regarding the lake evaporation depth (in either a table or
+    selecting a file) and the storage relationship coefficients. When simulating over longer periods, it can be easier
+    to use data files rather than manual entry. When &ldquo;Table&rdquo; is selected, a table will appear to enter
+    information and when &ldquo;Input File&rdquo; is selected, a field to select a file will appear. The below equations
+    (Eqn. 1 - Eqn. 3) explain how the coefficients and the evaporation depths will be used in the model. In the below equations,
+    \({\bar S_{t,t-1}}\) is the average storage between the current and previous time steps, \({\alpha}\), \({\beta}\), and \({\gamma}\)
+    are the coefficients that are requested (they exist separately for each
+    relationship type), and <em>E</em> represents the evaporation depth. All of these quantities are calculated for each
+    reservoir for each time step and ensemble member.</p>
+
+<table  style="border: none;width: 700;">
+    <tbody>
+        <tr width="250" style="border: none;">
+            <td style="border: none;">
+                <p><strong>Elevation-Storage Relationship</strong></p>
+            </td>
+            <td style="text-align: center; border: none;">
+                <p><span class="math display">\[Elev. = \alpha {({\bar S_{t,t - 1}})^2} + \beta ({\bar S_{t,t - 1}}) + \gamma ({\bar
+                        S_{t,t - 1}})\]</span></p>
+            </td>
+            <td style="border: none;">
+                <p>Eqn. 1</p>
+            </td>
+        </tr>
+        <tr  width="250" style="border: none;">
+            <td style="border: none;">
+                <p><strong>Area-Storage Relationship</strong></p>
+            </td>
+            <td style="text-align: center; border: none;">
+                <p><span class="math display">\(Area = \alpha {\left( {{{\bar S}_{t,t - 1}}} \right)^\beta }\)</span></p>
+            </td>
+            <td style="border: none;">
+                <p>Eqn. 2</p>
+            </td>
+        </tr>
+        <tr width="200" style="border: none;">
+            <td style="border: none;">
+                <p><strong>Evaporation Calculation</strong></p>
+            </td>
+            <td style="text-align: center; border: none;">
+                <p><span class="math inline">\(Evap. = E \times Area\)</span></p>
+            </td>
+            <td style="border: none;">
+                <p>Eqn. 3</p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<p>&nbsp;</p>
+<figure name="fig7">
+    <img src="../figures/figure7.png" , alt="Figure 7 - Reservoir Dialog (Evaporation / Storage Relationship tab)" ,
+        class="center_small" />
+    <figcaption>Figure 7 - Reservoir Dialog (Evaporation / Storage Relationship tab)</figcaption>
+</figure>
+
+<p><em>Reservoir-Operational Information</em></p>
+<p>In the &ldquo;Operational Information&rdquo; tab (Figure 8) users are required to enter the &ldquo;Target
+    Storage&rdquo;, &ldquo;Storage Probability&rdquo;, and &ldquo;Target Restriction Levels Probability&rdquo; for each
+    restriction level. They are also required to specify a method of entry for the &ldquo;Rule Curve;&rdquo; either
+    manual entry of values into a table or selecting a data file. As with the &ldquo;Evaporation&rdquo; tab, it is
+    suggested to use the data file input method for long term simulations. Rule curves are not required, but they
+    provide a method for the user to impose realistic, time-varying storage constraints.</p>
+
+<p>&nbsp;</p>
+<figure name="fig8">
+    <img src="../figures/figure8.png" , alt="Figure 8 - Resevoir Dialog (Operational Information tab)" ,
+        class="center_small" />
+    <figcaption>Figure 8 - Resevoir Dialog (Operational Information tab)</figcaption>
+</figure>
+
+<p><em>Reservoir-Spillway/Outlets</em></p>
+<p>The &ldquo;Spillway/Outlets&rdquo; tab (Figure 9) requires the user enter the &ldquo;Number of Spillways&rdquo; and
+    the type, crest level, and maximum discharge for each spillway as well as the &ldquo;Number of Outlets&rdquo; and
+    the elevation, cross-sectional area, and maximum and minimum loss coefficients for each outlet. For the
+    &ldquo;Spillway Type&rdquo; enter 0 for a controlled spillway or 1 for an uncontrolled spillway.</p>
+
+<figure name="fig9">
+    <img src="../figures/figure9.png" , alt="Figure 9 - Reservoir Dialog (Spillway / Outlets tab)" ,
+        class="center_small" />
+    <figcaption>Figure 9 - Reservoir Dialog (Spillway / Outlets tab)</figcaption>
+</figure>
+
+<table width="700">
+    <tbody>
+        <tr>
+            <td colspan="4" >
+                <em>Table 4 - Reservoir Dialog Variable Information</em>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td>
+                <a><strong>Dimension</strong></a>
+            </td>
+            <td>
+                <a><strong>LB</strong></a>
+            </td>
+            <td>
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" >
+                <a><strong>Reservoir Description</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Elevation Minimum</a>
+            </td>
+            <td>
+                <a>L</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Elevation Maximum</a>
+            </td>
+            <td>
+                <a>L</a>
+            </td>
+            <td>
+                <a>Elevation Minimum +1</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Storage Minimum</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Storage Maximum</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>Storage Minimum</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Current Storage</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>Storage Minimum</a>
+            </td>
+            <td>
+                <a>Storage Maximum</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Evaporation</a>
+            </td>
+            <td>
+                <a>L</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" >
+                <a><strong>Operation Information</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Target Storage</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>Storage Minimum</a>
+            </td>
+            <td>
+                <a>Storage Maximum</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Storage Probability</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Rule Curve</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>Storage Minimum</a>
+            </td>
+            <td>
+                <a>Storage Maximum</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Target Restriction Level Probability</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" >
+                <a><strong>Spillway Information</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Spillway Type</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Crest Level</a>
+            </td>
+            <td>
+                <a>L</a>
+            </td>
+            <td>
+                <a>Elevation Minimum</a>
+            </td>
+            <td>
+                <a>Elevation Maximum</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Discharge</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup>/T</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" >
+                <a><strong>Outlet Information</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Elevation</a>
+            </td>
+            <td>
+                <a>L</a>
+            </td>
+            <td>
+                <a>Elevation Minimum</a>
+            </td>
+            <td>
+                <a>Elevation Maximum</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Cross Sectional Area</a>
+            </td>
+            <td>
+                <a>L<sup>2</sup></a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Minimum Loss Coeff.</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Maximum Loss Coefficient</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>Minimum loss coefficient</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3><a name="users"></a><strong>Users</strong></h3>
+<img src="../../gui/icons/U.png" , class="center_icon">
+
+<p>The user block is representative of the different types of users that are present in a reservoir network. The user
+    type is selected in the &ldquo;User&rdquo; dialog window. If the &ldquo;User Type&rdquo; is &ldquo;Hydropower&rdquo;
+    the &ldquo;Hydropower&rdquo; tab in the &ldquo;User&rdquo; description needs to be completed.</p>
+
+<p><em>User-User Description</em></p>
+<p> The &ldquo;User Description&rdquo; tab (Figure 10) requires the following input:
+    &ldquo;User Name&rdquo;, &ldquo;User Type&rdquo; (from the drop down box), &ldquo;Minimum&rdquo; and &ldquo;Maximum
+    Release&rdquo;, &ldquo;Tariff&rdquo; amount, &ldquo;Penalty&rdquo; amount, &ldquo;Reliability&rdquo;,
+    &ldquo;Contract Restriction Volume&rdquo;, and the &ldquo;Penalty Compensation.&rdquo;</p>
+
+<figure name="fig10">
+    <img src="../figures/figure10.png" , alt="Figure 10 - User Dialog (User Description tab)" ,
+        class="center_small" />
+    <figcaption>Figure 10 - User Dialog (User Description tab)</figcaption>
+</figure>
+
+<p><em>User-User Demand</em></p>
+<p>Again, there is the option to enter the information required in this tab or to select a data file with the
+    information. For larger data sets, it is ideal to use the data file entry method. The information required is the
+    per time step demand for the user. If the model is being run in a simulation mode, these become the releases for
+    that user. If the model is being optimized, these become the starting points for the optimization engine.</p>
+
+<figure name="fig11">
+    <img src="../figures/figure11.png" , alt="Figure 11 - User Dialog (User Demand tab)" , class="center_small" />
+    <figcaption>Figure 11 - User Dialog (User Demand tab)</figcaption>
+</figure>
+
+<p><em>User-Restriction Compensation </em></p>
+<p>The information required in the &ldquo;Restriction Compensation&rdquo; tab is the restriction compensation and
+    fraction for each restriction level.</p>
+
+<figure name="fig12">
+    <img src="../figures/figure12.png" , alt="Figure 12 - User Dialog (Restriction Compensation tab)" , class="center_small" />
+    <figcaption>Figure 12 - User Dialog (Restriction Compensation tab)</figcaption>
+</figure>
+
+<p><em>User-Hydropower (Conditional, &ldquo;User Type&rdquo;)</em></p>
+<p>If the &ldquo;User Type&rdquo; is &ldquo;Hydropower&rdquo; the &ldquo;Hydropower&rdquo; tab becomes required
+    information. The user should specify the &ldquo;Number of Turbines&rdquo; and the &ldquo;Maximum Discharge&rdquo;,
+    &ldquo;Installed Capacity&rdquo;, &ldquo;Turbine Efficiency&rdquo;, two energy coefficients, and the &ldquo;Unit
+    Rate Energy&rdquo; for each turbine. The &ldquo;Turbine Tail Elevation&rdquo; is also required for each time step.
+</p>
+
+<figure name="fig13">
+    <img src="../figures/figure13.png" , alt="Figure 13 - User Dialog (Hydropower tab)" ,
+        class="center_small" />
+    <figcaption>Figure 13 - User Dialog (Hydropower tab)</figcaption>
+</figure>
+
+<table width="700">
+        <tr>
+            <td colspan="5">
+                <em>Table 5 - User Dialog Variable Information</em>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td>
+                <a><strong>Dimension</strong></a>
+            </td>
+            <td colspan="2">
+                <a><strong>LB</strong></a>
+            </td>
+            <td>
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Minimum Release</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Maximum Release</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td colspan="2">
+                <a>Min.</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Tariff</a>
+            </td>
+            <td>
+                <a>Currency</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Penalty</a>
+            </td>
+            <td>
+                <a>Currency</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Failure Probability</a>
+                <a>(Or Reliability)</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>100</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Contract Restriction Volume</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>Minimum Release</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Demand Fraction</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Restriction Compensation</a>
+            </td>
+            <td>
+                <a>Currency</a>
+            </td>
+            <td colspan="2">
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Restriction Fraction</a>
+            </td>
+            <td>
+                <a>&nbsp;</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Penalty Compensation</a>
+            </td>
+            <td>
+                <a>Currency</a>
+            </td>
+            <td colspan="2">
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <a><strong>Hydropower</strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Maximum Discharge</a>
+            </td>
+            <td colspan="2">
+                <a>L<sup>3</sup>/T</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Installed Capacity</a>
+            </td>
+            <td colspan="2">
+                <a>Energy Rate</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Generator Efficiency</a>
+            </td>
+            <td colspan="2">
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Energy Coefficients</a>
+            </td>
+            <td colspan="2">
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>1</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Unit Rate Energy</a>
+            </td>
+            <td colspan="2">
+                <a>&nbsp;</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Turbine Tail Elevation</a>
+            </td>
+            <td colspan="2">
+                <a>L</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3><a name="junctions"></a><strong>Junctions</strong></h3>
+<img src="../../gui/icons/J.png" , class="center_icon">
+
+<p>Junctions represent a connection between network branches or nodes that have no storage. The only requirement for the
+    &ldquo;Junction&rdquo; dialog is the name of the junction.</p>
+
+<figure name="fig14">
+    <img src="../figures/figure14.png" , alt="Figure 14 - Junction Dialog" , class="center_small" />
+    <figcaption>Figure 14 - Junction Dialog</figcaption>
+</figure>
+
+<h3><a name="ib_transfer"></a><strong>Inter-basin Transfers</strong></h3>
+<img src="../../gui/icons/I.png" , class="center_icon">
+
+<p>Flows from neighboring basins that could be diverted into the reservoir or a junction. The requirements of the
+    Inter-basin Transfer dialog is the name of the node, the drainage area, and an average flow for each time step. The
+    average flow can either be entered manually in a table or imported with a data file.</p>
+
+<figure name="fig15">
+    <img src="../figures/figure15.png" , alt="Figure 15 - Inter-basin Transfer Dialog" , class="center_small" />
+    <figcaption>Figure 15 - Inter-basin Transfer Dialog</figcaption>
+</figure>
+<p>&nbsp;</p>
+<table width="700">
+    <tbody>
+        <tr>
+            <td colspan="4">
+                <em>Table 6 - Inter-basin Transfer Variable Information</em>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td>
+                <a><strong>Dimension</strong></a>
+            </td>
+            <td>
+                <a><strong>LB</strong></a>
+            </td>
+            <td>
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Drainage Area</a>
+            </td>
+            <td>
+                <a>L<sup>2</sup></a>
+            </td>
+            <td>
+                <a>0.1</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Average Flow</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup>/T</a>
+            </td>
+            <td>
+                <a>0</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3><a name="sinks"></a><strong>Sinks</strong></h3>
+<img src="../../gui/icons/S.png" , class="center_icon">
+<p>Sinks should always be the last node in a network and there should never be more than one. If you desire to have
+    multiple sinks, you can use junction nodes and then tie all the junctions to a single sink. Sinks represent a
+    natural drainage entity such as a large river, sea, or ocean. The required information for the Sink Dialog is the
+    name of the sink and the maximum storage.</p>
+
+<figure name="fig16">
+    <img src="../figures/figure16.png" , alt="Figure 16 - Sink Dialog" , class="center_small" />
+    <figcaption>Figure 16 - Sink Dialog</figcaption>
+</figure>
+<p>&nbsp;</p>
+<table width="700">
+    <tbody>
+        <tr>
+            <td colspan="4">
+                <em>Table 7 - Sink Variable Information</em>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a><strong>Variable/Field</strong></a>
+            </td>
+            <td>
+                <a><strong>Dimension</strong></a>
+            </td>
+            <td>
+                <a><strong>LB</strong></a>
+            </td>
+            <td>
+                <a><strong>UB </strong></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a>Maximum Storage</a>
+            </td>
+            <td>
+                <a>L<sup>3</sup></a>
+            </td>
+            <td>
+                <a>0.1</a>
+            </td>
+            <td>
+                <a>User Defined</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3><a name="links"></a><strong>Links</strong></h3>
+
+<p>Links are what provides the network connectivity. The &ldquo;Link&rdquo; dialog is opened by clicking on the link
+    name and hitting the &ldquo;Return/Enter&rdquo; key on the keyboard or double clicking the link name. Each link
+    dialog contains two tabs: &ldquo;Identification&rdquo; and &ldquo;Discharge.&rdquo; The only requirement on the
+    &ldquo;Identification&rdquo; tab is the &ldquo;Link Name;&rdquo; the rest of the information will auto-populate. On
+    the &ldquo;Discharge&rdquo; tab, the user is required to enter the minimum and maximum discharge, the loss factor,
+    and to specify if it is a return flow or not. If it is a return flow, the number of lags must be specified as well
+    as the values associated with them.</p>
+
+
+<table width="700" style="border: none;">
+    <tbody>
+        <tr style="border: none;">
+            <td style="border: none;">
+                <a>(a)</a>
+                <br/>
+                <img src="../figures/figure17a.png" , alt="Figure 17 (a) - Link Dialog (Identification tab)" />
+            </td>
+            <td style="border: none;">
+                <a>(b)</a>
+                <br />
+                <img src="../figures/figure17b.png" , alt="Figure 17 (b) - Link Dialog (Discharge tab)" />
+            </td>
+        </tr>
+        <tr style="border: none; text-align: center;">
+            <td colspan="2" style="border: none;">
+                <em><a name="fig17"></a>Figure 17 - Link Dialog (a) Identification tab; (b) Discharge tab</em>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h2><a name="io_desc"></a><strong>Saving and Reopening Network Files</strong></h2>
+
+<p>
+    GRAPS GUI files should always be saved with a `.graps` extension. When you first save a file that will be the default
+    file type. The interface leverages Python&rsquo;s `pickle` library to serialize the network information. This
+    results in a simple IO mechanism for the interface.
+</p>
+<p>
+    To open a previously saved network, a user can use either the &ldquo;Open&rdquo; toolbar icon or the
+    &ldquo;Open&rdquo; menu item in the &ldquo;File&rdquo; menu in the menu bar. Either option will open a file dialog
+    requiring the user to select what file they wish to open.
+</p>
+<p>
+    The &ldquo;New&rdquo; toolbar command will clear the network and all previously set parameters from the current
+    network.
+</p>
+
+<h2>
+    <a name="exporting"></a>
+    <strong>Exporting Input Files for Model-Run</strong>
+</h2>
+
+<p>
+    To export the data files needed to run GRAPS, the user must click the &ldquo;Export&rdquo; toolbar command. This will
+    prompt the user to select a directory for which to save the files in. There are multiple files that will be created
+    and they will have the names that are required for the model to find them. If you are exporting to a folder with
+    these files already in it, the existing files will be overwritten without warning.
+</p>
+
+<h2>
+    <a name="printing"></a>
+    <strong>Printing Network Graphics</strong>
+</h2>
+
+<p>
+    To print an image of the network open in the interface open the &ldquo;File&rdquo; menu in the menu bar and click the
+    &ldquo;Print&rdquo; menu item. This will open a traditional print dialog that will allow the user to print the
+    extents of the network to any of the printers available on their machine.
+</p>
+
+<h3>
+    <a name="future_work"></a>
+    <strong>Future Work</strong>
+</h3>
+
+<p>
+    While this interface makes new network formulation quicker and simpler, it is not complete. Future additions are
+    integration with the GRAPS model to create a stand-alone modeling package and possible integration with an energy
+    modeling software to allow for more in depth analysis of water management decisions.
+</p>
+
+<h3>
+    <a name="references"></a>
+    <strong>References</strong>
+</h3>
+
+<p>This document is an adaptation of the &ldquo;GRAPS Software Documentation&rdquo; &ndash; Dr. Sankar Arumugam. It is
+    meant to be an extension of that document and to provide information regarding the interface and not the GRAPS
+    model.</p>
+
+<h3><a name="tva_examples"></a><strong>TVA Examples</strong></h3>
+
+<figure>
+    <img src="../figures/tva_example1.png" , alt="Full TVA Cascade (top to bottom)" , class="center_big" />
+    <figcaption>Full TVA Cascade (top to bottom)</figcaption>
+</figure>
+<p>&nbsp;</p>
+
+<figure>
+    <img src="../figures/tva_example2.png" , alt="Partial Cascade (top part of network)" , class="center_big" />
+    <figcaption>Partial Cascade (top part of network)</figcaption>
+</figure>
+<p>&nbsp;</p>
+
+<figure>
+    <img src="../figures/tva_example3.png" , alt="Partial Cascade (zoomed in to better show network details)" , class="center_big" />
+    <figcaption>Partial Cascade (zoomed in to better show network details)</figcaption>
+</figure>
+<p>&nbsp;</p>
+
+</body>
+</html>

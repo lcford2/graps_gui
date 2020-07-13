@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>380</height>
+    <width>486</width>
+    <height>273</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,23 +45,10 @@
       </font>
      </property>
      <property name="title">
-      <string>Observed Inflows File</string>
+      <string>Inflows File</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="1">
-       <widget class="QLabel" name="inflows_label">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Observed Inflows (mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;/time)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>inflows_file_input</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="0" column="0">
        <widget class="QPushButton" name="select_inflow_file">
         <property name="font">
          <font>
@@ -74,64 +61,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QLineEdit" name="inflows_file_input">
         <property name="enabled">
          <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="3">
-    <widget class="QGroupBox" name="forecast_file_box">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="title">
-      <string>Forecast File</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="3" column="1">
-       <widget class="QLabel" name="forecast_labe">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Forecast (mm&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;/time)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>forecast_file_input</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="forecast_file_input">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QPushButton" name="select_forecast_file">
-        <property name="font">
-         <font>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Select</string>
         </property>
        </widget>
       </item>
@@ -195,7 +128,7 @@
          </font>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Drainage Area (Km&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Drainage Area&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="buddy">
          <cstring>drain_input</cstring>
@@ -265,8 +198,6 @@
  <tabstops>
   <tabstop>id_display</tabstop>
   <tabstop>drain_input</tabstop>
-  <tabstop>select_forecast_file</tabstop>
-  <tabstop>forecast_file_input</tabstop>
   <tabstop>select_inflow_file</tabstop>
   <tabstop>inflows_file_input</tabstop>
   <tabstop>display_wateshed_name</tabstop>
