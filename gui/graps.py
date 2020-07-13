@@ -1359,6 +1359,16 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
             self.dialog.ui.user_dia_tab.setStyleSheet(
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
+
+    def read_space_delim_file(self, file):
+        try:
+            with open(file, 'r') as f:
+                lines = f.readlines()
+                lst = lines[0].strip("\r\n").split()
+                return lst
+        except FileNotFoundError as e:
+            return []
+
             
 
     # gets the file name for certain fields in dialog boxes
@@ -1483,10 +1493,7 @@ class MyMainScreen(widgets.QMainWindow):
                         user_input = "0"
                     evap_info.append(user_input)
             else:
-                with open(evap_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    evap_info = lst
+                evap_info = self.read_space_delim_file(evap_option)
 
         reservoir_dict['evap_info'] = evap_info
         reservoir_dict['evap_option'] = evap_option
@@ -1535,10 +1542,14 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(rule_curve_option, 'r') as f:
-                    data = f.readlines()
-                    lower_rule = data[0].split()
-                    upper_rule = data[1].split()
+                try:
+                    with open(rule_curve_option, 'r') as f:
+                        data = f.readlines()
+                        lower_rule = data[0].split()
+                        upper_rule = data[1].split()
+                except FileNotFoundError as e:
+                    lower_rule = []
+                    upper_rule = []
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
         reservoir_dict['storage_rule'] = lower_rule
@@ -1662,10 +1673,8 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(demand_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    demand = lst
+                demand = self.read_space_delim_file(demand_option)
+                
         # Restriction Compensation Tab
         restric_num = self.gen_setup_dict['nrestric']
         restric_comp = []
@@ -1692,57 +1701,61 @@ class MyMainScreen(widgets.QMainWindow):
         user_dict['restric_frac'] = restric_frac
 
         # Hydropower Tab
-        num_turbines = str(
-            self.dialog.ui.num_turbines_edit.text())
-        if num_turbines == '':
-            num_turbines = '0'
+        if user_type == "Hydropower":
+            num_turbines = str(
+                self.dialog.ui.num_turbines_edit.text())
+            if num_turbines == '':
+                num_turbines = '0'
 
-        hydro = []
-        for row in range(int(num_turbines)):
-            turbine_dict = {}
-            current_item = self.dialog.ui.hydro_table.item(row, 0)
-            max_discharge = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 1)
-            capacity = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 2)
-            efficiency = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 3)
-            energy_coeff_1 = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 4)
-            energy_coeff_2 = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 5)
-            energy_rate = str(current_item.text())
-            turbine_dict['max_discharge'] = max_discharge
-            turbine_dict['capacity'] = capacity
-            turbine_dict['efficiency'] = efficiency
-            turbine_dict['energy_coeff_1'] = energy_coeff_1
-            turbine_dict['energy_coeff_2'] = energy_coeff_2
-            turbine_dict['energy_rate'] = energy_rate
-            hydro.append(turbine_dict)
+            hydro = []
+            for row in range(int(num_turbines)):
+                turbine_dict = {}
+                current_item = self.dialog.ui.hydro_table.item(row, 0)
+                max_discharge = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 1)
+                capacity = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 2)
+                efficiency = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 3)
+                energy_coeff_1 = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 4)
+                energy_coeff_2 = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 5)
+                energy_rate = str(current_item.text())
+                turbine_dict['max_discharge'] = max_discharge
+                turbine_dict['capacity'] = capacity
+                turbine_dict['efficiency'] = efficiency
+                turbine_dict['energy_coeff_1'] = energy_coeff_1
+                turbine_dict['energy_coeff_2'] = energy_coeff_2
+                turbine_dict['energy_rate'] = energy_rate
+                hydro.append(turbine_dict)
 
-        elev_option = 0
-        if self.dialog.ui.table_radio_2.isChecked():
-            elev_option = 'Table'
-        elif self.dialog.ui.file_radio_2.isChecked():
-            elev_option = str(
-                self.dialog.ui.elev_file_edit.text())
+            elev_option = 0
+            if self.dialog.ui.table_radio_2.isChecked():
+                elev_option = 'Table'
+            elif self.dialog.ui.file_radio_2.isChecked():
+                elev_option = str(
+                    self.dialog.ui.elev_file_edit.text())
 
-        turb_elev = []
-        if elev_option:
-            if elev_option == 'Table':
-                for column in range(int(time_steps)):
-                    try:
-                        current_item = self.dialog.ui.hydro_elev_table.item(
-                            0, column)
-                        elevation = str(current_item.text())
-                        turb_elev.append(elevation)
-                    except:
-                        continue
-            else:
-                with open(elev_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    turb_elev = lst
+            turb_elev = []
+            if elev_option:
+                if elev_option == 'Table':
+                    for column in range(int(time_steps)):
+                        try:
+                            current_item = self.dialog.ui.hydro_elev_table.item(
+                                0, column)
+                            elevation = str(current_item.text())
+                            turb_elev.append(elevation)
+                        except:
+                            continue
+                else:
+                    turb_elev = self.read_space_delim_file(elev_option)
+        else:
+            elev_option = "0"
+            num_turbines = "0"
+            turb_elev = []
+            hydro = []
+            
 
         user_dict['elev_option'] = elev_option
         user_dict['num_turbines'] = num_turbines
@@ -1779,10 +1792,7 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(flow_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    average_flows = lst
+                average_flows = self.read_space_delim_file(flow_option)
 
         interbasin_dict['flow_option'] = flow_option
         interbasin_dict['interbasin_Name'] = interbasin_Name
