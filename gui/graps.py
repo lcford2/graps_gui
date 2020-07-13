@@ -127,7 +127,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
-        # self.ui.actionRun_Model.triggered.connect(self.run_model)
+        self.ui.actionRun_Model.triggered.connect(self.run_model)
         self.ui.actionMulti_Edit.triggered.connect(self.open_multi_edit_dialog)
 
         # connecting user block selections to the block handling functions
@@ -344,8 +344,8 @@ class MyMainScreen(widgets.QMainWindow):
         save_folder = widgets.QFileDialog.getExistingDirectory(directory=directory)
         return save_folder
 
-    
-    def run_model(self):
+    # This will eventually be the run model that is used
+    def run_model_devel(self):
         save_folder = self.get_save_dir()
         # self.export(save_folder)
         nuser = 0
@@ -362,6 +362,35 @@ class MyMainScreen(widgets.QMainWindow):
         model.InitializeModel()
         model.Simulate()
 
+    def run_model(self):
+        import platform
+        import shutil
+        import glob
+        import subprocess
+        run_folder = str(widgets.QFileDialog.getExistingDirectory(
+            directory="graps_export"))
+        if run_folder == '':
+            pass
+        else:
+            curdir = os.getcwd()
+            op_sys = platform.system()
+            print(run_folder)
+            if op_sys == "Windows":
+                for file in glob.glob("../GRAPS/windows/*"):
+                    if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                        shutil.copy(file, run_folder)
+                os.chdir(run_folder)
+                subprocess.call(["multireservoir.exe"])
+                os.chdir(curdir)
+            elif op_sys == "Linux":
+                for file in glob.glob("../GRAPS/linux/*"):
+                    if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                        shutil.copy(file, run_folder)
+                os.chdir(run_folder)
+                subprocess.call(["multireservoir"])
+                os.chdir(curdir)
+        
+        
     
     def graph_network(self):
         import networkx as nx
