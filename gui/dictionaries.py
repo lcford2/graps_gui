@@ -7,8 +7,9 @@ from PyQt5.QtWidgets import *
 
 
 def GS(self, info_dict):
-    self.dialog.ui.time_step_input.setText(str(info_dict.get('ntime_steps', "")))
-    self.dialog.ui.restrictions_input.setText(str(info_dict.get('nrestric', "")))
+    self.dialog.ui.time_step_input.setText(str(info_dict.get('ntime_steps', '')))
+    self.dialog.ui.restrictions_input.setText(str(info_dict.get('nrestric', '')))
+    self.dialog.ui.hydro_coeff_input.setText(str(info_dict.get('hydro_coeff', '')))
     sim_type = info_dict.get('sim_type', "")
     if sim_type == 'Climatology':
         self.dialog.ui.type_sim_combo.setCurrentIndex(0)
@@ -37,7 +38,6 @@ def GS(self, info_dict):
 def WS(self, info_dict):
     self.dialog.ui.id_display.setText(str(info_dict.get('watershed_Name', "")))
     self.dialog.ui.drain_input.setText(str(info_dict.get('drain_Area', "")))
-    self.dialog.ui.forecast_file_input.setText(str(info_dict.get('forecast_file', "")))
     self.dialog.ui.inflows_file_input.setText(str(info_dict.get('inflows_file', "")))
 
 

@@ -526,3 +526,8 @@ def write_model_params(self, path, filename):
     with open(output_path, 'w') as f:
         f.write("1   210  1   10000000\n")
         f.write("1.d+10  1.d-015  0.001d0  0.d0\n")
+
+def write_hydro_coeff(self, path, filename):
+    output_path = os.path.join(path, "input_data_files", filename)
+    with open(output_path, 'w') as f:
+        f.write(self.gen_setup_dict.get('hydro_coeff', '1'))

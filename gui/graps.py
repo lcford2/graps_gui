@@ -47,7 +47,7 @@ from graps_io.write_multireservoir import (write_input, write_ws_details,
                                            write_sink_details, write_link_details,
                                            write_dec_var_details, get_item_dict,
                                            make_file_system, write_runflag,
-                                           write_model_params)
+                                           write_model_params, write_hydro_coeff)
 from IPython import embed as II
 
 
@@ -155,7 +155,7 @@ class MyMainScreen(widgets.QMainWindow):
                 "User Type":"user_type"
             },
             "W":{
-                "Name":"watershed_Name","Drainage Area":"drain_Area"
+                "Name":"watershed_Name","Drainage Area":"drain_Area", "Inflows File":"inflows_file"
             },
             "J":{
                 "Name":"junction_Name"
@@ -404,6 +404,7 @@ class MyMainScreen(widgets.QMainWindow):
             write_dec_var_details(self, save_folder, 'decisionvar_details.dat')
             write_runflag(self, save_folder, "runflag.dat")
             write_model_params(self, save_folder, "model_para.dat")
+            write_hydro_coeff(self, save_folder, "hydropower_conversion.dat")
     
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
@@ -533,9 +534,6 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.ui.watershed_id_display.setText(key)
         self.dialog.ui.display_wateshed_name.setText(key)
-        self.dialog.ui.forecast_file_box.setVisible(False)
-        self.dialog.ui.select_forecast_file.clicked.connect(
-            self.get_file_name)
         self.dialog.ui.select_inflow_file.clicked.connect(
             self.get_file_name)
         self.dialog.ui.buttonBox.accepted.connect(
@@ -1191,8 +1189,6 @@ class MyMainScreen(widgets.QMainWindow):
             link_stop = self.block_objects[b_ID_local_stop][0]
             link_start.children.append(stop)
             link_stop.parents.append(start)
-            # self.get_info_link()
-            print(self.dialog_dict)
             self.dirty = True
 
     @staticmethod
@@ -1235,12 +1231,6 @@ class MyMainScreen(widgets.QMainWindow):
             y = delta.y()
             x = delta.x()
             exp = 25*abs(y)/y
-            # if y > 0:
-            #     exp = 25
-            # elif y < 0:
-            #     exp = -25
-            # else:
-            #     exp = 0
             factor = 1.41 ** (exp / 240.0)
             self.ui.view.setTransformationAnchor(
                 widgets.QGraphicsView.AnchorUnderMouse)
@@ -1399,6 +1389,7 @@ class MyMainScreen(widgets.QMainWindow):
     def get_info_gs(self):
         ntime_steps = str(self.dialog.ui.time_step_input.text())
         nrestric = str(self.dialog.ui.restrictions_input.text())
+        hydro_coeff = str(self.dialog.ui.hydro_coeff_input.text())
         sim_type = str(self.dialog.ui.type_sim_combo.currentText())
         nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
@@ -1425,6 +1416,7 @@ class MyMainScreen(widgets.QMainWindow):
                         continue
         self.gen_setup_dict['ntime_steps'] = ntime_steps
         self.gen_setup_dict['nrestric'] = nrestric
+        self.gen_setup_dict['hydro_coeff'] = hydro_coeff
         self.gen_setup_dict['sim_type'] = sim_type
         self.gen_setup_dict['nyears'] = nyears
         self.gen_setup_dict['nensembles'] = nensembles
@@ -1437,12 +1429,10 @@ class MyMainScreen(widgets.QMainWindow):
         watershed_ID = str(self.dialog.ui.watershed_id_display.text())
         watershed_Name = str(self.dialog.ui.id_display.text())
         drain_Area = str(self.dialog.ui.drain_input.text())
-        forecast_file = str(self.dialog.ui.forecast_file_input.text())
         inflows_file = str(self.dialog.ui.inflows_file_input.text())
         watershed_dict = {}
         watershed_dict['watershed_Name'] = watershed_Name
         watershed_dict['drain_Area'] = drain_Area
-        watershed_dict['forecast_file'] = forecast_file
         watershed_dict['inflows_file'] = inflows_file
         self.dialog_dict[watershed_ID] = watershed_dict
         label_item = self.block_objects[watershed_ID][1]
