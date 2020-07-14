@@ -36,18 +36,18 @@ def get_item_dict(self):
         if itype == 'W':
             self.num_of_items['1'] += 1
             self.item_types['1'].append(inum)
-            self.item_types['1'].sort()
+            self.item_types['1'].sort(key=int)
         elif itype == 'R':
             self.num_of_items['3'] += 1
             self.item_types['3'].append(inum)
-            self.item_types['3'].sort()
+            self.item_types['3'].sort(key=int)
         elif itype == 'U':
             self.item_types['4'].append(inum)
-            self.item_types['4'].sort()
+            self.item_types['4'].sort(key=int)
             self.num_of_items['4'] += 1
         elif itype == 'J':
             self.item_types['5'].append(inum)
-            self.item_types['5'].sort()
+            self.item_types['5'].sort(key=int)
             self.num_of_items['5'] += 1
         elif itype == 'L':
             start = item.start_node
@@ -56,49 +56,49 @@ def get_item_dict(self):
             if start[0] == 'W':
                 if inum not in self.item_types['2']:
                     self.item_types['2'].append(inum)
-                    self.item_types['2'].sort()
+                    self.item_types['2'].sort(key=int)
                     self.num_of_items['2'] += 1
             elif start[0] == 'J':
                 # Links that start at junctions and end at sinks are diversions
                 if stop[0] == 'S':
                     if inum not in self.item_types['8']:
                         self.item_types['8'].append(inum)
-                        self.item_types['8'].sort()
+                        self.item_types['8'].sort(key=int)
                         self.num_of_items['8'] += 1
                 elif stop[0] == "U":
                     if inum not in self.item_types['11']:
                         self.item_types['11'].append(inum)
-                        self.item_types['11'].sort()
+                        self.item_types['11'].sort(key=int)
                         self.num_of_items['11'] += 1
             # Links that start at interbasin nodes are interbasin transfer links
             elif start[0] == 'I':
                 if inum not in self.item_types['10']:
                     self.item_types['10'].append(inum)
-                    self.item_types['10'].sort()
+                    self.item_types['10'].sort(key=int)
                     self.num_of_items['10'] += 1
             elif start[0] == 'R':
                 if stop[0] == 'U':
                     if inum not in self.item_types['11']:
                         self.item_types['11'].append(inum)
-                        self.item_types['11'].sort()
+                        self.item_types['11'].sort(key=int)
                         self.num_of_items['11'] += 1
                 else:
                     if inum not in self.item_types['6']:
                         self.item_types['6'].append(inum)
-                        self.item_types['6'].sort()
+                        self.item_types['6'].sort(key=int)
                         self.num_of_items['6'] += 1
             elif start[0] == 'U':
                 if inum not in self.item_types['7']:
                     self.item_types['7'].append(inum)
-                    self.item_types['7'].sort()
+                    self.item_types['7'].sort(key=int)
                     self.num_of_items['7'] += 1
         elif itype == 'S':
             self.item_types['12'].append(inum)
-            self.item_types['12'].sort()
+            self.item_types['12'].sort(key=int)
             self.num_of_items['12'] += 1
         elif itype == 'I':
             self.item_types['13'].append(inum)
-            self.item_types['13'].sort()
+            self.item_types['13'].sort(key=int)
             self.num_of_items['13'] += 1
         
 
@@ -499,6 +499,8 @@ def write_dec_var_details(self, path, filename):
             item_num = item
             item_id = 'U' + item_num
             demand = info_dict[item_id]["demand"]
+            if len(demand) == 0:
+                demand = ["0" for i in range(int(gs_dict["ntime_steps"]))]
             output = "\n".join(demand)
             f.write(output+"\n")
 

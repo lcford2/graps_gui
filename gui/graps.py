@@ -384,15 +384,20 @@ class MyMainScreen(widgets.QMainWindow):
             op_sys = platform.system()
             if op_sys == "Windows":
                 for file in glob.glob("../GRAPS/windows/*"):
-                    if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                    try:
                         shutil.copy(file, run_folder)
+                    except shutil.SameFileError as e:
+                        pass
                 os.chdir(run_folder)
                 subprocess.call(["multireservoir.exe"])
                 os.chdir(curdir)
             elif op_sys == "Linux":
                 for file in glob.glob("../GRAPS/linux/*"):
                     if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
-                        shutil.copy(file, run_folder)
+                        try:
+                            shutil.copy(file, run_folder)
+                        except shutil.SameFileError as e:
+                            pass
                 os.chdir(run_folder)
                 subprocess.call(["multireservoir"])
                 os.chdir(curdir)
