@@ -16,6 +16,7 @@ import matplotlib
 import sys
 import os
 import platform
+from datetime import datetime
 # imports main window user interface
 from ui.graps_graphics import Ui_GRAPSInterface
 # importing various dialogs
@@ -365,7 +366,7 @@ class MyMainScreen(widgets.QMainWindow):
         model = ReservoirModel(nparam, save_folder, output_path)
         model.InitializeModel()
         model.Simulate()
-
+        
     def start_model_thread(self):
         model_worker = Worker(self.run_model)
         self.pool.start(model_worker)
@@ -383,24 +384,45 @@ class MyMainScreen(widgets.QMainWindow):
             curdir = os.getcwd()
             op_sys = platform.system()
             if op_sys == "Windows":
+                rm_files = []
                 for file in glob.glob("../GRAPS/windows/*"):
+                    dest = os.path.join(run_folder, os.path.split(file)[-1])
+                    rm_files.append(dest)
                     try:
-                        shutil.copy(file, run_folder)
+                        shutil.copyfile(file, dest)
                     except shutil.SameFileError as e:
                         pass
                 os.chdir(run_folder)
-                subprocess.call(["multireservoir.exe"])
+                proc = subprocess.Popen("multireservoir.exe", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = proc.communicate()
+                dt = datetime.now().strftime("D%d%m_T%H%M")
+                with open(f"run-{dt}.out", "w") as f:
+                    f.write(stdout.decode())
+                with open(f"run-{dt}.err", "w") as f:
+                    f.write(stderr.decode())
                 os.chdir(curdir)
+                for file in rm_files:
+                    os.remove(file)
             elif op_sys == "Linux":
                 for file in glob.glob("../GRAPS/linux/*"):
                     if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                        dest = os.path.join(run_folder, os.path.split(file)[-1])
+                        rm_files.append(dest)
                         try:
-                            shutil.copy(file, run_folder)
+                            shutil.copyfile(file, dest)
                         except shutil.SameFileError as e:
-                            pass
+                            pass                 
                 os.chdir(run_folder)
-                subprocess.call(["multireservoir"])
+                proc = subprocess.Popen("multireservoir", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = proc.communicate()
+                dt = datetime.now().strftime("D%d%m_T%H%M")
+                with open(f"run-{dt}.out", "w") as f:
+                    f.write(stdout.decode())
+                with open(f"run-{dt}.err", "w") as f:
+                    f.write(stderr.decode())
                 os.chdir(curdir)
+                for file in rm_files:
+                    os.remove(file)
     
     def graph_network(self):
         import networkx as nx
@@ -1973,13 +1995,11 @@ def main():
         widgets.QApplication.setAttribute(core.Qt.AA_EnableHighDpiScaling, True)
     if hasattr(core.Qt, "AA_UseHighDpiPixmaps"):
         widgets.QApplication.setAttribute(core.Qt.AA_UseHighDpiPixmaps, True)
-    app = widgets.QApplication(sys.argv)
 
+    app = widgets.QApplication(sys.argv)
     if op_sys == "Windows":
-        app.setStyle("Fusion")
-    
+        app.setStyle("Fusion")        
     screen_res = app.desktop().screenGeometry()
-    
     mainscreen = MyMainScreen(pool, screen_res=screen_res)
     mainscreen.showMaximized()
     app.exec_()
