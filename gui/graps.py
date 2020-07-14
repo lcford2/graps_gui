@@ -406,7 +406,7 @@ class MyMainScreen(widgets.QMainWindow):
                 stdout = re.sub(return_pattern, "\n", stdout)
                 stderr = re.sub(return_pattern, "\n", stderr)
                 # write stderr and stdout to log files
-                dt = datetime.now().strftime("D%d%m_T%H%M")
+                dt = datetime.now().strftime("D%m%d_T%H%M")
                 with open(f"run-{dt}.out", "w") as f:
                     f.write(stdout)
                 with open(f"run-{dt}.err", "w") as f:
@@ -428,7 +428,7 @@ class MyMainScreen(widgets.QMainWindow):
                 os.chdir(run_folder)
                 proc = subprocess.Popen("multireservoir", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = proc.communicate()
-                dt = datetime.now().strftime("D%d%m_T%H%M")
+                dt = datetime.now().strftime("D%m%d_T%H%M")
                 with open(f"run-{dt}.out", "w") as f:
                     f.write(stdout.decode())
                 with open(f"run-{dt}.err", "w") as f:
