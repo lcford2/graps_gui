@@ -318,13 +318,10 @@ def write_res_details(self, path, filename):
             #     f.write(f'{value}  ')
             # f.write('\n')
             evap_table = info_dict[item_id]['evap_info']
-            for value in evap_table:
-                f.write(f'{value}  ')
-            f.write('\n')
+            f.write('  '.join(evap_table) + '\n')
+            
             targ_restric = info_dict[item_id]['target_restrictions']
-            for value in targ_restric:
-                f.write(f'{value}  ')
-            f.write('\n')
+            f.write('  '.join(targ_restric) + '\n')
 
 
 def write_user_details(self, path, filename):

@@ -155,6 +155,8 @@
    <addaction name="actionMS"/>
    <addaction name="actionG"/>
    <addaction name="actionR"/>
+   <addaction name="actionRun_Model"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew_File">
    <property name="text">

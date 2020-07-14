@@ -155,6 +155,8 @@ class Ui_GRAPSInterface(object):
         self.actionCenter_View.setObjectName("actionCenter_View")
         self.actionMulti_Edit = QtWidgets.QAction(GRAPSInterface)
         self.actionMulti_Edit.setObjectName("actionMulti_Edit")
+        self.actionRun_Model = QtWidgets.QAction(GRAPSInterface)
+        self.actionRun_Model.setObjectName("actionRun_Model")
         self.menu_File.addAction(self.actionNew_File)
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addAction(self.actionSave)
@@ -196,6 +198,8 @@ class Ui_GRAPSInterface(object):
         self.toolBar.addAction(self.actionMS)
         self.toolBar.addAction(self.actionG)
         self.toolBar.addAction(self.actionR)
+        self.toolBar.addAction(self.actionRun_Model)
+        self.toolBar.addSeparator()
 
         self.retranslateUi(GRAPSInterface)
         QtCore.QMetaObject.connectSlotsByName(GRAPSInterface)
@@ -295,3 +299,5 @@ class Ui_GRAPSInterface(object):
         self.actionCenter_View.setShortcut(_translate("GRAPSInterface", "Alt+C"))
         self.actionMulti_Edit.setText(_translate("GRAPSInterface", "Multi-Edit"))
         self.actionMulti_Edit.setToolTip(_translate("GRAPSInterface", "Edit attributes for multiple items"))
+        self.actionRun_Model.setText(_translate("GRAPSInterface", "Run Model"))
+        self.actionRun_Model.setToolTip(_translate("GRAPSInterface", "Run GRAPS"))

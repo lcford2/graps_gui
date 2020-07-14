@@ -10,7 +10,7 @@ import pickle
 from IPython import embed as II
 
 
-def save_view(self, filename, gs_dict, info_dict):
+def save_view(self, filename):
     items = list(self.ui.scene.items())
     output_items = []
     for item in items:
@@ -25,7 +25,7 @@ def save_view(self, filename, gs_dict, info_dict):
             start = item.start_node
             stop = item.stop_node
             output_items.append(f"{itemid}:{start}-{stop}")
-    output = {"gs_dict": gs_dict,
-              "items": output_items, "info_dict": info_dict}
+    output = {"gs_dict": self.gen_setup_dict,
+              "items": output_items, "info_dict": self.dialog_dict}
     with open(filename, "wb") as f:
         pickle.dump(output, f)

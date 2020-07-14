@@ -103,6 +103,7 @@ class MyMainScreen(widgets.QMainWindow):
 
         # save indicator
         self.dirty = False
+        self.save_file_name = ""
 
         self.ui.view.setScene(self.ui.scene)
 
@@ -119,7 +120,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.menuGen_Setup.triggered.connect(self.open_dataDialog)
         self.ui.actionGS.triggered.connect(self.open_dataDialog)
         self.ui.actionSave.triggered.connect(self.save_screen)
-        self.ui.actionSave_As.triggered.connect(self.save_screen)
+        self.ui.actionSave_As.triggered.connect(self.save_screen_as)
         self.ui.actionSave_2.triggered.connect(self.save_screen)
         self.ui.actionOpen.triggered.connect(self.file_open)
         self.ui.actionOpen_2.triggered.connect(self.file_open)
@@ -130,6 +131,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
+        self.ui.actionRun_Model.triggered.connect(self.start_model_thread)
         self.ui.actionMulti_Edit.triggered.connect(self.open_multi_edit_dialog)
 
         # connecting user block selections to the block handling functions
@@ -341,7 +343,60 @@ class MyMainScreen(widgets.QMainWindow):
                                 name_tag = key
                         item_name = item_dict[name_tag]
                         item.setPlainText(item_name)
+    @staticmethod
+    def get_save_dir(directory="."):
+        save_folder = widgets.QFileDialog.getExistingDirectory(directory=directory)
+        return save_folder
 
+    # This will eventually be the run model that is used
+    def run_model_devel(self):
+        save_folder = self.get_save_dir()
+        # self.export(save_folder)
+        nuser = 0
+        for block in self.block_objects.keys():
+            if block[0] == "U":
+                nuser += 1
+        ntime = self.gen_setup_dict.get('ntime_steps', None)
+        if not ntime:
+            nparam = 84
+        else:
+            nparam = int(ntime)*int(nuser)
+        output_path = os.path.join(save_folder, "output")
+        model = ReservoirModel(nparam, save_folder, output_path)
+        model.InitializeModel()
+        model.Simulate()
+
+    def start_model_thread(self):
+        model_worker = Worker(self.run_model)
+        self.pool.start(model_worker)
+
+    def run_model(self):
+        import platform
+        import shutil
+        import glob
+        import subprocess
+        run_folder = str(widgets.QFileDialog.getExistingDirectory(
+            directory="graps_export"))
+        if run_folder == '':
+            pass
+        else:
+            curdir = os.getcwd()
+            op_sys = platform.system()
+            if op_sys == "Windows":
+                for file in glob.glob("../GRAPS/windows/*"):
+                    if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                        shutil.copy(file, run_folder)
+                os.chdir(run_folder)
+                subprocess.call(["multireservoir.exe"])
+                os.chdir(curdir)
+            elif op_sys == "Linux":
+                for file in glob.glob("../GRAPS/linux/*"):
+                    if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
+                        shutil.copy(file, run_folder)
+                os.chdir(run_folder)
+                subprocess.call(["multireservoir"])
+                os.chdir(curdir)
+    
     def graph_network(self):
         import networkx as nx
         graph = nx.DiGraph()
@@ -1012,15 +1067,26 @@ class MyMainScreen(widgets.QMainWindow):
     # opens dialog to allow file saving
 
     def save_screen(self):
+        if not self.save_file_name:
+            self.save_screen_as()()
+        else:
+            sv(self, self.save_file_name)
+            self.dirty = False
+    
+    def save_screen_as(self):
         if not os.path.isdir("graps_graphics"):
             os.mkdir("graps_graphics")
-        save_file_name = widgets.QFileDialog.getSaveFileName(
-            directory="graps_graphics", filter="*.graps")[0]
-        if save_file_name == '':
+        self.save_file_name = widgets.QFileDialog.getSaveFileName(
+                        directory="graps_graphics", filter="*.graps")[0]
+        # if the user exits the file dialog without selecting a file
+        # self.save_file_name will be an empty string
+        # This will be the equivalent of cancelling the save action
+        if not self.save_file_name:
             pass
         else:
-            sv(self, save_file_name, self.gen_setup_dict, self.dialog_dict)
+            sv(self, self.save_file_name)
             self.dirty = False
+        
 
     # opens files for editing
     def file_open(self):
@@ -1034,6 +1100,7 @@ class MyMainScreen(widgets.QMainWindow):
             open_file(self, open_file_name)
             self.change_label()
             self.center_scene()
+            self.save_file_name = open_file_name
 
     def center_scene(self):
         bounds = self.ui.scene.itemsBoundingRect()

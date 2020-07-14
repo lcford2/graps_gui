@@ -643,6 +643,9 @@
           </item>
           <item row="0" column="0" colspan="2">
            <widget class="QTableWidget" name="rule_curve_table">
+            <property name="gridStyle">
+             <enum>Qt::SolidLine</enum>
+            </property>
             <row>
              <property name="text">
               <string>Storage (Lower)</string>
@@ -726,6 +729,12 @@
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
            <widget class="QTableWidget" name="target_rest_table">
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="gridStyle">
+             <enum>Qt::SolidLine</enum>
+            </property>
             <column>
              <property name="text">
               <string>1</string>
