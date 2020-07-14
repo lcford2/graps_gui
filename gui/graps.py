@@ -130,7 +130,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.actionMenuPrint.triggered.connect(self.print_scene)
         self.ui.actionCenter_View.triggered.connect(self.center_scene)
         self.ui.actionPrintPreview.triggered.connect(self.print_preview)
-        self.ui.actionRun_Model.triggered.connect(self.run_model)
+        self.ui.actionRun_Model.triggered.connect(self.start_model_thread)
         self.ui.actionMulti_Edit.triggered.connect(self.open_multi_edit_dialog)
 
         # connecting user block selections to the block handling functions
@@ -365,6 +365,10 @@ class MyMainScreen(widgets.QMainWindow):
         model.InitializeModel()
         model.Simulate()
 
+    def start_model_thread(self):
+        model_worker = Worker(self.run_model)
+        self.pool.start(model_worker)
+
     def run_model(self):
         import platform
         import shutil
@@ -377,7 +381,6 @@ class MyMainScreen(widgets.QMainWindow):
         else:
             curdir = os.getcwd()
             op_sys = platform.system()
-            print(run_folder)
             if op_sys == "Windows":
                 for file in glob.glob("../GRAPS/windows/*"):
                     if not os.path.exists(os.path.join(run_folder, os.path.split(file)[-1])):
@@ -392,8 +395,6 @@ class MyMainScreen(widgets.QMainWindow):
                 os.chdir(run_folder)
                 subprocess.call(["multireservoir"])
                 os.chdir(curdir)
-        
-        
     
     def graph_network(self):
         import networkx as nx
