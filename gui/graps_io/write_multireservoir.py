@@ -371,10 +371,6 @@ def write_user_details(self, path, filename):
                 f'{min_release}  {max_release}  {penalty_comp}\n'
             )
 
-            # demand = info_dict[item_id]['demand']
-            # for value in demand:
-            #     f.write(f'{value}   ')
-            # f.write('\n')
             restric_frac = info_dict[item_id]['restric_frac']
             for value in restric_frac:
                 f.write(f'{value}   ')
@@ -385,7 +381,7 @@ def write_user_details(self, path, filename):
             f.write('\n')
             if user_type == '4':
                 turbines = info_dict[item_id]['hydro']
-                elevation_dict = info_dict[item_id]['turbine_elevs']
+                tail_elev = info_dict[item_id]['turbine_elevs']
                 
                 turb_dict = turbines[0]
                 max_disch = turb_dict['max_discharge']
@@ -396,10 +392,8 @@ def write_user_details(self, path, filename):
                 erate = turb_dict['energy_rate']
                 f.write(
                     "  ".join([max_disch, cap, eff, coef1, coef2, erate]) + "\n")
-
-                for value in elevation_dict:
-                    f.write(f'{value}   ')
-                f.write('\n')
+                tail_string = "  ".join(tail_elev) + "\n"
+                f.write(tail_string)
                 # elif len(turbines) > 1:
                 #     pass
                 #     'Not sure if mutliple turbines are able to be considered'
@@ -418,12 +412,8 @@ def write_user_details(self, path, filename):
                             nlags = info_dict[link_id]['nlags']
                             f.write(nlags + '\n')
                             ret_flows = info_dict[link_id]['ret_flows']
-                            if len(ret_flows) == 0:
-                                f.write(str(0.01) + '\n')
-                            else:
-                                for value in ret_flows:
-                                    f.write(value + '  ')
-                                f.write('\n')
+                            if len(ret_flows) > 0:
+                                f.write("  ".join(ret_flows)+"\n")
                             self.user_control_list.append(start)
             f.write("0\n") # no gui support for loss factors yet
 
