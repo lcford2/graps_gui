@@ -1068,7 +1068,7 @@ class MyMainScreen(widgets.QMainWindow):
 
     def save_screen(self):
         if not self.save_file_name:
-            self.save_screen_as()()
+            self.save_screen_as()
         else:
             sv(self, self.save_file_name)
             self.dirty = False
@@ -1969,7 +1969,7 @@ def main():
     if hasattr(core.Qt, "AA_UseHighDpiPixmaps"):
         widgets.QApplication.setAttribute(core.Qt.AA_UseHighDpiPixmaps, True)
     app = widgets.QApplication(sys.argv)
-    
+
     if op_sys == "Windows":
         app.setStyle("Fusion")
     
