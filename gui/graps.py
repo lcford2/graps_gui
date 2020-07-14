@@ -1896,10 +1896,18 @@ class Worker(core.QRunnable):
 def main():
     op_sys = platform.system()
     pool = core.QThreadPool()
+
+    if hasattr(core.Qt, "AA_EnableHighDpiScaling"):
+        widgets.QApplication.setAttribute(core.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(core.Qt, "AA_UseHighDpiPixmaps"):
+        widgets.QApplication.setAttribute(core.Qt.AA_UseHighDpiPixmaps, True)
     app = widgets.QApplication(sys.argv)
+    
     if op_sys == "Windows":
         app.setStyle("Fusion")
+    
     screen_res = app.desktop().screenGeometry()
+    
     mainscreen = MyMainScreen(pool, screen_res=screen_res)
     mainscreen.showMaximized()
     app.exec_()
