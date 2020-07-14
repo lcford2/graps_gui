@@ -52,7 +52,7 @@ from IPython import embed as II
 
 
 class MyMainScreen(widgets.QMainWindow):
-    def __init__(self, parent=None, screen_res=None):
+    def __init__(self, thread_pool, parent=None, screen_res=None):
         # initialize the main window
         super().__init__(parent)
 
@@ -60,6 +60,9 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui = Ui_GRAPSInterface()
         self.ui.setupUi(self)
         self.setWindowIcon(gui.QIcon("./gui/icons/app_icon.png"))
+        
+        # provide access to the thread pool
+        self.pool = thread_pool
 
         # setup containers
         self.gen_setup_dict = {}
@@ -423,7 +426,6 @@ class MyMainScreen(widgets.QMainWindow):
         num_restric = self.gen_setup_dict.get("nrestric", None)
         return (time_steps and num_restric)
 
-    # exports files needed to run the fortran code
     def export(self):
         if not self.check_gen_setup():
             errormsg = "Error: You have not entered the required information.\nPlease finish the network before exporting."
@@ -436,29 +438,34 @@ class MyMainScreen(widgets.QMainWindow):
         if save_folder == '':
             pass
         else:
-            self.user_control_list = []
-            self.num_of_items = {str(i): 0 for i in range(1, 14)}
-            self.item_types = {str(i): [] for i in range(1, 14)}
-            get_item_dict(self)
-            make_file_system(self, save_folder)
-            write_input(self, save_folder, 'input.dat')
-            write_ws_details(self, save_folder, 'watershed_details.dat')
-            write_res_details(self, save_folder, 'reservoir_details.dat')
-            write_user_details(self, save_folder, 'user_details.dat')
-            write_jun_details(self, save_folder, 'node_details.dat')
-            write_link_details(self, save_folder, 'nflow_details.dat', "nflow")
-            write_link_details(self, save_folder, 'dir_flow_details.dat', "dir_flow")
-            write_link_details(self, save_folder, 'ret_flow_details.dat', "ret_flow")
-            write_link_details(self, save_folder, 'diversions_details.dat', "diversion")
-            write_link_details(self, save_folder, 'spill_flow_details.dat', "spill")
-            write_link_details(self, save_folder, 'ibasin_flow_details.dat', "ibasin")
-            write_link_details(self, save_folder, 'demand_flow_details.dat', "demand")
-            write_sink_details(self, save_folder, 'sink_details.dat')
-            write_ibasin_details(self, save_folder, 'interbasin_details.dat')
-            write_dec_var_details(self, save_folder, 'decisionvar_details.dat')
-            write_runflag(self, save_folder, "runflag.dat")
-            write_model_params(self, save_folder, "model_para.dat")
-            write_hydro_coeff(self, save_folder, "hydropower_conversion.dat")
+            export_worker = Worker(self.write_export, save_folder)
+            self.pool.start(export_worker)
+
+    # exports files needed to run the fortran code
+    def write_export(self, save_folder):
+        self.user_control_list = []
+        self.num_of_items = {str(i): 0 for i in range(1, 14)}
+        self.item_types = {str(i): [] for i in range(1, 14)}
+        get_item_dict(self)
+        make_file_system(self, save_folder)
+        write_input(self, save_folder, 'input.dat')
+        write_ws_details(self, save_folder, 'watershed_details.dat')
+        write_res_details(self, save_folder, 'reservoir_details.dat')
+        write_user_details(self, save_folder, 'user_details.dat')
+        write_jun_details(self, save_folder, 'node_details.dat')
+        write_link_details(self, save_folder, 'nflow_details.dat', "nflow")
+        write_link_details(self, save_folder, 'dir_flow_details.dat', "dir_flow")
+        write_link_details(self, save_folder, 'ret_flow_details.dat', "ret_flow")
+        write_link_details(self, save_folder, 'diversions_details.dat', "diversion")
+        write_link_details(self, save_folder, 'spill_flow_details.dat', "spill")
+        write_link_details(self, save_folder, 'ibasin_flow_details.dat', "ibasin")
+        write_link_details(self, save_folder, 'demand_flow_details.dat', "demand")
+        write_sink_details(self, save_folder, 'sink_details.dat')
+        write_ibasin_details(self, save_folder, 'interbasin_details.dat')
+        write_dec_var_details(self, save_folder, 'decisionvar_details.dat')
+        write_runflag(self, save_folder, "runflag.dat")
+        write_model_params(self, save_folder, "model_para.dat")
+        write_hydro_coeff(self, save_folder, "hydropower_conversion.dat")
     
     # controls placement of items
     def mousePressEvent(self, QMouseEvent):
@@ -1425,6 +1432,16 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.user_dia_tab.setTabEnabled(3, False)
             self.dialog.ui.user_dia_tab.setStyleSheet(
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
+
+    def read_space_delim_file(self, file):
+        try:
+            with open(file, 'r') as f:
+                lines = f.readlines()
+                lst = lines[0].strip("\r\n").split()
+                return lst
+        except FileNotFoundError as e:
+            return []
+
             
 
     # gets the file name for certain fields in dialog boxes
@@ -1549,10 +1566,7 @@ class MyMainScreen(widgets.QMainWindow):
                         user_input = "0"
                     evap_info.append(user_input)
             else:
-                with open(evap_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    evap_info = lst
+                evap_info = self.read_space_delim_file(evap_option)
 
         reservoir_dict['evap_info'] = evap_info
         reservoir_dict['evap_option'] = evap_option
@@ -1601,10 +1615,14 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(rule_curve_option, 'r') as f:
-                    data = f.readlines()
-                    lower_rule = data[0].split()
-                    upper_rule = data[1].split()
+                try:
+                    with open(rule_curve_option, 'r') as f:
+                        data = f.readlines()
+                        lower_rule = data[0].split()
+                        upper_rule = data[1].split()
+                except FileNotFoundError as e:
+                    lower_rule = []
+                    upper_rule = []
 
         reservoir_dict['rule_curve_option'] = rule_curve_option
         reservoir_dict['storage_rule'] = lower_rule
@@ -1728,10 +1746,8 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(demand_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    demand = lst
+                demand = self.read_space_delim_file(demand_option)
+                
         # Restriction Compensation Tab
         restric_num = self.gen_setup_dict['nrestric']
         restric_comp = []
@@ -1758,57 +1774,61 @@ class MyMainScreen(widgets.QMainWindow):
         user_dict['restric_frac'] = restric_frac
 
         # Hydropower Tab
-        num_turbines = str(
-            self.dialog.ui.num_turbines_edit.text())
-        if num_turbines == '':
-            num_turbines = '0'
+        if user_type == "Hydropower":
+            num_turbines = str(
+                self.dialog.ui.num_turbines_edit.text())
+            if num_turbines == '':
+                num_turbines = '0'
 
-        hydro = []
-        for row in range(int(num_turbines)):
-            turbine_dict = {}
-            current_item = self.dialog.ui.hydro_table.item(row, 0)
-            max_discharge = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 1)
-            capacity = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 2)
-            efficiency = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 3)
-            energy_coeff_1 = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 4)
-            energy_coeff_2 = str(current_item.text())
-            current_item = self.dialog.ui.hydro_table.item(row, 5)
-            energy_rate = str(current_item.text())
-            turbine_dict['max_discharge'] = max_discharge
-            turbine_dict['capacity'] = capacity
-            turbine_dict['efficiency'] = efficiency
-            turbine_dict['energy_coeff_1'] = energy_coeff_1
-            turbine_dict['energy_coeff_2'] = energy_coeff_2
-            turbine_dict['energy_rate'] = energy_rate
-            hydro.append(turbine_dict)
+            hydro = []
+            for row in range(int(num_turbines)):
+                turbine_dict = {}
+                current_item = self.dialog.ui.hydro_table.item(row, 0)
+                max_discharge = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 1)
+                capacity = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 2)
+                efficiency = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 3)
+                energy_coeff_1 = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 4)
+                energy_coeff_2 = str(current_item.text())
+                current_item = self.dialog.ui.hydro_table.item(row, 5)
+                energy_rate = str(current_item.text())
+                turbine_dict['max_discharge'] = max_discharge
+                turbine_dict['capacity'] = capacity
+                turbine_dict['efficiency'] = efficiency
+                turbine_dict['energy_coeff_1'] = energy_coeff_1
+                turbine_dict['energy_coeff_2'] = energy_coeff_2
+                turbine_dict['energy_rate'] = energy_rate
+                hydro.append(turbine_dict)
 
-        elev_option = 0
-        if self.dialog.ui.table_radio_2.isChecked():
-            elev_option = 'Table'
-        elif self.dialog.ui.file_radio_2.isChecked():
-            elev_option = str(
-                self.dialog.ui.elev_file_edit.text())
+            elev_option = 0
+            if self.dialog.ui.table_radio_2.isChecked():
+                elev_option = 'Table'
+            elif self.dialog.ui.file_radio_2.isChecked():
+                elev_option = str(
+                    self.dialog.ui.elev_file_edit.text())
 
-        turb_elev = []
-        if elev_option:
-            if elev_option == 'Table':
-                for column in range(int(time_steps)):
-                    try:
-                        current_item = self.dialog.ui.hydro_elev_table.item(
-                            0, column)
-                        elevation = str(current_item.text())
-                        turb_elev.append(elevation)
-                    except:
-                        continue
-            else:
-                with open(elev_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    turb_elev = lst
+            turb_elev = []
+            if elev_option:
+                if elev_option == 'Table':
+                    for column in range(int(time_steps)):
+                        try:
+                            current_item = self.dialog.ui.hydro_elev_table.item(
+                                0, column)
+                            elevation = str(current_item.text())
+                            turb_elev.append(elevation)
+                        except:
+                            continue
+                else:
+                    turb_elev = self.read_space_delim_file(elev_option)
+        else:
+            elev_option = "0"
+            num_turbines = "0"
+            turb_elev = []
+            hydro = []
+            
 
         user_dict['elev_option'] = elev_option
         user_dict['num_turbines'] = num_turbines
@@ -1845,10 +1865,7 @@ class MyMainScreen(widgets.QMainWindow):
                     except:
                         continue
             else:
-                with open(flow_option, 'r') as f:
-                    for line in f:
-                        lst = line.split()
-                    average_flows = lst
+                average_flows = self.read_space_delim_file(flow_option)
 
         interbasin_dict['flow_option'] = flow_option
         interbasin_dict['interbasin_Name'] = interbasin_Name
@@ -1929,14 +1946,28 @@ class MyMainScreen(widgets.QMainWindow):
         label_item = self.link_objects[(start_node, stop_node)]["label"]
         self.change_label(item_id=label_item, name_tag=link_Name)
 
+
+class Worker(core.QRunnable):
+    def __init__(self, func, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    @core.pyqtSlot()
+    def run(self):
+        self.func(*self.args, **self.kwargs)
+
 def main():
+    pool = core.QThreadPool()
     app = widgets.QApplication(sys.argv)
     app.setStyle("Fusion")
     screen_res = app.desktop().screenGeometry()
-    mainscreen = MyMainScreen(screen_res=screen_res)
+    mainscreen = MyMainScreen(pool, screen_res=screen_res)
     mainscreen.showMaximized()
+    # main_worker = Worker(app.exec_)
+    # pool.start(main_worker)
     app.exec_()
-
 
 if __name__ == "__main__":
     main()
