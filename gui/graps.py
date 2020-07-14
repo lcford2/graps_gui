@@ -16,6 +16,10 @@ import matplotlib
 import sys
 import os
 import platform
+import shutil
+import glob
+import subprocess
+import re
 from datetime import datetime
 # imports main window user interface
 from ui.graps_graphics import Ui_GRAPSInterface
@@ -372,19 +376,19 @@ class MyMainScreen(widgets.QMainWindow):
         self.pool.start(model_worker)
 
     def run_model(self):
-        import platform
-        import shutil
-        import glob
-        import subprocess
         run_folder = str(widgets.QFileDialog.getExistingDirectory(
             directory="graps_export"))
+        
         if run_folder == '':
             pass
         else:
+            # create a reference to the current dir
             curdir = os.getcwd()
+            # get operating system
             op_sys = platform.system()
             if op_sys == "Windows":
-                rm_files = []
+                rm_files = [] # for removing the binaries afterwards
+                # copy all the files to the working director
                 for file in glob.glob("../GRAPS/windows/*"):
                     dest = os.path.join(run_folder, os.path.split(file)[-1])
                     rm_files.append(dest)
@@ -393,14 +397,23 @@ class MyMainScreen(widgets.QMainWindow):
                     except shutil.SameFileError as e:
                         pass
                 os.chdir(run_folder)
+                # open a subprocess and pipe stderr and stdout
                 proc = subprocess.Popen("multireservoir.exe", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = proc.communicate()
+                stdout, stderr = proc.communicate() # get output
+                stdout, stderr = stdout.decode(), stderr.decode()
+                # replace line endings
+                return_pattern = re.compile("\r\n")
+                stdout = re.sub(return_pattern, "\n", stdout)
+                stderr = re.sub(return_pattern, "\n", stderr)
+                # write stderr and stdout to log files
                 dt = datetime.now().strftime("D%d%m_T%H%M")
                 with open(f"run-{dt}.out", "w") as f:
-                    f.write(stdout.decode())
+                    f.write(stdout)
                 with open(f"run-{dt}.err", "w") as f:
-                    f.write(stderr.decode())
+                    f.write(stderr)
+                # get back to original dir
                 os.chdir(curdir)
+                # get rid of binaries from export folder
                 for file in rm_files:
                     os.remove(file)
             elif op_sys == "Linux":
