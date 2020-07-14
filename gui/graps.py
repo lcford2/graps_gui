@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 import matplotlib  
 import sys
 import os
+import platform
 # imports main window user interface
 from ui.graps_graphics import Ui_GRAPSInterface
 # importing various dialogs
@@ -1893,14 +1894,14 @@ class Worker(core.QRunnable):
         self.func(*self.args, **self.kwargs)
 
 def main():
+    op_sys = platform.system()
     pool = core.QThreadPool()
     app = widgets.QApplication(sys.argv)
-    app.setStyle("Fusion")
+    if op_sys == "Windows":
+        app.setStyle("Fusion")
     screen_res = app.desktop().screenGeometry()
     mainscreen = MyMainScreen(pool, screen_res=screen_res)
     mainscreen.showMaximized()
-    # main_worker = Worker(app.exec_)
-    # pool.start(main_worker)
     app.exec_()
 
 if __name__ == "__main__":
