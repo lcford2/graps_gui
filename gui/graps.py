@@ -20,6 +20,7 @@ import shutil
 import glob
 import subprocess
 import re
+import traceback
 from datetime import datetime
 # imports main window user interface
 from ui.graps_graphics import Ui_GRAPSInterface
@@ -58,7 +59,7 @@ from IPython import embed as II
 
 
 class MyMainScreen(widgets.QMainWindow):
-    def __init__(self, thread_pool, parent=None, screen_res=None):
+    def __init__(self, parent=None, screen_res=None):
         # initialize the main window
         super().__init__(parent)
 
@@ -68,7 +69,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.setWindowIcon(gui.QIcon("./gui/icons/app_icon.png"))
         
         # provide access to the thread pool
-        self.pool = thread_pool
+        self.pool = core.QThreadPool()
 
         # setup containers
         self.gen_setup_dict = {}
@@ -370,9 +371,14 @@ class MyMainScreen(widgets.QMainWindow):
         model = ReservoirModel(nparam, save_folder, output_path)
         model.InitializeModel()
         model.Simulate()
-        
+    
+    def thread_finished(self, message):
+        self.open_error_dialog(message, "Thread Finished")
+
     def start_model_thread(self):
         model_worker = Worker(self.run_model)
+        string = "Model has finished running.\nCheck the *.err and *.out files in the run folder for messages."
+        model_worker.signals.finished.connect(lambda: self.thread_finished(string))
         self.pool.start(model_worker)
 
     def run_model(self):
@@ -436,7 +442,7 @@ class MyMainScreen(widgets.QMainWindow):
                 os.chdir(curdir)
                 for file in rm_files:
                     os.remove(file)
-    
+
     def graph_network(self):
         import networkx as nx
         graph = nx.DiGraph()
@@ -1994,6 +2000,9 @@ class MyMainScreen(widgets.QMainWindow):
         label_item = self.link_objects[(start_node, stop_node)]["label"]
         self.change_label(item_id=label_item, name_tag=link_Name)
 
+class WorkerSignals(core.QObject):
+    finished = core.pyqtSignal()
+    error = core.pyqtSignal(tuple)
 
 class Worker(core.QRunnable):
     def __init__(self, func, *args, **kwargs):
@@ -2001,14 +2010,21 @@ class Worker(core.QRunnable):
         self.func = func
         self.args = args
         self.kwargs = kwargs
+        self.signals = WorkerSignals()
 
     @core.pyqtSlot()
     def run(self):
+        try:
         self.func(*self.args, **self.kwargs)
+        except:
+            # traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        finally:
+            self.signals.finished.emit()
 
 def main():
     op_sys = platform.system()
-    pool = core.QThreadPool()
 
     if hasattr(core.Qt, "AA_EnableHighDpiScaling"):
         widgets.QApplication.setAttribute(core.Qt.AA_EnableHighDpiScaling, True)
@@ -2019,7 +2035,7 @@ def main():
     if op_sys == "Windows":
         app.setStyle("Fusion")        
     screen_res = app.desktop().screenGeometry()
-    mainscreen = MyMainScreen(pool, screen_res=screen_res)
+    mainscreen = MyMainScreen(screen_res=screen_res)
     mainscreen.showMaximized()
     app.exec_()
 
