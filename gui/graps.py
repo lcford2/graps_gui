@@ -477,7 +477,7 @@ class MyMainScreen(widgets.QMainWindow):
     def export(self):
         if not self.check_gen_setup():
             errormsg = "Error: You have not entered the required information.\nPlease finish the network before exporting."
-            self.open_error_dialog(errormsg)
+            self.open_error_dialog(errormsg, "Error")
             return 
         if not os.path.isdir("graps_export"):
             os.mkdir("graps_export")
@@ -609,7 +609,7 @@ class MyMainScreen(widgets.QMainWindow):
         body = "".join(fixed_items)
         return f"{front}{body}{back}"
 
-    def open_error_dialog(self, text=None):
+    def open_error_dialog(self, text=None, title=None):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_ErrorDialog()
         self.dialog.ui.setupUi(self.dialog)
@@ -621,6 +621,9 @@ class MyMainScreen(widgets.QMainWindow):
             display_text = self.center_bold_stack(text_items)
             self.dialog.ui.label.setText(display_text)
         
+        if title:
+            self.dialog.setWindowTitle(title)
+
         self.dialog.exec_()
         self.dialog = None
 
@@ -694,7 +697,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.vol_gamma_edit.setEnabled(False)
         if not self.check_gen_setup():
             errormsg = "You must complete the general setup menu before editing reservoirs."
-            self.open_error_dialog(f"Error: {errormsg}")
+            self.open_error_dialog(f"Error: {errormsg}", "Error")
             return 
 
         time_steps = self.gen_setup_dict['ntime_steps']
@@ -731,7 +734,7 @@ class MyMainScreen(widgets.QMainWindow):
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
         if not self.check_gen_setup():
             errormsg = "You must complete the general setup menu before editing users."
-            self.open_error_dialog(f"Error: {errormsg}")
+            self.open_error_dialog(f"Error: {errormsg}", "Error")
             return 
 
         time_steps = self.gen_setup_dict['ntime_steps']
@@ -867,7 +870,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.ave_flow_box.hide()
         if not self.check_gen_setup():
             errormsg = "You must complete the general setup menu before editing interbasin transfers."
-            self.open_error_dialog(f"Error: {errormsg}")
+            self.open_error_dialog(f"Error: {errormsg}", "Error")
             return 
 
         time_steps = self.gen_setup_dict['ntime_steps']
@@ -1220,23 +1223,23 @@ class MyMainScreen(widgets.QMainWindow):
                 good = ['R', 'J', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text=errormsg)
+                    self.open_error_dialog(text=errormsg, title="Error")
                     return False
             if start[0] == 'R':
                 good = ['J', 'U', 'S', 'R']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text=errormsg)
+                    self.open_error_dialog(text=errormsg, title="Error")
                     return False
             if start[0] == 'J':
                 good = ['R', 'U', 'S']
                 if stop[0] not in good:
                     self.dialog.done(1)
-                    self.open_error_dialog(text=errormsg)
+                    self.open_error_dialog(text=errormsg, title="Error")
                     return False
             if start[0] == 'S':
                 self.dialog.done(1)
-                self.open_error_dialog(text=errormsg)
+                self.open_error_dialog(text=errormsg, title="Error")
                 return False
             return True
 
@@ -1397,6 +1400,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
         self.dialog.ui.buttonBox.accepted.connect(self.get_info_gs)
         self.dialog.ui.type_sim_combo.setCurrentIndex(0)
+        self.dialog.ui.restrictions_level.setText("Number of restriction levels")
         # self.dialog.ui.adaptive_button.toggled.connect(
         #     self.forecast_option_change)
         # self.dialog.ui.retro_button.toggled.connect(
@@ -1408,12 +1412,26 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.userDescription.setTabEnabled(1, False)
         self.dialog.ui.userDescription.setStyleSheet(
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
-        self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
-            self.sim_type_change)
+        # self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
+        #     self.sim_type_change)
         # self.dialog.ui.year_sim_input.textEdited.connect(self.table_set_column)
+        self.dialog.ui.run_type_combo.currentIndexChanged.connect(self.run_type_changed)
+        self.dialog.ui.obj_func_label.setVisible(False)
+        self.dialog.ui.obj_func_combo.setVisible(False)
+        self.dialog.ui.type_of_sim.setVisible(False)
+        self.dialog.ui.type_sim_combo.setVisible(False)
         if len(self.gen_setup_dict) != 0:
             dlg_populate.GS(self, self.gen_setup_dict)
         self.dialog.exec_()
+
+    def run_type_changed(self):
+        run_type = self.dialog.ui.run_type_combo.currentText()
+        if run_type == "Optimization":
+            self.dialog.ui.obj_func_label.setVisible(True)
+            self.dialog.ui.obj_func_combo.setVisible(True)
+        else:
+            self.dialog.ui.obj_func_label.setVisible(False)
+            self.dialog.ui.obj_func_combo.setVisible(False)
 
     # changes the number of columns in tables in certain dialogs
     def table_set_column(self):
@@ -1519,47 +1537,55 @@ class MyMainScreen(widgets.QMainWindow):
 
     # gets the info from the general setup menu and stores it in the self.gen_setup_dict
     def get_info_gs(self):
+        # gen setup box
         ntime_steps = str(self.dialog.ui.time_step_input.text())
         nrestric = str(self.dialog.ui.restrictions_input.text())
-        hydro_coeff = str(self.dialog.ui.hydro_coeff_input.text())
-        sim_type = str(self.dialog.ui.type_sim_combo.currentText())
-        nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
+        hydro_coeff = str(self.dialog.ui.hydro_coeff_input.text())
+        # run style box
+        # inflow_type = str(self.dialog.ui.type_sim_combo.currentText())
         run_type = str(self.dialog.ui.run_type_combo.currentText())
         if run_type == "Optimization":
             obj_func = str(self.dialog.ui.obj_func_combo.currentText())
+            obj_func_index = self.dialog.ui.obj_func_combo.currentIndex()
         else:
-            obj_func = "simulation"
+            obj_func = "Simulation"
+            obj_func_index = None
+
+        # nyears = str(self.dialog.ui.year_input.text())
+        
         if nensembles == "":
             nensembles = "1"
-        if self.dialog.ui.retro_button.isChecked():
-            forecast_option = 'Retrospective'
-        elif self.dialog.ui.adaptive_button.isChecked():
-            forecast_option = 'Adaptive'
-        else:
-            forecast_option = 'Null'
-        forecast_info = []
-        nyear_sim = ''
-        if sim_type == "Forecast" and forecast_option == "Adaptive":
-            nyear_sim = self.dialog.ui.year_sim_input.text()
-            if nyear_sim:
-                for int_variable in range(int(nyear_sim)):
-                    try:
-                        current_item = self.dialog.ui.sim_input_table.item(
-                            0, int_variable)
-                        user_input = str(current_item.text())
-                        forecast_info.append(user_input)
-                    except:
-                        continue
+        # if self.dialog.ui.retro_button.isChecked():
+        #     forecast_option = 'Retrospective'
+        # elif self.dialog.ui.adaptive_button.isChecked():
+        #     forecast_option = 'Adaptive'
+        # else:
+        #     forecast_option = 'Null'
+        # forecast_info = []
+        # nyear_sim = ''
+        # if sim_type == "Forecast" and forecast_option == "Adaptive":
+        #     nyear_sim = self.dialog.ui.year_sim_input.text()
+        #     if nyear_sim:
+        #         for int_variable in range(int(nyear_sim)):
+        #             try:
+        #                 current_item = self.dialog.ui.sim_input_table.item(
+        #                     0, int_variable)
+        #                 user_input = str(current_item.text())
+        #                 forecast_info.append(user_input)
+        #             except:
+        #                 continue
         self.gen_setup_dict['ntime_steps'] = ntime_steps
         self.gen_setup_dict['nrestric'] = nrestric
         self.gen_setup_dict['hydro_coeff'] = hydro_coeff
-        self.gen_setup_dict['sim_type'] = sim_type
-        self.gen_setup_dict['nyears'] = nyears
+        # self.gen_setup_dict['inflow_type'] = sim_type
+        # self.gen_setup_dict['nyears'] = nyears
         self.gen_setup_dict['nensembles'] = nensembles
-        self.gen_setup_dict['forecast_option'] = forecast_option
-        self.gen_setup_dict['forecast_info'] = forecast_info
-        self.gen_setup_dict['nyear_sim'] = nyear_sim
+        self.gen_setup_dict['run_type'] = run_type
+        self.gen_setup_dict['obj_func'] = (obj_func, obj_func_index)
+        # self.gen_setup_dict['forecast_option'] = forecast_option
+        # self.gen_setup_dict['forecast_info'] = forecast_info
+        # self.gen_setup_dict['nyear_sim'] = nyear_sim
 
     # gets info from the watershed dialog and stores it in the self.dialog_dict
     def get_info_watershed(self):
@@ -2015,7 +2041,7 @@ class Worker(core.QRunnable):
     @core.pyqtSlot()
     def run(self):
         try:
-        self.func(*self.args, **self.kwargs)
+            self.func(*self.args, **self.kwargs)
         except:
             # traceback.print_exc()
             exctype, value = sys.exc_info()[:2]

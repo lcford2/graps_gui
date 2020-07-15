@@ -10,29 +10,39 @@ def GS(self, info_dict):
     self.dialog.ui.time_step_input.setText(str(info_dict.get('ntime_steps', '')))
     self.dialog.ui.restrictions_input.setText(str(info_dict.get('nrestric', '')))
     self.dialog.ui.hydro_coeff_input.setText(str(info_dict.get('hydro_coeff', '')))
-    sim_type = info_dict.get('sim_type', "")
-    if sim_type == 'Climatology':
-        self.dialog.ui.type_sim_combo.setCurrentIndex(0)
-    elif sim_type == 'Forecast':
-        self.dialog.ui.type_sim_combo.setCurrentIndex(1)
-    elif sim_type == 'Zero Flow':
-        self.dialog.ui.type_sim_combo.setCurrentIndex(2)
-    self.dialog.ui.year_input.setText(str(info_dict.get('nyears', "")))
     self.dialog.ui.ensem_input.setText(str(info_dict.get('nensembles', "")))
-    forecast_option = info_dict.get('forecast_option', "")
-    if forecast_option == 'Retrospective':
-        self.dialog.ui.retro_button.setChecked(True)
-    elif forecast_option == 'Adaptive':
-        self.dialog.ui.adaptive_button.setChecked(True)
-        self.dialog.ui.year_sim_input.setText(info_dict.get('nyear_sim', ""))
-        if info_dict.get("nyear_sim", ""):
-            self.dialog.ui.sim_input_table.setColumnCount(int(info_dict['nyear_sim']))
+    run_type = info_dict.get('run_type', 'Simulation')
+    obj_func = info_dict.get('obj_func', 'Simulation')
+    if run_type == 'Simulation':
+        self.dialog.ui.run_type_combo.setCurrentIndex(0)
+    else:
+        self.dialog.ui.run_type_combo.setCurrentIndex(1)
+        self.run_type_changed()
+        if obj_func[1]:
+            self.dialog.ui.obj_func_combo.setCurrentIndex(obj_func[1])
+    
+    # sim_type = info_dict.get('sim_type', "")
+    # if sim_type == 'Climatology':
+    #     self.dialog.ui.type_sim_combo.setCurrentIndex(0)
+    # elif sim_type == 'Forecast':
+    #     self.dialog.ui.type_sim_combo.setCurrentIndex(1)
+    # elif sim_type == 'Zero Flow':
+    #     self.dialog.ui.type_sim_combo.setCurrentIndex(2)
+    # self.dialog.ui.year_input.setText(str(info_dict.get('nyears', "")))    
+    # forecast_option = info_dict.get('forecast_option', "")
+    # if forecast_option == 'Retrospective':
+    #     self.dialog.ui.retro_button.setChecked(True)
+    # elif forecast_option == 'Adaptive':
+    #     self.dialog.ui.adaptive_button.setChecked(True)
+    #     self.dialog.ui.year_sim_input.setText(info_dict.get('nyear_sim', ""))
+    #     if info_dict.get("nyear_sim", ""):
+    #         self.dialog.ui.sim_input_table.setColumnCount(int(info_dict['nyear_sim']))
 
-    forecast_info = info_dict.get('forecast_info', "")
-    if hasattr(forecast_info, '__iter__'):
-        for column, value in enumerate(forecast_info):
-            item = QTableWidgetItem(value)
-            self.dialog.ui.sim_input_table.setItem(0, column, item)
+    # forecast_info = info_dict.get('forecast_info', "")
+    # if hasattr(forecast_info, '__iter__'):
+    #     for column, value in enumerate(forecast_info):
+    #         item = QTableWidgetItem(value)
+    #         self.dialog.ui.sim_input_table.setItem(0, column, item)
 
 
 def WS(self, info_dict):

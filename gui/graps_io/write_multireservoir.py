@@ -505,10 +505,23 @@ def write_dec_var_details(self, path, filename):
             f.write(output+"\n")
 
 def write_runflag(self, path, filename):
+    run_type = self.gen_setup_dict.get("run_type", "0")
+    obj_func = self.gen_setup_dict.get("obj_func", ("Simulation", None))
+    fortran_obj_map = {"Maximize Release":"max_release", 
+                       "Minimize Spill":"spill_objective", 
+                       "Maximize Simple Benefits":"simple_benefits",
+                       "Maximize Net Benefits":"expected_benefits"}
+    if run_type == "Optimization":
+        run_ident = 1
+        fort_func = fortran_obj_map[obj_func[0]]
+    else:
+        run_ident = 0
+        fort_func = obj_func[0]
+
     output_path = os.path.join(path, "input_data_files", filename)
     with open(output_path, 'w') as f:
-        f.write("0\n")
-        f.write("max_release\n")
+        f.write(f"{run_ident}\n")
+        f.write(f"{fort_func}\n")
 
 def write_model_params(self, path, filename):
     output_path = os.path.join(path, "input_data_files", filename)
