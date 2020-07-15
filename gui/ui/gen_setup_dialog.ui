@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>423</height>
+    <width>570</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,8 +40,8 @@
           <string>General Setup</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="time_step">
+          <item row="3" column="0">
+           <widget class="QLabel" name="hydro_coeff_label">
             <property name="font">
              <font>
               <weight>75</weight>
@@ -49,25 +49,9 @@
              </font>
             </property>
             <property name="text">
-             <string>Number of time steps</string>
+             <string>Hydropower conversion coefficient</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item row="0" column="2">
            <widget class="QLineEdit" name="time_step_input">
@@ -85,8 +69,64 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer_8">
+          <item row="3" column="2">
+           <widget class="QLineEdit" name="hydro_coeff_input">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="restrictions_input">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="num_ensembles">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Number of ensembles</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="ensem_input">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="time_step">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Number of time steps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_7">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -130,38 +170,21 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="restrictions_input">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="0" column="3">
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="hydro_coeff_label">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
             </property>
-            <property name="text">
-             <string>Hydropower conversion coefficient</string>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="hydro_coeff_input">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -169,9 +192,61 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="simulationbox">
          <property name="title">
-          <string>Simulation</string>
+          <string>Run Style</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_17">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="3" column="1">
+           <widget class="QComboBox" name="run_type_combo">
+            <item>
+             <property name="text">
+              <string>Simulation</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Optimization</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="obj_func_combo">
+            <item>
+             <property name="text">
+              <string>Maximize Release</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Maximize Simple Benefits</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Maximize Net Benefits</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Minimize Spill</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="run_type_label">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Run Type&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="obj_func_label">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Objective Function&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="type_of_sim">
             <property name="font">
@@ -181,235 +256,10 @@
              </font>
             </property>
             <property name="text">
-             <string>Type of Simulation</string>
+             <string>Inflow Type</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QGroupBox" name="sim_info_frame">
-            <property name="title">
-             <string/>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_19">
-             <item row="0" column="0">
-              <widget class="QLabel" name="num_years">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Number of years</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QLineEdit" name="year_input">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLineEdit" name="ensem_input">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="num_ensembles">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Number of ensembles</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <spacer name="horizontalSpacer_12">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="time_step">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Number of time steps</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-<<<<<<< HEAD
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="simulationbox">
-         <property name="title">
-          <string>Simulation</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_17">
-          <item row="0" column="0">
-           <widget class="QFrame" name="sim_left_frame">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6">
-             <item>
-              <widget class="QFrame" name="combo_frame">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_18">
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="type_sim_combo">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>Climatology</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Forecast</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Zero Flow</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="type_of_sim">
-                  <property name="font">
-                   <font>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Type of Simulation</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QGroupBox" name="sim_info_frame">
-                  <property name="title">
-                   <string/>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_19">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="num_years">
-                     <property name="font">
-                      <font>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Number of years</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QLineEdit" name="year_input">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="2">
-                    <widget class="QLineEdit" name="ensem_input">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="num_ensembles">
-                     <property name="font">
-                      <font>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Number of ensembles</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <spacer name="horizontalSpacer_12">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeType">
-                      <enum>QSizePolicy::Fixed</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-=======
           <item row="1" column="1">
            <widget class="QComboBox" name="type_sim_combo">
             <property name="sizePolicy">
@@ -426,35 +276,21 @@
             </property>
             <item>
              <property name="text">
-              <string>Climatology</string>
+              <string>Prescribed Inflow</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Forecast</string>
+              <string>Forecasted Inflow</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Zero Flow</string>
+              <string>Zero Inflow</string>
              </property>
             </item>
            </widget>
           </item>
-          <item row="2" column="2">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
->>>>>>> master
          </layout>
         </widget>
        </item>
@@ -600,14 +436,18 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>year_input</tabstop>
+  <tabstop>userDescription</tabstop>
+  <tabstop>time_step_input</tabstop>
+  <tabstop>restrictions_input</tabstop>
   <tabstop>ensem_input</tabstop>
+  <tabstop>hydro_coeff_input</tabstop>
+  <tabstop>type_sim_combo</tabstop>
+  <tabstop>run_type_combo</tabstop>
+  <tabstop>obj_func_combo</tabstop>
   <tabstop>retro_button</tabstop>
   <tabstop>adaptive_button</tabstop>
   <tabstop>year_sim_input</tabstop>
   <tabstop>sim_input_table</tabstop>
-  <tabstop>buttonBox</tabstop>
-  <tabstop>userDescription</tabstop>
  </tabstops>
  <resources/>
  <connections>

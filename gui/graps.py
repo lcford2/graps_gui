@@ -1388,22 +1388,23 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_genSet_dialog()
         self.dialog.ui.setupUi(self.dialog)
-        self.dialog.ui.adaptive_box.show()
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        self.dialog.ui.sim_info_frame.setVisible(False)
         self.dialog.ui.buttonBox.accepted.connect(self.get_info_gs)
-        self.dialog.ui.type_sim_combo.setCurrentIndex(4)
-        self.dialog.ui.adaptive_button.toggled.connect(
-            self.forecast_option_change)
-        self.dialog.ui.retro_button.toggled.connect(
-            self.forecast_option_change)
-        self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
-            self.forecast_option_change)
+        self.dialog.ui.type_sim_combo.setCurrentIndex(0)
+        # self.dialog.ui.adaptive_button.toggled.connect(
+        #     self.forecast_option_change)
+        # self.dialog.ui.retro_button.toggled.connect(
+        #     self.forecast_option_change)
+        # self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
+        #     self.forecast_option_change)
         self.dialog.ui.analysis_option.setVisible(False)
         self.dialog.ui.adaptive_box.setVisible(False)
+        self.dialog.ui.userDescription.setTabEnabled(1, False)
+        self.dialog.ui.userDescription.setStyleSheet(
+            "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
         self.dialog.ui.type_sim_combo.currentIndexChanged.connect(
             self.sim_type_change)
-        self.dialog.ui.year_sim_input.textEdited.connect(self.table_set_column)
+        # self.dialog.ui.year_sim_input.textEdited.connect(self.table_set_column)
         if len(self.gen_setup_dict) != 0:
             dlg_populate.GS(self, self.gen_setup_dict)
         self.dialog.exec_()
@@ -1518,6 +1519,11 @@ class MyMainScreen(widgets.QMainWindow):
         sim_type = str(self.dialog.ui.type_sim_combo.currentText())
         nyears = str(self.dialog.ui.year_input.text())
         nensembles = str(self.dialog.ui.ensem_input.text())
+        run_type = str(self.dialog.ui.run_type_combo.currentText())
+        if run_type == "Optimization":
+            obj_func = str(self.dialog.ui.obj_func_combo.currentText())
+        else:
+            obj_func = "simulation"
         if nensembles == "":
             nensembles = "1"
         if self.dialog.ui.retro_button.isChecked():
