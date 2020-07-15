@@ -888,6 +888,16 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.exec_()
         self.dialog = None
     
+    def open_help_dialog(self):
+        self.dialog = widgets.QDialog(self)
+        self.dialog.ui = Ui_help_dialog()
+        self.dialog.ui.setupUi(self.dialog)
+        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
+        doc_file = os.path.join(os.getcwd(), "docs", "html", "doc.html")
+        self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
+        self.dialog.exec_()
+        self.dialog = None
+    
     def open_multi_edit_dialog(self):
         self.dialog = widgets.QDialog(self)
         self.dialog.ui = Ui_multi_edit_dialog()
@@ -900,7 +910,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.medit_combo_slot()
         self.dialog.ui.block_type_combo.currentIndexChanged.connect(
             self.medit_combo_slot)
-        self.dialog.ui.attribute_selector.clicked.connect(
+        self.dialog.ui.attribute_selector.itemSelectionChanged.connect(
             self.medit_att_selector_slot)
         self.dialog.ui.buttonBox.accepted.connect(
             self.get_info_medit)
@@ -908,16 +918,6 @@ class MyMainScreen(widgets.QMainWindow):
         btn.clicked.connect(self.get_info_medit)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
         
-        self.dialog.exec_()
-        self.dialog = None
-    
-    def open_help_dialog(self):
-        self.dialog = widgets.QDialog(self)
-        self.dialog.ui = Ui_help_dialog()
-        self.dialog.ui.setupUi(self.dialog)
-        self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        doc_file = os.path.join(os.getcwd(), "docs", "html", "doc.html")
-        self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
         self.dialog.exec_()
         self.dialog = None
 
@@ -961,12 +961,14 @@ class MyMainScreen(widgets.QMainWindow):
         table = self.dialog.ui.attribute_editor
         selector = self.dialog.ui.attribute_selector
         block_type = self.dialog.ui.block_type_combo.currentText()
-        attribute_choice = selector.currentItem()
-        if attribute_choice:
-            att_text = attribute_choice.text()
+        attributes= selector.selectedItems()
+
+        if attributes:
+            att_text = [att.text() for att in attributes]
         else:
-            att_text = "Select Attribute"
-        table.setHorizontalHeaderLabels([att_text])
+            att_text = ["Select Attribute"]
+        table.setColumnCount(len(att_text))
+        table.setHorizontalHeaderLabels(att_text)
         self.populate_medit_table()
 
     def populate_medit_table(self):
@@ -974,40 +976,42 @@ class MyMainScreen(widgets.QMainWindow):
         btype = block_type[0]
         table = self.dialog.ui.attribute_editor
         table.clearContents()
-        attribute = table.horizontalHeaderItem(0).text()
+        column_count = table.columnCount()
+        attributes = [table.horizontalHeaderItem(i).text() for i in range(column_count)]
         rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
-        if attribute != "Select Attribute":
-            dict_key = self.attribute_dict[btype][attribute]
-            for i, row in enumerate(rows):
-                info_key = self.row_map[row]
-                data_dict = self.dialog_dict.get(info_key, None)
-                if data_dict:
-                    data = data_dict.get(dict_key, None)
-                    if data:
-                        table_item = widgets.QTableWidgetItem(data)
-                        table.setItem(i, 0, table_item)
+        for i, attribute in enumerate(attributes):
+            if attribute != "Select Attribute":
+                dict_key = self.attribute_dict[btype][attribute]
+                for j, row in enumerate(rows):
+                    info_key = self.row_map[row]
+                    data_dict = self.dialog_dict.get(info_key, None)
+                    if data_dict:
+                        data = data_dict.get(dict_key, None)
+                        if data:
+                            table_item = widgets.QTableWidgetItem(data)
+                            table.setItem(j, i, table_item)
 
     def get_info_medit(self):
         block_type = self.dialog.ui.block_type_combo.currentText()
         btype = block_type[0]
         table = self.dialog.ui.attribute_editor
-        attribute = table.horizontalHeaderItem(0).text()
+        column_count = table.columnCount()
+        attributes = [table.horizontalHeaderItem(i).text() for i in range(column_count)]
         rows = [table.verticalHeaderItem(i).text() for i in range(table.rowCount())]
-        if attribute != "Select Attribute":
-            dict_key = self.attribute_dict[btype][attribute]
-            for i, row in enumerate(rows):
-                table_item = table.item(i, 0)
-                if table_item:
-                    text = table_item.text()
-                    info_key = self.row_map[row]
-                    if info_key not in self.dialog_dict:
-                        self.dialog_dict[info_key] = {}
-                    self.dialog_dict[info_key][dict_key] = text
-                    if attribute == "Name":
-                        self.change_label(item_id=self.block_objects[info_key][1], name_tag=text)
+        for i, attribute in enumerate(attributes):
+            if attribute != "Select Attribute":
+                dict_key = self.attribute_dict[btype][attribute]
+                for j, row in enumerate(rows):
+                    table_item = table.item(j, i)
+                    if table_item:
+                        text = table_item.text()
+                        info_key = self.row_map[row]
+                        if info_key not in self.dialog_dict:
+                            self.dialog_dict[info_key] = {}
+                        self.dialog_dict[info_key][dict_key] = text
+                        if attribute == "Name":
+                            self.change_label(item_id=self.block_objects[info_key][1], name_tag=text)
         
-                
-
     def link_draw_interface(self, enter=False):
         sel_items = list(self.ui.scene.selectedItems())
         item_id = ''

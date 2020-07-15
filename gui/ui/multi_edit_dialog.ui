@@ -35,6 +35,19 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Attribute 1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Attribute 2</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="0" column="0">
@@ -82,6 +95,15 @@
    </item>
    <item row="1" column="0" rowspan="3">
     <widget class="QTableWidget" name="attribute_editor">
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DropOnly</enum>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::CopyAction</enum>
+     </property>
      <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>true</bool>
      </attribute>
