@@ -895,7 +895,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui = Ui_help_dialog()
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        doc_file = os.path.join(os.getcwd(), "docs", "html", "doc.html")
+        doc_file = os.path.join(os.getcwd(), "graps_docs", "html", "doc.html")
         self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
         self.dialog.exec_()
         self.dialog = None
