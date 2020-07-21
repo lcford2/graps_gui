@@ -1,5 +1,5 @@
-# graps_gui
-GUI for creating GRAPS Input Files
+# GRAPS Interface
+Graphical user interface to interact with the [GRAPS Model](https://github.com/lcford2/GRAPS)
 
 Create python environment for running the GUI by using `conda env create -f environment.yml` from the command line.
 
