@@ -67,6 +67,8 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui = Ui_GRAPSInterface()
         self.ui.setupUi(self)
         self.setWindowIcon(gui.QIcon("./gui/icons/app_icon.png"))
+        # self.ui.graphicsView.setVerticalScrollBarPolicy(core.Qt.ScrollBarAlwaysOff)
+        # self.ui.graphicsView.setHorizontalScrollBarPolicy(core.Qt.ScrollBarAlwaysOff)
         
         # provide access to the thread pool
         self.pool = core.QThreadPool()
