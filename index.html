@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on https://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Graps gui</title>
+  <meta name="description" content="GUI for creating GRAPS Input Files">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Graps gui</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">GUI for creating GRAPS Input Files</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/lcford2/graps_gui/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/lcford2/graps_gui/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/lcford2/graps_gui" class="code">View Graps gui on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>
+<a id="graps-interface" class="anchor" href="#graps-interface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GRAPS Interface</h1>
+<p>Graphical user interface to interact with the <a href="https://github.com/lcford2/GRAPS">GRAPS Model</a></p>
+<p>Create python environment for running the GUI by using <code>conda env create -f environment.yml</code> from the command line.</p>
+<p>If you do not have <code>conda</code> installed, you can get the correct version for your machine <a href="https://www.anaconda.com/products/individual">here</a>.</p>
+<p>After you have created the environment, run <code>conda activate graps_gui</code> from the command line to activate the correct environment. To open then interface, run <code>python gui</code> in the command line from within the <code>graps_gui</code> directory.</p>
+<h1>
+<a id="graps-model" class="anchor" href="#graps-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GRAPS Model</h1>
+<p>In order to run the model from within the interface, you will need to also download the GRAPS model repository. It simplify this for users, we have embedded it as a submodule within this repository. To obtain the executables and source code for GRAPS, run <code>git submodule init</code> and <code>git submodule update</code> after you clone this repository. This will pull the code from the <a href="https://www.github.com/lcford2/GRAPS">GRAPS Repository</a> and put in the <code>GRAPS</code> folder. After you export the model you create with the GUI, you can copy the executables from the folder for your operating system into the export folder and run the <code>multireservoir</code> executable.</p>
+<p>Alternatively you can simply clone the <a href="https://www.github.com/lcford2/GRAPS">GRAPS Repository</a> separately and follow instructions in its <a href="https://github.com/lcford2/GRAPS#graps"><code>README.md</code></a> to run the model. Regardless, it is good to familiarize yourself with the information in the <a href="https://github.com/lcford2/GRAPS#graps">GRAPS <code>README.md</code></a>.</p>
+<h1>
+<a id="getting-code-updates" class="anchor" href="#getting-code-updates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Code Updates</h1>
+<p>Because this software package is still largely in develepment, we have not made a release yet. To get recent gui updates, run <code>git pull</code> from within the <code>graps_gui</code> folder. To get recent GRAPS updates, run <code>git submodule update --remote</code> from within the <code>graps_gui</code> folder. If you have not ran the commands in the GRAPS Model section above, you will not be able to pull recent GRAPS updates or run the model.</p>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/lcford2" class="avatar"><img src="https://avatars0.githubusercontent.com/u/49534025?s=60&amp;v=4" width="48" height="48"></a> <a href="https://github.com/lcford2">lcford2</a> maintains <a href="https://github.com/lcford2/graps_gui">Graps gui</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/lcford2/graps_gui/tarball/master" class="tar">tar</a><a href="https://github.com/lcford2/graps_gui/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
