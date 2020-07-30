@@ -25,6 +25,14 @@
     font-size: 97.5%;
 }
 
+.header_tab {
+    margin-left: 100px;
+}
+
+.tab_right {
+    margin-right: 150px;
+}
+
 .tab2 {
     margin-left: 130px;
     font-size: 95%;

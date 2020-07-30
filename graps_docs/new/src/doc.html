@@ -13,11 +13,11 @@
     <!-- using local links -->
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <!-- <link rel="stylesheet" href="../node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"> -->
+    <link rel="stylesheet" href="../node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/sidebar-themes.css">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="shortcut icon" type="image/png" href="img/favicon.png" /> 
+    <link rel="shortcut icon" type="image/png" href="img/app_icon.png" /> 
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 
@@ -31,7 +31,7 @@
                 <div class=" sidebar-item sidebar-menu">
                     <ul>
                         <li class="sidebar-dropdown">
-                            <a><span class="menu-text">Table of Figures</span> <span class="badge badge-pill badge-primary">18</span> </a>
+                            <a><span class="menu-text">Figures</span> <span class="badge badge-pill badge-primary">18</span> </a>
                             <div class="sidebar-submenu">
                                 <ul>
                                     <li> <a href="#Figure1">Figure 1</a> </li>
@@ -56,12 +56,12 @@
                             </div>
                         </li>
                         <li><a href=#Introduction><span class="menu-text">Introduction</span> </a></li>
-                        <li><a href=#Features><span class="menu-text">Features of GRAPS</span> </a></li>
-                        <li><a href=#Usage>Using the GRAPS Interface</a></li>
-                        <li><a href=#Layout>Interface Layout</a></li>
+                        <li><a href=#Features><span class="menu-text">GRAPS Features</span> </a></li>
+                        <li><a href=#Usage>Using the Interface</a></li>
+                        <!-- <li><a href=#Layout>Interface Layout</a></li> -->
                         <li><a href=#GeneralSetup>General Setup</a></li>
                         <li class="sidebar-dropdown">
-                            <a><span class="menu-text">Building Reservoir Networks</span><span class="badge badge-pill badge-primary">7</span></a>
+                            <a><span class="menu-text">Building Networks</span><span class="badge badge-pill badge-primary">7</span></a>
                             <div class="sidebar-submenu">
                                 <ul>
                                     <li><a href=#Watersheds>Watersheds</a></li>
@@ -74,8 +74,8 @@
                                 </ul>
                             </div>
                         </li>
-                        <li><a href=#Saving/Reopening>Saving and Reopening Network Files</a></li>
-                        <li><a href=#Exporting>Exporting Input Files for Model-Run</a></li>
+                        <li><a href=#Saving/Reopening>Saving and Opening Networks</a></li>
+                        <li><a href=#Exporting>Exporting Model Files</a></li>
                         <li><a href=#Printing>Printing Network Graphics</a></li>
                         <li><a href=#Future>Future Works</a></li>
                         <li><a href=#References>References</a></li>
@@ -102,7 +102,7 @@
                     <article class="main-content">
                         <h1 class="mb-2 mt-3"><a name="Introduction">Introduction</a></h1>
                         <p>
-                            Traditionally, the input files for the Multi-Objective Reservoir Analyses using Probabilistic Streamflow Forecasts (GRAPS) model are manually created. 
+                            Traditionally, the input files for the Generalized Reservoir Analyses using Probabilistic Streamflow Forecasts (GRAPS) model are manually created. 
                             In addition to this process being meticulous and error-prone, there also was not a way to visualize the network cascade or to easily interact with different
                              parameters associated with the network. This graphical user interface enables GRAPS users to create reservoir networks with intuitive keystrokes and mouse 
                              movements. Network files can be saved and opened for editing later, the interface graphics can be exported as a PDF or directly printed, and all input files 
@@ -118,12 +118,12 @@
                             and opening network files and printing network graphics follow a process similar to other desktop applications and exporting input files only requires the user 
                             to specify a directory to place the files.
                         </p>
-                        <h4>System Requirements</h4>
+                        <h4 class="header_tab">System Requirements</h4>
                         <p>
                             This interface was developed using Python 3.7 and PyQt5. It should be able to run on any Windows, MAC, or Linux operating system as long as the user has a version
                              of Python 3.7 installed as well as PyQt5.
                         </p>
-                        <h4>A Note on Units</h4>
+                        <h4 class="header_tab">A Note on Units</h4>
                         <p>
                             The user of this interface is responsible for ensuring the units of the values entered correspond with each other (e.g. if storage is provided in acre-feet, inflow 
                             should be provided in acre-feet per time step and evaporation depths should be provided in feet). GRAPS makes no assumptions about the units except that they are 
@@ -134,7 +134,7 @@
                         <!-- Sep -->
                         <hr class="my-5">
                         <h1 class="mb-2 mt-3"><a name="Usage">Using the GRAPS Interface</a></h1>
-                        <h4><a name="Layout">Interface Layout</a></h4>
+                        <h4 class="header_tab"><a name="Layout">Interface Layout</a></h4>
                         <p>
                             The GRAPS GUI is displayed as a desktop application (Figure 1). A drop-down menu bar is situated at the top of screen and the tool-bar (which the user will interact 
                             with the most) directly below it. As indicated in Figure 1, the tool-bar contains buttons for selecting modeling blocks and links as well as generic buttons to create 
@@ -346,10 +346,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h5>Variable Information</h5>
-                        <ul>
-                            <li>Drainage Area - The surface area of which water enters the watershed.</li>
-                            <li>Inflows - The flow into the watershed per unit of time.</li>
+                        <br>
+                        <h5 class="header_tab">Variable Information</h5>
+                        <ul class="header_tab">
+                            <li class="tab_right">Drainage Area - The surface area of which water enters the watershed.</li>
+                            <li class="tab_right">Inflows - The flow into the watershed per unit of time.</li>
                         </ul>
                         <a name="Figure5"></a>
                         <figure name="Figure5">
@@ -727,25 +728,26 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h5>Variable Information</h5>
-                        <ul>
-                            <li>Elevation Minimum - The elevation of the lowest point of the reservoir above sea level.</li>
-                            <li>Elevation Maximum - The elevation of the highest point of the reservoir above sea level.</li>
-                            <li>Storage Minimum - Used as a lower bound in the calculation for current storage of the reservoir.</li>
-                            <li>Storage Maximum - Used as an upper bound in the calculation for current storage of the reservoir.</li>
-                            <li>Current Storage - The initial storage of the reservoir, which is updated each time step of the simulation.</li>
-                            <li>Evaporation - Represents the water lost from the reservoir due to evaporation for ecah time step.</li>
-                            <li>Target Storage - The goal storage the reservoir.</li>
-                            <li>Storage Probability - The probability the reservoir achieves the targes storage.</li>
-                            <li>Rule Curve - Not required, but adds additional constraints to the probability of meeting the target storage.</li>
-                            <li>Target Restriction Level Probability - The probability of each restriction level occuring.</li>
-                            <li>Spillway Type - Either a 0 for a controlled spillway and a 1 for an uncontrolled spillway.</li>
-                            <li>Crest Level - The elevation above sea level of the crest of the spillway.</li>
-                            <li>Discharge - Used as an upper bound for a spillway, whereas the spillway discharge cannot exceed this value.</li>
-                            <li>Elevation - The elevation above sea level of the outlet.</li>
-                            <li>Cross Sectional Area - The cross sectional area of the outlet.</li>
-                            <li>Minimum Loss Coefficient - The minimum fraction of water lost from the outlet.</li>
-                            <li>Maximum Loss Coefficient - The maximum fraction of water lost from the outlet.</li>
+                        <br>
+                        <h5 class="header_tab">Variable Information</h5>
+                        <ul class="header_tab">
+                            <li class="tab_right">Elevation Minimum - The elevation of the lowest point of the reservoir above sea level.</li>
+                            <li class="tab_right">Elevation Maximum - The elevation of the highest point of the reservoir above sea level.</li>
+                            <li class="tab_right">Storage Minimum - Used as a lower bound in the calculation for current storage of the reservoir.</li>
+                            <li class="tab_right">Storage Maximum - Used as an upper bound in the calculation for current storage of the reservoir.</li>
+                            <li class="tab_right">Current Storage - The initial storage of the reservoir, which is updated each time step of the simulation.</li>
+                            <li class="tab_right">Evaporation - Represents the water lost from the reservoir due to evaporation for ecah time step.</li>
+                            <li class="tab_right">Target Storage - The goal storage the reservoir.</li>
+                            <li class="tab_right">Storage Probability - The probability the reservoir achieves the targes storage.</li>
+                            <li class="tab_right">Rule Curve - Not required, but adds additional constraints to the probability of meeting the target storage.</li>
+                            <li class="tab_right">Target Restriction Level Probability - The probability of each restriction level occuring.</li>
+                            <li class="tab_right">Spillway Type - Either a 0 for a controlled spillway and a 1 for an uncontrolled spillway.</li>
+                            <li class="tab_right">Crest Level - The elevation above sea level of the crest of the spillway.</li>
+                            <li class="tab_right">Discharge - Used as an upper bound for a spillway, whereas the spillway discharge cannot exceed this value.</li>
+                            <li class="tab_right">Elevation - The elevation above sea level of the outlet.</li>
+                            <li class="tab_right">Cross Sectional Area - The cross sectional area of the outlet.</li>
+                            <li class="tab_right">Minimum Loss Coefficient - The minimum fraction of water lost from the outlet.</li>
+                            <li class="tab_right">Maximum Loss Coefficient - The maximum fraction of water lost from the outlet.</li>
                         </ul>
                         <!-- Sep -->
                         <hr class="my-5">
@@ -1043,24 +1045,25 @@
                                 </td>
                             </tr>
                         </table>
-                        <h5>Variable Information</h5>
-                        <ul>
-                            <li>Minimum Release - An lower constraint on the amount of water the user recieves.</li>
-                            <li>Maximum Release - An upper constraint on the amount of water the user recieves.</li>
-                            <li>Tariff - Used to calculate revenue, which is the tariff paid for the release in each time period.</li>
-                            <li>Penalty Volume - The difference in volume between the contract amount and the threshold for which a penalty is applied.</li>
-                            <li>Failure Probability (Reliability) - The probability for the user to not meet the penalty volume, which the model uses for optimization.</li>
-                            <li>Contract Restriction Volume - The volume of water for which the supplier can impose restrictions as part of the contract.</li>
-                            <li>Penalty Compensation - The tariff given the user fails to recieve the contracted release of water.</li>
-                            <li>Demand Fraction - The fraction of the demand the particular user uses, which is used to calculate the monthly releases.</li>
-                            <li>Restriction Compensation - The amount of money given back to the user for each restriction level.</li>
-                            <li>Restriction Fraction - The fraction of the contracted release of water the user will recieve for each restriction level.</li>
-                            <li>Maximum Discharge - The maximum volume of water the generator can discharge, which is used as a constraint when calculating net release for the hydropower calculation.</li>
-                            <li>Installed Capacity - The maximum energy output the generator is rated for.</li>
-                            <li>Generator Efficiency - The fraction of actual turbine efficiency compared to theoretical, which is kept as a constant for simplicity's sake and used to compute the hydropower.</li>
-                            <li>Energy Coefficients - Used in the hydropower equation.</li>
-                            <li>Unit Rate Energy - The price of energy per unit generated.</li>
-                            <li>Turbine Tail Elevation - The difference between this and the reservoir is taken and used to compute the hydropower.</li>
+                        <br>
+                        <h5 class="header_tab">Variable Information</h5>
+                        <ul class="header_tab">
+                            <li class="tab_right">Minimum Release - An lower constraint on the amount of water the user recieves.</li>
+                            <li class="tab_right">Maximum Release - An upper constraint on the amount of water the user recieves.</li>
+                            <li class="tab_right">Tariff - Used to calculate revenue, which is the tariff paid for the release in each time period.</li>
+                            <li class="tab_right">Penalty Volume - The difference in volume between the contract amount and the threshold for which a penalty is applied.</li>
+                            <li class="tab_right">Failure Probability (Reliability) - The probability for the user to not meet the penalty volume, which the model uses for optimization.</li>
+                            <li class="tab_right">Contract Restriction Volume - The volume of water for which the supplier can impose restrictions as part of the contract.</li>
+                            <li class="tab_right">Penalty Compensation - The tariff given the user fails to recieve the contracted release of water.</li>
+                            <li class="tab_right">Demand Fraction - The fraction of the demand the particular user uses, which is used to calculate the monthly releases.</li>
+                            <li class="tab_right">Restriction Compensation - The amount of money given back to the user for each restriction level.</li>
+                            <li class="tab_right">Restriction Fraction - The fraction of the contracted release of water the user will recieve for each restriction level.</li>
+                            <li class="tab_right">Maximum Discharge - The maximum volume of water the generator can discharge, which is used as a constraint when calculating net release for the hydropower calculation.</li>
+                            <li class="tab_right">Installed Capacity - The maximum energy output the generator is rated for.</li>
+                            <li class="tab_right">Generator Efficiency - The fraction of actual turbine efficiency compared to theoretical, which is kept as a constant for simplicity's sake and used to compute the hydropower.</li>
+                            <li class="tab_right">Energy Coefficients - Used in the hydropower equation.</li>
+                            <li class="tab_right">Unit Rate Energy - The price of energy per unit generated.</li>
+                            <li class="tab_right">Turbine Tail Elevation - The difference between this and the reservoir is taken and used to compute the hydropower.</li>
                         </ul>
                         <!-- Sep -->
                         <hr class="my-5">
@@ -1135,10 +1138,11 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h5>Variable Information</h5>
-                        <ul>
-                            <li>Drainage Area - The surface area of which water enters the transfer.</li>
-                            <li>Average Flow - The average flow through the transfer per time step.</li>
+                        <br>
+                        <h5 class="header_tab">Variable Information</h5>
+                        <ul class="header_tab">
+                            <li class="tab_right">Drainage Area - The surface area of which water enters the transfer.</li>
+                            <li class="tab_right">Average Flow - The average flow through the transfer per time step.</li>
                         </ul>
                         <hr class="my-5">
                         <h3 class="mb-2 mt-3"><a name="Sinks">Sinks</a></h3>
@@ -1190,9 +1194,10 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h5>Variable Information</h5>
-                        <ul>
-                            <li>Maximum Storage - The maximum volume of water a sink may hold.</li>
+                        <br>
+                        <h5 class="header_tab">Variable Information</h5>
+                        <ul class="header_tab">
+                            <li class="tab_right">Maximum Storage - The maximum volume of water a sink may hold.</li>
                         </ul>
                         <hr class="my-5">
                         <h3 class="mb-2 mt-3"><a name="Links">Links</a></h3>
