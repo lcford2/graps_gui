@@ -397,25 +397,25 @@ def write_user_details(self, path, filename):
                 # elif len(turbines) > 1:
                 #     pass
                 #     'Not sure if mutliple turbines are able to be considered'
-            return_link = ''
-            items = list(self.ui.scene.items())
-            for link in items:
-                if not getattr(link, "itemid", None):
-                    continue
-                if link.item_type == "line":
-                    link_id = link.itemid
-                    start = link.start_node
-                    item_id = 'U' + str(item_num)
-                    if start == item_id:
-                        if start not in self.user_control_list:
-                            return_link = link_id
-                            nlags = info_dict[link_id]['nlags']
-                            f.write(nlags + '\n')
-                            ret_flows = info_dict[link_id]['ret_flows']
-                            if len(ret_flows) > 0:
-                                f.write("  ".join(ret_flows)+"\n")
-                            self.user_control_list.append(start)
-            f.write("0\n") # no gui support for loss factors yet
+
+            bobjects = self.block_objects[item_id]
+            pitem, titem = bobjects
+            child = pitem.children[0]
+            link = self.link_objects[(item_id,child)]
+            link, label = link["link"], link["label"]
+            link_id = link.itemid
+            nlags = info_dict[link_id]['nlags']
+
+            f.write(nlags + '\n')
+            ret_flows = info_dict[link_id]['ret_flows']
+            if int(nlags) > 0:
+                f.write("  ".join(ret_flows)+"\n")
+            
+            loss_factor = info_dict[link_id]["loss_factor"]
+            if loss_factor == "":           
+                f.write("0\n")
+            else:
+                f.write(f"{loss_factor}\n")
 
 
 def write_jun_details(self, path, filename):
