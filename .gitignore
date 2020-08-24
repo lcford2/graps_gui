@@ -7,3 +7,4 @@ inflow_files/*
 graps_export/**/*
 graps_graphics/**/*
 graps_docs/new/*
+docs/node_modules_old
