@@ -6,4 +6,4 @@ model_runs/*
 inflow_files/*
 graps_export/**/*
 graps_graphics/**/*
-graps_docs/new/node_modules_old
+docs/node_modules_old
