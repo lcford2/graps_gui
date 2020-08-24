@@ -70,11 +70,14 @@ hr {
 
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
-  margin-bottom: 0.5rem; }
+  margin-bottom: 0.5rem; 
+  text-align: center;}
 
 p {
   margin-top: 0;
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem; 
+  text-align: center;
+  font-size: medium;}
 
 abbr[title],
 abbr[data-original-title] {
@@ -95,7 +98,8 @@ ol,
 ul,
 dl {
   margin-top: 0;
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem; 
+  vertical-align: middle;}
 
 ol ol,
 ul ul,
@@ -163,28 +167,52 @@ pre {
   overflow: auto; }
 
 figure {
-  margin: 0 0 1rem; }
+  border: 0px #cccccc solid;
+  padding: 4px;
+  margin: auto;}
+
+figcaption {
+  font-style: italic;
+  padding: 2px;
+  text-align: center;
+  font-size: small;
+}
 
 img {
-  vertical-align: middle;
-  border-style: none; }
+  display: block;
+  margin-left: auto;
+  margin-right: auto; }
+
+iframe {
+  display: block;
+  margin-left: auto;
+  margin-right: auto; 
+  margin-top: 10px;
+  margin-bottom: 10px;}
 
 svg {
   overflow: hidden;
   vertical-align: middle; }
 
-table {
-  border-collapse: collapse; }
+table, td {
+  border-collapse: collapse; 
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid black;}
 
 caption {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   color: #6c757d;
   text-align: left;
-  caption-side: bottom; }
+  caption-side: bottom; 
+  text-align: center;}
 
 th {
-  text-align: inherit; }
+  text-align: inherit; 
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid black;}
 
 label {
   display: inline-block;
@@ -353,7 +381,7 @@ hr {
   margin-top: 1rem;
   margin-bottom: 1rem;
   border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1); }
+  border-top: 2px solid rgba(0, 0, 0, 0.3); }
 
 small,
 .small {
@@ -410,11 +438,13 @@ mark,
 
 .figure-img {
   margin-bottom: 0.5rem;
-  line-height: 1; }
+  line-height: 1; 
+  align-self: center;}
 
 .figure-caption {
   font-size: 90%;
-  color: #6c757d; }
+  color: #6c757d; 
+  align-self: center;}
 
 code {
   font-size: 87.5%;
@@ -8043,7 +8073,8 @@ a.text-dark:hover, a.text-dark:focus {
     display: table-header-group; }
   tr,
   img {
-    page-break-inside: avoid; }
+    page-break-inside: avoid; 
+    align-self: center;}
   p,
   h2,
   h3 {
