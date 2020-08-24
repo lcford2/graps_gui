@@ -8655,7 +8655,7 @@ body {
     width: 100%;
     -webkit-transition: padding-left .3s ease;
     transition: padding-left .3s ease;
-    overflow-x: hidden; }
+    overflow-x: hidden;}
     .page-wrapper .page-content .overlay {
       position: fixed;
       top: 0;
