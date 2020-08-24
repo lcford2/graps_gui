@@ -896,7 +896,7 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.setupUi(self.dialog)
         self.dialog.resize(1400, 749)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
-        doc_file = os.path.join(os.getcwd(), "graps_docs", "new", "src", "doc.html")
+        doc_file = os.path.join(os.getcwd(), "docs", "index.html")
         self.dialog.ui.help_view.load(core.QUrl().fromLocalFile(doc_file))
         self.dialog.exec_()
         self.dialog = None
