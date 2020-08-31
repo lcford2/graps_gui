@@ -705,6 +705,8 @@ class MyMainScreen(widgets.QMainWindow):
         time_steps = self.gen_setup_dict['ntime_steps']
         num_restric = self.gen_setup_dict['nrestric']
 
+        self.dialog.ui.rule_curve_table_radio.setChecked(True)
+
         self.dialog.ui.target_rest_table.setRowCount(1)
         self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
         self.dialog.ui.rule_curve_table.setColumnCount(int(time_steps))
@@ -778,6 +780,9 @@ class MyMainScreen(widgets.QMainWindow):
             self.hydro_tab_show)
         self.dialog.setAttribute(core.Qt.WA_DeleteOnClose)
         item_dict = self.dialog_dict.get(key, None)
+
+        self.dialog.ui.table_radio.setChecked(True)
+
         # if an entry exists for this dialog, populate it
         if item_dict:
             dlg_populate.US(self, item_dict)
@@ -874,6 +879,8 @@ class MyMainScreen(widgets.QMainWindow):
             errormsg = "You must complete the general setup menu before editing interbasin transfers."
             self.open_error_dialog(f"Error: {errormsg}", "Error")
             return 
+
+        self.dialog.ui.table_radio.setChecked(True)
 
         time_steps = self.gen_setup_dict['ntime_steps']
 
@@ -1885,9 +1892,9 @@ class MyMainScreen(widgets.QMainWindow):
                 turbine_dict['max_discharge'] = max_discharge
                 turbine_dict['capacity'] = capacity
                 turbine_dict['efficiency'] = efficiency
-                turbine_dict['energy_coeff_1'] = energy_coeff_1
-                turbine_dict['energy_coeff_2'] = energy_coeff_2
-                turbine_dict['energy_rate'] = energy_rate
+                turbine_dict['energy_coeff_1'] = 1
+                turbine_dict['energy_coeff_2'] = 1
+                turbine_dict['energy_rate'] = 1
                 hydro.append(turbine_dict)
 
             elev_option = 0
