@@ -1532,20 +1532,19 @@ class MyMainScreen(widgets.QMainWindow):
                 lines = f.readlines()
                 lst = lines[0].strip("\r\n").split()
                 lst_len = len(lst)
-                if lst_len >= time_steps:
-                    lst = lst[:time_steps]
-                else:
-                    index = 1
-                    # i think this logic will continuously get the next row of values
-                    # until we have a value for everytime step or until there is no more 
-                    # data left.
-                    while lst_len < time_steps:
-                        try:
-                            lst.extend(lines[index].strip("\r\n").split())
-                        except IndexError as e:
-                            break
-                        index += 1
-                        lst_len = len(lst)
+                index = 1
+                # i think this logic will continuously get the next row of values
+                # until we have a value for everytime step or until there is no more 
+                # data left.
+                while lst_len < time_steps:
+                    try:
+                        lst.extend(lines[index].strip("\r\n").split())
+                    except IndexError as e:
+                        break
+                    index += 1
+                    lst_len = len(lst)
+                # cut the data to be the length required
+                lst = lst[:time_steps]
                 return lst
         except FileNotFoundError as e:
             return []
