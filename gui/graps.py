@@ -1508,10 +1508,23 @@ class MyMainScreen(widgets.QMainWindow):
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
 
     def read_space_delim_file(self, file):
+        time_steps = self.gen_setup_dict.get("ntime_steps")
         try:
             with open(file, 'r') as f:
                 lines = f.readlines()
                 lst = lines[0].strip("\r\n").split()
+                lst_len = len(lst)
+                index = 1
+                # i think this logic will continuously get the next row of values
+                # until we have a value for everytime step or until there is no more 
+                # data left.
+                while lst_len < time_steps:
+                    try:
+                        lst.extend(lines[index].strip("\r\n").split())
+                    except IndexError as e:
+                        break
+                    index += 1
+                    lst_len = len(lst)
                 return lst
         except FileNotFoundError as e:
             return []
