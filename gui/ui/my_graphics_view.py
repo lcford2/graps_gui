@@ -8,26 +8,28 @@ class GraphicsView(QtWidgets.QGraphicsView):
         self.parent = parent
 
     def wheelEvent(self, event):
-        super(GraphicsView, self).wheelEvent(event)
         if (event.type() == QtCore.QEvent.Wheel):
-            button = QtCore.Qt.RightButton
-            if button == 1:
+            if event.buttons() == QtCore.Qt.RightButton or event.modifiers() == QtCore.Qt.ControlModifier:
                 delta = event.angleDelta()
                 y = delta.y()
                 x = delta.x()
-                if y > 0:
-                    exp = 25
-                elif y < 0:
-                    exp = -25
-                else:
+                if y == 0:
                     exp = 0
+                else:
+                    exp = abs(y)/y * 25
                 factor = 1.41 ** (exp / 240.0)
                 self.scale(factor, factor)
+            else:
+                # this way we scroll if the right button is clicked or if
+                # the control button is not pressed
+                super(GraphicsView, self).wheelEvent(event)
 
     def keyPressEvent(self, event):
         super(GraphicsView, self).keyPressEvent(event)
         control_key = 0x01000021
         alt_key = 0x01000023
+        up_key = 0x01000013
+        down_key = 0x01000015
         if event.key() == control_key:
             self.setDragMode(GraphicsView.ScrollHandDrag)
         if event.key() == alt_key:

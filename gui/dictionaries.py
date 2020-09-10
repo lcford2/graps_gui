@@ -230,9 +230,10 @@ def US(self, info_dict):
             self.dialog.ui.hydro_table.setItem(num, 0, QTableWidgetItem(turbine_info['max_discharge']))
             self.dialog.ui.hydro_table.setItem(num, 1, QTableWidgetItem(turbine_info['capacity']))
             self.dialog.ui.hydro_table.setItem(num, 2, QTableWidgetItem(turbine_info['efficiency']))
-            self.dialog.ui.hydro_table.setItem(num, 3, QTableWidgetItem(turbine_info['energy_coeff_1']))
-            self.dialog.ui.hydro_table.setItem(num, 4, QTableWidgetItem(turbine_info['energy_coeff_2']))
-            self.dialog.ui.hydro_table.setItem(num, 5, QTableWidgetItem(turbine_info['energy_rate']))
+            # these are not activated right now
+            # self.dialog.ui.hydro_table.setItem(num, 3, QTableWidgetItem(turbine_info['energy_coeff_1']))
+            # self.dialog.ui.hydro_table.setItem(num, 4, QTableWidgetItem(turbine_info['energy_coeff_2']))
+            # self.dialog.ui.hydro_table.setItem(num, 5, QTableWidgetItem(turbine_info['energy_rate']))
             
 
     if 'elev_option' not in info_dict:

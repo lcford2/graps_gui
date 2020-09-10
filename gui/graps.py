@@ -109,6 +109,11 @@ class MyMainScreen(widgets.QMainWindow):
         self.ui.scene.setSceneRect(0, 0, 10000, 10000)
         # self.ui.view.setCursor(gui.QCursor("CrossCursor"))
 
+        self.ui.view.setTransformationAnchor(
+                widgets.QGraphicsView.AnchorUnderMouse)
+        self.ui.view.setResizeAnchor(
+            widgets.QGraphicsView.AnchorUnderMouse)
+
         # save indicator
         self.dirty = False
         self.save_file_name = ""
@@ -707,10 +712,10 @@ class MyMainScreen(widgets.QMainWindow):
             self.get_file_name)
         self.dialog.ui.select_evap_file.hide()
         self.dialog.ui.evap_file_edit.hide()
-        self.dialog.ui.evap_table.hide()
+        self.dialog.ui.evap_table.show()
         self.dialog.ui.curve_file_select.hide()
         self.dialog.ui.curve_file_edit.hide()
-        self.dialog.ui.rule_curve_table.hide()
+        self.dialog.ui.rule_curve_table.show()
         self.dialog.ui.evap_file_box.hide()
         self.dialog.ui.evap_box.hide()
         self.dialog.ui.rule_curve_box.hide()
@@ -724,6 +729,7 @@ class MyMainScreen(widgets.QMainWindow):
         num_restric = self.gen_setup_dict['nrestric']
 
         self.dialog.ui.rule_curve_table_radio.setChecked(True)
+        self.dialog.ui.evap_depth_table_radio.setChecked(True)
 
         self.dialog.ui.target_rest_table.setRowCount(1)
         self.dialog.ui.target_rest_table.setColumnCount(int(num_restric))
@@ -785,10 +791,10 @@ class MyMainScreen(widgets.QMainWindow):
         self.dialog.ui.elev_file_button.clicked.connect(
             self.get_file_name)
         self.dialog.ui.demand_file_box.hide()
-        self.dialog.ui.demand_table.hide()
+        self.dialog.ui.demand_table.show() # show demand table by default
         self.dialog.ui.elev_file_edit.hide()
         self.dialog.ui.elev_file_button.hide()
-        self.dialog.ui.hydro_elev_table.hide()
+        self.dialog.ui.hydro_elev_table.show() # show hydro elev table by default
         self.dialog.ui.demand_data_box.hide()
         self.dialog.ui.num_turbines_edit.textEdited.connect(
             self.table_set_row)
@@ -800,6 +806,9 @@ class MyMainScreen(widgets.QMainWindow):
         item_dict = self.dialog_dict.get(key, None)
 
         self.dialog.ui.table_radio.setChecked(True)
+        self.dialog.ui.table_radio_2.setChecked(True)
+
+        self.dialog.ui.hydro_table.setColumnCount(3)
 
         # if an entry exists for this dialog, populate it
         if item_dict:
@@ -891,7 +900,7 @@ class MyMainScreen(widgets.QMainWindow):
             self.get_file_name)
         self.dialog.ui.flow_file_edit.hide()
         self.dialog.ui.file_button.hide()
-        self.dialog.ui.ave_flows_table.hide()
+        self.dialog.ui.ave_flows_table.show()
         self.dialog.ui.ave_flow_box.hide()
         if not self.check_gen_setup():
             errormsg = "You must complete the general setup menu before editing interbasin transfers."
@@ -1095,9 +1104,12 @@ class MyMainScreen(widgets.QMainWindow):
 
     # delete items and labels associated with those items
     def keyPressEvent(self, QKeyEvent):
+        # keyboard identifiers from https://doc.qt.io/qt-5/qt.html#Key-enum
         delete_key = 0x01000007
         return_key = 0x01000004
         enter_key = 0x01000005
+        up_key = 0x01000013
+        down_key = 0x01000015
         if QKeyEvent.key() == delete_key:
             sel_items = self.ui.scene.selectedItems()
             if len(sel_items) == 0:
@@ -1140,6 +1152,14 @@ class MyMainScreen(widgets.QMainWindow):
 
         if QKeyEvent.key() == return_key or QKeyEvent.key() == enter_key:
             self.open_dialogs(enter=True)
+        
+        if QKeyEvent.key() == up_key:
+            sel_items = self.ui.scene.selectedItems()
+            if len(sel_items) != 1:
+                pass
+            else:
+                sel_item = sel_items[0]
+                II()
 
     def closeEvent(self, event):
         if self.dirty:
@@ -1379,20 +1399,6 @@ class MyMainScreen(widgets.QMainWindow):
         dialog.exec_()
         self.ui.scene.setSceneRect(rect)
         self.center_scene()
-
-    # Controls zoom on gui.QGraphicsScene
-    def wheelEvent(self, event: gui.QWheelEvent):
-        if event.modifiers() == core.Qt.ControlModifier:
-            delta = event.angleDelta()
-            y = delta.y()
-            x = delta.x()
-            exp = 25*abs(y)/y
-            factor = 1.41 ** (exp / 240.0)
-            self.ui.view.setTransformationAnchor(
-                widgets.QGraphicsView.AnchorUnderMouse)
-            self.ui.view.setResizeAnchor(
-                widgets.QGraphicsView.AnchorUnderMouse)
-            self.ui.view.scale(factor, factor)
 
 
     # controls what is visible in the general setup menu based on the user selection for the simulation type
@@ -1914,12 +1920,13 @@ class MyMainScreen(widgets.QMainWindow):
                 capacity = str(current_item.text())
                 current_item = self.dialog.ui.hydro_table.item(row, 2)
                 efficiency = str(current_item.text())
-                current_item = self.dialog.ui.hydro_table.item(row, 3)
-                energy_coeff_1 = str(current_item.text())
-                current_item = self.dialog.ui.hydro_table.item(row, 4)
-                energy_coeff_2 = str(current_item.text())
-                current_item = self.dialog.ui.hydro_table.item(row, 5)
-                energy_rate = str(current_item.text())
+                # dont want to read these
+                # current_item = self.dialog.ui.hydro_table.item(row, 3)
+                # energy_coeff_1 = str(current_item.text())
+                # current_item = self.dialog.ui.hydro_table.item(row, 4)
+                # energy_coeff_2 = str(current_item.text())
+                # current_item = self.dialog.ui.hydro_table.item(row, 5)
+                # energy_rate = str(current_item.text())
                 turbine_dict['max_discharge'] = max_discharge
                 turbine_dict['capacity'] = capacity
                 turbine_dict['efficiency'] = efficiency
