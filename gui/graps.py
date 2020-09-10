@@ -491,8 +491,26 @@ class MyMainScreen(widgets.QMainWindow):
             export_worker = Worker(self.write_export, save_folder)
             self.pool.start(export_worker)
 
+    def read_all_data_files(self):
+        # rule curves need to be added for "R" but
+        # it is not yet supported, so we will cross that 
+        # bridge when we get there. 
+        always_get = {"R":[("evap_option", "evap_info")],
+                      "U":[("demand_option", "demand"), ("elev_option", "turbine_elevs")],
+                      "I":[("flow_option", "average_flows")]}
+        for block_id in self.dialog_dict.keys():
+            value_dict = self.dialog_dict[block_id]
+            block_type = block_id[0]
+            get_keys = always_get.get(block_type, []) 
+            for getter, setter in get_keys:
+                option = value_dict[getter]
+                if option not in ("Table", "0"):
+                    new_values = self.read_space_delim_file(option)
+                    self.dialog_dict[block_id][setter] = new_values
+
     # exports files needed to run the fortran code
     def write_export(self, save_folder):
+        self.read_all_data_files()
         self.user_control_list = []
         self.num_of_items = {str(i): 0 for i in range(1, 14)}
         self.item_types = {str(i): [] for i in range(1, 14)}
@@ -1515,7 +1533,7 @@ class MyMainScreen(widgets.QMainWindow):
             "QTabBar::tab::disabled {width: 0; height:0; margin:0; padding:0; border: none;}")
 
     def read_space_delim_file(self, file):
-        time_steps = self.gen_setup_dict.get("ntime_steps")
+        time_steps = int(self.gen_setup_dict.get("ntime_steps"))
         try:
             with open(file, 'r') as f:
                 lines = f.readlines()
@@ -1532,6 +1550,8 @@ class MyMainScreen(widgets.QMainWindow):
                         break
                     index += 1
                     lst_len = len(lst)
+                # cut the data to be the length required
+                lst = lst[:time_steps]
                 return lst
         except FileNotFoundError as e:
             return []
@@ -1649,10 +1669,8 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['res_max_storage'] = res_max_storage
         reservoir_dict['res_current_storage'] = res_current_storage
         time_steps = int(self.gen_setup_dict['ntime_steps'])
-        evap_option = 0
-        if self.dialog.ui.evap_depth_table_radio.isChecked():
-            evap_option = 'Table'
-        elif self.dialog.ui.evap_depth_file_radio.isChecked():
+        evap_option = "Table"
+        if self.dialog.ui.evap_depth_file_radio.isChecked():
             evap_option = str(
                 self.dialog.ui.evap_file_edit.text())
       
@@ -1700,10 +1718,10 @@ class MyMainScreen(widgets.QMainWindow):
         reservoir_dict['storage_probability'] = storage_probability
 
         # Rule Curve Table in Op Info Tab
-        rule_curve_option = 0
-        if self.dialog.ui.rule_curve_table_radio.isChecked():
-            rule_curve_option = 'Table'
-        elif self.dialog.ui.rule_curve_file_radio.isChecked():
+        rule_curve_option = "Table"
+        # if self.dialog.ui.rule_curve_table_radio.isChecked():
+        #     rule_curve_option = 'Table'
+        if self.dialog.ui.rule_curve_file_radio.isChecked():
             rule_curve_option = str(
                 self.dialog.ui.curve_file_edit.text())
 
@@ -1833,10 +1851,10 @@ class MyMainScreen(widgets.QMainWindow):
         # Demand Fraction Tab
         # Need to determine # of time steps for demand fraction
         time_steps = self.gen_setup_dict['ntime_steps']
-        demand_option = 0
-        if self.dialog.ui.table_radio.isChecked():
-            demand_option = 'Table'
-        elif self.dialog.ui.file_radio.isChecked():
+        demand_option = "Table"
+        # if self.dialog.ui.table_radio.isChecked():
+        #     demand_option = 'Table'
+        if self.dialog.ui.file_radio.isChecked():
             demand_option = str(
                 self.dialog.ui.demand_file_edit.text())
 
@@ -1910,10 +1928,10 @@ class MyMainScreen(widgets.QMainWindow):
                 turbine_dict['energy_rate'] = 1
                 hydro.append(turbine_dict)
 
-            elev_option = 0
-            if self.dialog.ui.table_radio_2.isChecked():
-                elev_option = 'Table'
-            elif self.dialog.ui.file_radio_2.isChecked():
+            elev_option = "Table"
+            # if self.dialog.ui.table_radio_2.isChecked():
+            #     elev_option = 'Table'
+            if self.dialog.ui.file_radio_2.isChecked():
                 elev_option = str(
                     self.dialog.ui.elev_file_edit.text())
 
@@ -1954,10 +1972,10 @@ class MyMainScreen(widgets.QMainWindow):
             self.dialog.ui.interbasin_name_edit.text())
         drain_area = str(
             self.dialog.ui.drainage_area_edit.text())
-        flow_option = 0
-        if self.dialog.ui.table_radio.isChecked():
-            flow_option = 'Table'
-        elif self.dialog.ui.file_radio.isChecked():
+        flow_option = "Table"
+        # if self.dialog.ui.table_radio.isChecked():
+        #     flow_option = 'Table'
+        if self.dialog.ui.file_radio.isChecked():
             flow_option = str(
                 self.dialog.ui.flow_file_edit.text())
         column = 0
