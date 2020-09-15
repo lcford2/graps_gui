@@ -1543,22 +1543,22 @@ class MyMainScreen(widgets.QMainWindow):
         try:
             with open(file, 'r') as f:
                 lines = f.readlines()
-                lst = lines[0].strip("\r\n").split()
+            lst = lines[0].strip("\r\n").split()
+            lst_len = len(lst)
+            index = 1
+            # i think this logic will continuously get the next row of values
+            # until we have a value for everytime step or until there is no more 
+            # data left.
+            while lst_len < time_steps:
+                try:
+                    lst.extend(lines[index].strip("\r\n").split())
+                except IndexError as e:
+                    break
+                index += 1
                 lst_len = len(lst)
-                index = 1
-                # i think this logic will continuously get the next row of values
-                # until we have a value for everytime step or until there is no more 
-                # data left.
-                while lst_len < time_steps:
-                    try:
-                        lst.extend(lines[index].strip("\r\n").split())
-                    except IndexError as e:
-                        break
-                    index += 1
-                    lst_len = len(lst)
-                # cut the data to be the length required
-                lst = lst[:time_steps]
-                return lst
+            # cut the data to be the length required
+            lst = lst[:time_steps]
+            return lst
         except FileNotFoundError as e:
             return []
 
@@ -1748,6 +1748,8 @@ class MyMainScreen(widgets.QMainWindow):
             else:
                 try:
                     with open(rule_curve_option, 'r') as f:
+                        #! Noah, this will fail if they do not provide two lines worth of data.
+                        #! We want to catch this either with an if statement or with a try except statement
                         data = f.readlines()
                         lower_rule = data[0].split()
                         upper_rule = data[1].split()
