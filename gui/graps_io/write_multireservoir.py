@@ -384,12 +384,12 @@ def write_user_details(self, path, filename):
                 tail_elev = info_dict[item_id]['turbine_elevs']
                 
                 turb_dict = turbines[0]
-                max_disch = turb_dict['max_discharge']
-                cap = turb_dict['capacity']
-                eff = turb_dict['efficiency']
-                coef1 = turb_dict['energy_coeff_1']
-                coef2 = turb_dict['energy_coeff_2']
-                erate = turb_dict['energy_rate']
+                max_disch = str(turb_dict['max_discharge'])
+                cap = str(turb_dict['capacity'])
+                eff = str(turb_dict['efficiency'])
+                coef1 = str(turb_dict['energy_coeff_1'])
+                coef2 = str(turb_dict['energy_coeff_2'])
+                erate = str(turb_dict['energy_rate'])
                 f.write(
                     "  ".join([max_disch, cap, eff, coef1, coef2, erate]) + "\n")
                 tail_string = "  ".join(tail_elev) + "\n"
