@@ -1,6 +1,8 @@
 # GRAPS Interface
 Graphical user interface to interact with the [GRAPS Model](https://github.com/lcford2/GRAPS)
 
+[![DOI](https://zenodo.org/badge/262368976.svg)](https://zenodo.org/badge/latestdoi/262368976)
+
 Create python environment for running the GUI by using `conda env create -f environment.yml` from the command line.
 
 If you do not have `conda` installed, you can get the correct version for your machine [here](https://www.anaconda.com/products/individual).
